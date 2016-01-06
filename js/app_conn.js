@@ -76,12 +76,15 @@
       }
 
       chrome.runtime.sendMessage(appId, { action: 'status' }, function(response) {
-        if (!response) {
-          showJumbo();
-          reject();
-        } else {
-          resolve();
-        }
+        // setTimeout is required or you won't know where the problem is when an error is thrown
+        setTimeout(function() {
+          if (!response) {
+            showJumbo();
+            reject();
+          } else {
+            resolve();
+          }
+        }, 1);
       });
 
     });
@@ -92,17 +95,23 @@
       obj.appPort = chrome.runtime.connect(appId);
 
       obj.appPort.onMessage.addListener(function(msg) {
-        if (obj.handlers[msg.action]) {
-          obj.handlers[msg.action](msg.data);
-        } else {
-          console.warn('AppConnection: no such action handler');
-        }
+        // setTimeout is required or you won't know where the problem is when an error is thrown
+        setTimeout(function() {
+          if (obj.handlers[msg.action]) {
+              obj.handlers[msg.action](msg.data);
+          } else {
+            console.warn('AppConnection: no such action handler');
+          }
+        }, 1);
       });
 
       obj.appPort.onDisconnect.addListener(function(msg) {
-        if (obj.handlers['disconnect']) {
-          obj.handlers.disconnect();
-        }
+        // setTimeout is required or you won't know where the problem is when an error is thrown
+        setTimeout(function() {
+          if (obj.handlers['disconnect']) {
+              obj.handlers.disconnect();
+          }
+        }, 1);
       });
 
       obj.connected = true;

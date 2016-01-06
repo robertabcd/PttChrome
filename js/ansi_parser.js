@@ -29,13 +29,17 @@
             s = handleText(this, s, data[i]);
             break;
           case STATE_ESC:
-            s = handleESC(this, s, data[i]);
+            if (handleESC(this, data[i])) {
+              --i;
+            }
             break;
           case STATE_CSI:
             s = handleCSI(this, s, data[i]);
             break;
           case STATE_C1:
-            s = handleC1(this, s, data[i]);
+            if (handleC1(this, data[i])) {
+              --i;
+            }
             break;
         }
       }
@@ -64,15 +68,16 @@
     return s;
   }
 
-  function handleESC(p, s, ch) {
+  function handleESC(p, ch) {
+    var decrementI = false;
     if (ch == '[') {
       p.state = STATE_CSI;
     } else {
       p.state = STATE_C1;
-      --i;
+      decrementI = true;
     }
 
-    return s;
+    return decrementI;
   }
 
   function handleCSIm(params, attr) {
@@ -313,23 +318,24 @@
     return s;
   }
 
-  function handleC1(p, s, ch) {
+  function handleC1(p, ch) {
     var c1End = true;
     var c1Char = [' ', '#', '%', '(', ')', '*', '+', '-', '.', '/'];
     var buf = p.buf;
+    var decrementI = false;
 
     if (p.esc) { // multi-char is not supported now
       // c1End is false if p.esc is any of c1Char
       c1End = (c1Char.indexOf(p.esc) == -1);
       if (c1End) {
-        --i;
+        decrementI = true;
       } else {
         p.esc += ch;
       }
       //dump('UNKNOWN C1 CONTROL CHAR IS FOUND: ' + p.esc + '\n');
       p.esc = '';
       p.state = STATE_TEXT;
-      return s;
+      return decrementI;
     }
 
     switch (ch) {
@@ -367,13 +373,13 @@
     }
 
     if (!c1End) {
-      return s;
+      return;
     }
 
     p.esc = '';
     p.state = STATE_TEXT;
 
-    return s;
+    return;
   }
 
 })();
