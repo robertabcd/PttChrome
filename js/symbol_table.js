@@ -1,5 +1,5 @@
-lib.symbolTable = {};
-var a = lib.symbolTable;
+pttchrome.symbolTable = {};
+var a = pttchrome.symbolTable;
 a.xa1=1;
 a.xa0=1;
 a.xa1=1;

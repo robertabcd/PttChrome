@@ -1,4 +1,4 @@
-lib.b2uTable = {
+pttchrome.b2uTable = {
 x8140:'\u4E17',
 x8141:'\u4E22',
 x8142:'\u4E2C',

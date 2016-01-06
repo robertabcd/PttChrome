@@ -558,30 +558,30 @@ PttChromePref.prototype = {
     this.values[prefName] = value;
   },
 
-  onStorageDone: function(msg) {
-    if (msg.data && msg.data.values) {
+  onStorageDone: function(data) {
+    if (data && data.values) {
       // iterate through default prefs to make sure all up to date
       for (var i in DEFAULT_PREFS) {
-        if (!(i in msg.data.values) || msg.data.values[i] === null) {
+        if (!(i in data.values) || data.values[i] === null) {
           this.values[i] = DEFAULT_PREFS[i];
           if (i === 'quickSearchList') {
             this.quickSearches = JSON.parse(this.values[i]);
           }
         } else {
           if (i === 'blacklistedUserIds') {
-            this.blacklistedUserIds = JSON.parse(msg.data.values[i]);
+            this.blacklistedUserIds = JSON.parse(data.values[i]);
           } else if (i === 'quickSearchList') {
-            var val = msg.data.values[i];
+            var val = data.values[i];
             this.quickSearches = JSON.parse(val);
             this.values[i] = val;
           } else {
-            this.values[i] = msg.data.values[i];
+            this.values[i] = data.values[i];
           }
         }
       }
     }
-    if (msg.data && msg.data.logins) {
-      var data = msg.data.logins;
+    if (data && data.logins) {
+      var data = data.logins;
       this.logins = [data.u, data.p];
     }
     this.updateToApp();
@@ -595,7 +595,7 @@ PttChromePref.prototype = {
   },
 
   getStorage: function(key) {
-    if (this.app.appConn.isConnected) {
+    if (this.app.appConn.connected) {
       this.app.appConn.appPort.postMessage({ action: 'storage', type: 'get', defaults: {
         values: DEFAULT_PREFS,
         logins: {'u':'', 'p':''}
@@ -614,7 +614,7 @@ PttChromePref.prototype = {
   },
 
   setBlacklistStorage: function() {
-    if (this.app.appConn.isConnected) {
+    if (this.app.appConn.connected) {
       var items = { 
         values: {
           blacklistedUserIds: this.values.blacklistedUserIds
@@ -625,13 +625,13 @@ PttChromePref.prototype = {
   },
 
   setStorage: function(items) {
-    if (this.app.appConn.isConnected) {
+    if (this.app.appConn.connected) {
       this.app.appConn.appPort.postMessage({ action: 'storage', type: 'set', data: items });
     }
   },
 
   clearStorage: function() {
-    if (this.app.appConn.isConnected) {
+    if (this.app.appConn.connected) {
       this.app.appConn.appPort.postMessage({ action: 'storage', type: 'clear' });
     }
   }

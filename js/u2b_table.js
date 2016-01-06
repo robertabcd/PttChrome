@@ -1,4 +1,4 @@
-lib.u2bTable = {
+pttchrome.u2bTable = {
 x00A1:'\xA0\xDF',
 x00A2:'\xA2\x46',
 x00A3:'\xA2\x47',

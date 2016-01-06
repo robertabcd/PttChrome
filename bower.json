@@ -1,0 +1,13 @@
+{
+  "name": "PttChrome",
+  "version": "0.0.0",
+  "authors": [
+    "Chuck Yang <yangchuck@gmail.com>"
+  ],
+  "moduleType": [
+    "globals"
+  ],
+  "dependencies": {
+    "bootstrap-sass": "bootstrap-sass-official#~3.3.5"
+  }
+}

@@ -1,0 +1,111 @@
+@import "bootstrap";
+
+@font-face {
+  font-family: SymMingLiu;
+  src: url('../fonts/symmingliu.woff');
+}
+@font-face {
+  font-family: DFHeiLightB5;
+  src: url('../fonts/DFHeiLightB5.woff');
+}
+
+body {
+  color: white;
+  //background-color: #101010;
+  background-color: black;
+  margin: 0px;
+  overflow:hidden;
+}
+
+span [link="true"] {
+  margin: 0px; 
+  background-image: inherit; 
+  background-repeat: inherit; 
+  background-position: inherit;
+}
+
+span {
+  margin: 0px;
+}
+
+#welcome-jumbo {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  display: none;
+  overflow-y: auto;
+  cursor: default;
+
+  background-image: -webkit-radial-gradient(center center, circle cover, #352e24, #1a160d);
+  background-image: -ms-radial-gradient(center center, circle cover, #352e24, #1a160d);
+  background-image: -moz-radial-gradient(center center, circle cover, #352e24, #1a160d);
+  background-image: radial-gradient(center center, circle cover, #352e24, #1a160d);
+}
+
+#welcome-banner {
+  position: relative;
+  margin-top: 50px;
+  left: 50%;
+  margin-left: -397px;
+  width: 810px;
+  height: 650px;
+
+  font-family: "微軟正黑體", "Microsoft JhengHei", Tahoma , Verdana , Arial , sans-serif;
+}
+
+#welcome-banner h1 {
+  font-weight: 900;
+  font-size: 120px;
+  margin-top: 70px;
+  margin-right: 50px;
+  float: left;
+}
+
+#welcome-banner-ptt {
+  display: inline-block;
+  float: left;
+  font-size: 90px;
+  font-weight: 900;
+  margin-top: -30px;
+}
+#welcome-banner-chrome {
+  display: inline-block;
+  float: left;
+  font-size: 90px;
+  width: 350px;
+  margin-top: -30px;
+  margin-left: -55px;
+  -webkit-transform: scaleX(0.67);
+  -ms-transform: scaleX(0.67);
+  -moz-transform: scaleX(0.67);
+  transform: scaleX(0.67);
+}
+
+#big-logo {
+  width: 384px;
+  height: 384px;
+  float: left;
+  background-image: url('../../icon_512.png');
+  background-size: cover;
+}
+
+#get-app-btn {
+  width: 360px;
+  font-weight: 900;
+  margin-top: -5px;
+}
+
+#already-installed-hint-container {
+  margin-top:100px; 
+  font-size:20px;
+}
+#already-installed-hint1 {
+  margin-bottom: 5px;
+  font-size: 30px;
+}
+#already-installed-hint3 {
+  margin: 10px 0;
+}
+
+@import "old";
+@import "color";

@@ -77,8 +77,8 @@ String.prototype.u2b = function() {
     }
     var charCodeStr = this.charCodeAt(i).toString(16).toUpperCase();
     charCodeStr = 'x' + ('000' + charCodeStr).substr(-4);
-    if (lib.u2bTable[charCodeStr])
-      data += lib.u2bTable[charCodeStr];
+    if (pttchrome.u2bTable[charCodeStr])
+      data += pttchrome.u2bTable[charCodeStr];
     else // Not a big5 char
       data += '\xFF\xFD';
   }
@@ -95,8 +95,8 @@ String.prototype.b2u = function() {
 
       var b5index = 'x' + this.charCodeAt(i).toString(16).toUpperCase() + 
                           this.charCodeAt(i+1).toString(16).toUpperCase();
-      if (lib.b2uTable[b5index]) {
-        str += lib.b2uTable[b5index];
+      if (pttchrome.b2uTable[b5index]) {
+        str += pttchrome.b2uTable[b5index];
         ++i;
       } else { // Not a big5 char
         str += this.charAt(i);

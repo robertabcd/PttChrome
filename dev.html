@@ -1,60 +1,53 @@
 <!DOCTYPE html>
 <html>
   <head>
-	<title>PttChrome</title>
-	  <link rel="icon" type="image/png" href="icon/logo.png" />
-
+    <title>PttChrome</title>
+    <link rel="icon" type="image/png" href="icon/logo.png">
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/main.css" />
-    <link rel="stylesheet" type="text/css" href="css/color.css" />
-
+    <meta charset="UTF-8">
     <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/hhnlfapopmaimdlldbknjdgekpgffmbo">
-    
-    <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
-    <script type="text/javascript" src="js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="js/paramikojs_ssh.min.js"></script>
-    <script type="text/javascript" src="js/hammer.min.js"></script>
-
-    <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
-    <script type="text/javascript" src="https://apis.google.com/js/client.js"></script>
-
-    <script type="text/javascript" src="js/pttchrome.js"></script>
-    <script type="text/javascript" src="js/touch_controller.js"></script>
-    <script type="text/javascript" src="js/google_drive.js"></script>
-    <script type="text/javascript" src="js/app_conn.js"></script>
-    <script type="text/javascript" src="js/predefined_config.js"></script>
-    <script type="text/javascript" src="js/pref.js"></script>
-    <script type="text/javascript" src="js/emoticon.js"></script>
-    <script type="text/javascript" src="js/symbols.js"></script>
-    <script type="text/javascript" src="js/input_helper.js"></script>
-    <script type="text/javascript" src="js/ssh.js"></script>
-    <script type="text/javascript" src="js/telnet.js"></script>
-    <script type="text/javascript" src="js/b2u_table.js"></script>
-    <script type="text/javascript" src="js/u2b_table.js"></script>
-    <script type="text/javascript" src="js/term_buf.js"></script>
-    <script type="text/javascript" src="js/term_view.js"></script>
-    <script type="text/javascript" src="js/ansi_parser.js"></script>
-    <script type="text/javascript" src="js/symbol_table.js"></script>
-    <script type="text/javascript" src="js/string_util.js"></script>
-    <script type="text/javascript" src="js/i18n.js"></script>
-    <script type="text/javascript" src="js/en_US_messages.js"></script>
-    <script type="text/javascript" src="js/zh_TW_messages.js"></script>
-    <script type="text/javascript" src="js/main.js"></script>
+    <link rel="stylesheet" href="build/css/app.css" type="text/css">
+    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/paramikojs_ssh.min.js"></script>
+    <script src="js/hammer.min.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://apis.google.com/js/client.js"></script>
+    <script src="js/pttchrome.js"></script>
+    <script src="js/constants.js"></script>
+    <script src="js/touch_controller.js"></script>
+    <script src="js/google_drive.js"></script>
+    <script src="js/app_conn.js"></script>
+    <script src="js/predefined_config.js"></script>
+    <script src="js/pref.js"></script>
+    <script src="js/emoticon.js"></script>
+    <script src="js/symbols.js"></script>
+    <script src="js/input_helper.js"></script>
+    <script src="js/ssh.js"></script>
+    <script src="js/telnet.js"></script>
+    <script src="js/b2u_table.js"></script>
+    <script src="js/u2b_table.js"></script>
+    <!--script(src='js/term_char.js')-->
+    <script src="js/term_buf.js"></script>
+    <script src="js/term_view.js"></script>
+    <script src="js/ansi_parser.js"></script>
+    <script src="js/symbol_table.js"></script>
+    <script src="js/string_util.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/en_US_messages.js"></script>
+    <script src="js/zh_TW_messages.js"></script>
+    <script src="js/main.js"></script>
   </head>
-
   <body>
-  <div id="fb-root"></div>
-  <script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.0";
-  fjs.parentNode.insertBefore(js, fjs);
-  }(document, 'script', 'facebook-jssdk'));
-  </script>
-    <ul id="contextMenus" class="dropdown-menu" role="menu" style="display:none">
+    <div id="BBSWindow" style="display:none">
+      <input id="t" type="text" autocomplete="off" style="box-sizing:content-box; color:initial; border: none; width: 200px; height: 24px; position:absolute; left:-10000px; top:0px; z-index:2;resize: none; font-family:inherit !important;" autofocus="">
+      <div id="cursor" class="terminal_display">_</div>
+    </div>
+    <div id="hideobj" style="display: none;"><span id="cmdHandler"></span>
+      <select id="TrackKeyWordList"></select>
+    </div>
+    <div id="flashcontent" style="width:1px; height:1px; left:-10000px; top:-10000px;position: absolute;overflow: hidden;"></div>
+    <ul id="contextMenus" role="menu" style="display:none" class="dropdown-menu">
       <li id="cmenu_copy" class="cmenuItem contextSel"><a></a></li>
       <li id="cmenu_copyAnsi" class="cmenuItem contextSel"><a></a></li>
       <li id="cmenu_paste" class="cmenuItem contextNormal"><a></a></li>
@@ -63,8 +56,7 @@
       <li id="cmenu_copyLinkUrl" class="cmenuItem contextUrl"><a></a></li>
       <li id="cmenu_divider1" class="divider"></li>
       <li id="cmenu_quickSearch" class="cmenuItem contextQuickSearch"><a></a>
-        <ul id="quickSearchMenus" class="dropdown-menu" role="menu">
-        </ul>
+        <ul id="quickSearchMenus" role="menu" class="dropdown-menu"></ul>
       </li>
       <li id="cmenu_divider2" class="divider contextQuickSearch"></li>
       <li id="cmenu_selectAll" class="cmenuItem contextNormal"><a></a></li>
@@ -77,86 +69,57 @@
       <li id="cmenu_divider3" class="divider contextNormal"></li>
       <li id="cmenu_settings" class="cmenuItem"><a></a></li>
     </ul>
-
-    <div id="BBSWindow" style="display:none">
-      <input id="t" type="text" autocomplete="off" style="box-sizing:content-box; color:initial; border: none; width: 200px; height: 24px; position:absolute; left:-10000px; top:0px; z-index:2;resize: none; font-family:inherit !important;" autofocus/>
-      <div id="cursor" class="terminal_display">_</div>
-    </div> <!--BBSWindow end-->
-    <div id="hideobj" style="display: none;">
-      <span id="cmdHandler"></span>
-      <select id="TrackKeyWordList">
-      </select>
-    </div>
-    <div id="flashcontent" style="width:1px; height:1px; left:-10000px; top:-10000px;position: absolute;overflow: hidden;"></div>
-
-    <div id="siteModal" class="modal fade" style="color:black;overflow-y:auto">
+    <div id="siteModal" style="color:black;overflow-y:auto" class="modal fade">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-body">
-            <input type="text" class="form-control" ></input>
+            <input type="text" class="form-control">
           </div>
         </div>
       </div>
     </div>
-
-    <!--Preferences Modal-->
-    <div id="prefModal" class="modal fade" style="color:black;overflow-y:auto;z-index:2;">
+    <!-- Preferences Modal-->
+    <div id="prefModal" style="color:black;overflow-y:auto;z-index:2;" class="modal fade">
       <div class="modal-dialog">
         <div class="modal-content">
           <div id="modalNav">
             <h3 id="opt_title">Settings</h3>
-
-            <!-- Nav tabs -->
-            <ul class="nav nav-pills nav-stacked" id="opt_tabs">
+            <!-- Nav tabs-->
+            <ul id="opt_tabs" class="nav nav-pills nav-stacked">
               <li><a id="optNav_general" href="#tabContentGeneral" name="general" data-toggle="pill">General</a></li>
               <li><a id="optNav_autologin" href="#tabContentAutologin" name="autologin" data-toggle="pill">Auto login</a></li>
               <li><a id="optNav_blacklist" href="#tabContentBlacklist" name="blacklist" data-toggle="pill">Blacklist</a></li>
               <li><a id="optNav_extensions" href="#tabContentExtensions" name="extensions" data-toggle="pill">Extensions</a></li>
               <li><a id="optNav_about" href="#tabContentAbout" name="about" data-toggle="pill">About</a></li>
             </ul>
-
             <button id="opt_reset" type="button" class="btn btn-default"></button>
           </div>
           <h3 id="modalHeader">General</h3>
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <button type="button" data-dismiss="modal" aria-hidden="true" class="close">&#215;</button>
           <div class="modal-body">
-
-            <!-- Tab panes -->
+            <!-- Tab panes-->
             <div class="tab-content">
-
-              <div class="tab-pane" id="tabContentGeneral">
+              <div id="tabContentGeneral" class="tab-pane">
                 <div class="group">
                   <div class="list-group">
                     <div class="list-group-item-text">
-                      <div id="opt_openInPackagedApp" class="checkbox">
-                      </div>
-                      <div id="opt_closeQuery" class="checkbox">
-                      </div>
-                      <div id="opt_enablePicPreview" class="checkbox">
-                      </div>
-                      <div id="opt_enableNotifications" class="checkbox">
-                      </div>
-                      <div id="opt_enableEasyReading" class="checkbox">
-                      </div>
-                      <div id="opt_endTurnsOnLiveUpdate" class="checkbox">
-                      </div>
-                      <div id="opt_copyOnSelect" class="checkbox">
-                      </div>
-                      <div id="opt_antiIdleTime" class="form-group">
-                      </div>
-                      <div id="opt_lineWrap" class="form-group">
-                      </div>
+                      <div id="opt_openInPackagedApp" class="checkbox"></div>
+                      <div id="opt_closeQuery" class="checkbox"></div>
+                      <div id="opt_enablePicPreview" class="checkbox"></div>
+                      <div id="opt_enableNotifications" class="checkbox"></div>
+                      <div id="opt_enableEasyReading" class="checkbox"></div>
+                      <div id="opt_endTurnsOnLiveUpdate" class="checkbox"></div>
+                      <div id="opt_copyOnSelect" class="checkbox"></div>
+                      <div id="opt_antiIdleTime" class="form-group"></div>
+                      <div id="opt_lineWrap" class="form-group"></div>
                     </div>
                   </div>
                   <div class="list-group">
                     <h4 id="opt_appearance" class="list-group-item-heading"></h4>
                     <div class="list-group-item-text">
-                      <div id="opt_fontFitWindowWidth" class="checkbox">
-                      </div>
-                      <div id="opt_fontFace" class="form-group">
-                      </div>
-                      <div id="opt_bbsMargin" class="form-group">
-                      </div>
+                      <div id="opt_fontFitWindowWidth" class="checkbox"></div>
+                      <div id="opt_fontFace" class="form-group"></div>
+                      <div id="opt_bbsMargin" class="form-group"></div>
                     </div>
                   </div>
                 </div>
@@ -164,102 +127,69 @@
                   <div class="list-group">
                     <h4 id="opt_mouseBrowsing" class="list-group-item-heading"></h4>
                     <div class="list-group-item-text">
-                      <div id="opt_useMouseBrowsing" class="checkbox">
-                      </div>
-                      <div id="opt_mouseBrowsingHighlight" class="checkbox">
-                      </div>
-                      <div id="opt_mouseBrowsingHighlightColor">
-                      </div>
-                      <div id="opt_mouseLeftFunction" class="form-group">
-                      </div>
-                      <div id="opt_mouseMiddleFunction" class="form-group">
-                      </div>
-                      <div id="opt_mouseWheelFunction1" class="form-group">
-                      </div>
-                      <div id="opt_mouseWheelFunction2" class="form-group">
-                      </div>
-                      <div id="opt_mouseWheelFunction3" class="form-group">
-                      </div>
+                      <div id="opt_useMouseBrowsing" class="checkbox"></div>
+                      <div id="opt_mouseBrowsingHighlight" class="checkbox"></div>
+                      <div id="opt_mouseBrowsingHighlightColor"></div>
+                      <div id="opt_mouseLeftFunction" class="form-group"></div>
+                      <div id="opt_mouseMiddleFunction" class="form-group"></div>
+                      <div id="opt_mouseWheelFunction1" class="form-group"></div>
+                      <div id="opt_mouseWheelFunction2" class="form-group"></div>
+                      <div id="opt_mouseWheelFunction3" class="form-group"></div>
                     </div>
                   </div>
                 </div>
               </div>
-
-              <div class="tab-pane" id="tabContentAutologin">
-                <div class="group">
-                  <small id="opt_autologinWarning" style="color:red;"></small>
+              <div id="tabContentAutologin" class="tab-pane">
+                <div class="group"><small id="opt_autologinWarning" style="color:red;"></small>
                   <div class="list-group">
-                    <h4 id="opt_autologin" class="list-group-item-heading" style="margin-bottom:10px;"></h4>
+                    <h4 id="opt_autologin" style="margin-bottom:10px;" class="list-group-item-heading"></h4>
                     <div class="list-group-item-text">
                       <div id="login_username" class="form-group"></div>
                       <div id="login_password" class="form-group"></div>
                     </div>
-                    <div id="opt_enableDeleteDupLogin" class="checkbox">
-                    </div>
-                    <div class="btn-group" data-toggle="buttons" style="margin-left:20px;">
+                    <div id="opt_enableDeleteDupLogin" class="checkbox"></div>
+                    <div data-toggle="buttons" style="margin-left:20px;" class="btn-group">
                       <label class="btn btn-default">
-                        <input type="radio" name="options" id="opt_deleteDupLoginYes"> Y
+                        <input id="opt_deleteDupLoginYes" type="radio" name="options">Y
                       </label>
                       <label class="btn btn-default active">
-                        <input type="radio" name="options" id="opt_deleteDupLoginNo" checked> N
+                        <input id="opt_deleteDupLoginNo" type="radio" name="options" checked="">N
                       </label>
                     </div>
                   </div>
                 </div>
               </div>
-
-              <div class="tab-pane" id="tabContentBlacklist">
-                <div id="opt_enableBlacklist" class="checkbox">
-                </div>
-
-                <div id="blacklist_driveSync" style="margin-bottom:10px">
-                  <span id="blacklist_driveSyncTitle" style="margin-right:5px">Use Google Drive:</span>
-                  <a id="blacklist_driveAuthorize" style="margin-top:-3px" class="btn btn-default">Authorize PttChrome</a>
-                  <a id="blacklist_driveLoad" style="margin-top:-3px" class="btn btn-default">Load</a>
-                  <div class="btn-group" style="margin-top:-3px">
-                    <button id="blacklist_driveSave" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
+              <div id="tabContentBlacklist" class="tab-pane">
+                <div id="opt_enableBlacklist" class="checkbox"></div>
+                <div id="blacklist_driveSync" style="margin-bottom:10px"><span id="blacklist_driveSyncTitle" style="margin-right:5px">Use Google Drive:</span><a id="blacklist_driveAuthorize" style="margin-top:-3px" class="btn btn-default">Authorize PttChrome</a><a id="blacklist_driveLoad" style="margin-top:-3px" class="btn btn-default">Load</a>
+                  <div style="margin-top:-3px" class="btn-group">
+                    <button id="blacklist_driveSave" type="button" data-toggle="dropdown" class="btn btn-default dropdown-toggle"></button>
+                    <ul role="menu" class="dropdown-menu">
                       <li><a id="blacklist_driveSaveNew" style="padding:3px 20px; cursor:pointer;">New Document</a></li>
                       <li><a id="blacklist_driveSaveExisting" style="padding:3px 20px; cursor:pointer;">Existing Document</a></li>
                     </ul>
-                  </div>
-                  <span id="blacklist_driveDone" style="margin-left:5px; display:none;">Done!</span>
-                  <span id="blacklist_driveLoading" style="margin-left:5px; display:none;">Loading ...</span>
-                </div>
-
-                <span id="opt_blacklistInstruction"></span>
-                <!-- blacklist item start -->
+                  </div><span id="blacklist_driveDone" style="margin-left:5px; display:none;">Done!</span><span id="blacklist_driveLoading" style="margin-left:5px; display:none;">Loading ...</span>
+                </div><span id="opt_blacklistInstruction"></span>
+                <!-- blacklist item start-->
                 <textarea id="opt_blacklistedUsers" class="form-control"></textarea>
-                <!-- blacklist item end -->
+                <!-- blacklist item end-->
               </div>
-
-              <div class="tab-pane" id="tabContentExtensions">
+              <div id="tabContentExtensions" class="tab-pane">
                 <div class="group">
                   <div class="list-group">
                     <h4 id="ext_quickSearch" class="list-group-item-heading"></h4>
-                    <div class="list-group-item-text" style="margin-top:15px;">
-                      <ul id="ext_quickSearchList" class="form-group" style="padding:0px">
-                      </ul>
+                    <div style="margin-top:15px;" class="list-group-item-text">
+                      <ul id="ext_quickSearchList" style="padding:0px" class="form-group"></ul>
                     </div>
                   </div>
                 </div>
               </div>
-
-              <div class="tab-pane" id="tabContentAbout">
+              <div id="tabContentAbout" class="tab-pane">
                 <div class="list-group">
-                  <h4 class="list-group-item-heading">PttChrome <small>by <a href="mailto:yangchuck@gmail.com" target="_blank" rel="noreferrer">Chuck Yang</a></small></h4>
-                  <a href='https://github.com/iamchucky/PttChrome' target="_blank" rel="noreferrer">https://github.com/iamchucky/PttChrome</a>
-                  <div class="list-group-item-text" style="margin-top:10px;">
-                    <a id="about_review" href="https://chrome.google.com/webstore/detail/pttchrome/hhnlfapopmaimdlldbknjdgekpgffmbo/reviews" target="_blank" rel="noreferrer" class="btn btn-default"></a>
-                    <a id="about_feedback" href="mailto:pttchrome.feedback@gmail.com" target="_blank" rel="noreferrer" class="btn btn-default"></a>
-                    <a id="about_fbpage" href="https://www.facebook.com/pttchrome" target="_blank" rel="noreferrer" class="btn btn-default"></a>
-                  </div>
+                  <h4 class="list-group-item-heading">PttChrome<small>by<a href="mailto:yangchuck@gmail.com" target="_blank" rel="noreferrer">Chuck Yang</a></small></h4><a href="https://github.com/iamchucky/PttChrome" target="_blank" rel="noreferrer">https://github.com/iamchucky/PttChrome</a>
+                  <div style="margin-top:10px;" class="list-group-item-text"><a id="about_review" href="https://chrome.google.com/webstore/detail/pttchrome/hhnlfapopmaimdlldbknjdgekpgffmbo/reviews" target="_blank" rel="noreferrer" class="btn btn-default"></a><a id="about_feedback" href="mailto:pttchrome.feedback@gmail.com" target="_blank" rel="noreferrer" class="btn btn-default"></a><a id="about_fbpage" href="https://www.facebook.com/pttchrome" target="_blank" rel="noreferrer" class="btn btn-default"></a></div>
                 </div>
-                <div class="list-group">
-                  <span id="about_promote" style="color:red;"></span>
-                  <a href="https://chrome.google.com/webstore/detail/web2pttchrome/pjemnpgdmnlkkcpaddlnlegmdfpohnep" target="_blank" rel="noreferrer">Web2PttChrome</a>
-                </div>
+                <div class="list-group"><span id="about_promote" style="color:red;"></span><a href="https://chrome.google.com/webstore/detail/web2pttchrome/pjemnpgdmnlkkcpaddlnlegmdfpohnep" target="_blank" rel="noreferrer">Web2PttChrome</a></div>
                 <div class="list-group">
                   <h4 id="about_version_title" class="list-group-item-heading"></h4>
                   <div class="list-group-item-text">
@@ -269,120 +199,89 @@
                 <div class="list-group">
                   <h4 id="about_new_title" class="list-group-item-heading"></h4>
                   <div class="list-group-item-text">
-                    <ul id="about_new">
-                    </ul>
+                    <ul id="about_new"></ul>
                   </div>
                 </div>
               </div>
-
             </div>
-
           </div>
         </div>
       </div>
     </div>
     <div id="connectionAlert" class="alert alert-danger alert-dismissable fade in">
-      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      <button type="button" data-dismiss="alert" aria-hidden="true" class="close">&#215;</button>
       <h4 id="connectionAlertHeader"></h4>
       <p id="connectionAlertText"></p>
       <p>
-        <button id="connectionAlertReconnect" type"button" class="btn btn-danger"></button>
-        <span id="connectionAlertPortOption1" style="margin-left:5px;">or</span>
-        <span id="connectionAlertPortOption2" style="cursor:pointer;margin-left:5px;text-decoration:underline;"> Try with port 443 </span>
+        <button id="connectionAlertReconnect" class="btn btn-danger"></button><span id="connectionAlertPortOption1" style="margin-left:5px;">or</span><span id="connectionAlertPortOption2" style="cursor:pointer;margin-left:5px;text-decoration:underline;"> Try with port 443 </span>
       </p>
     </div>
     <div id="welcomeJumbo" style="cursor:default;">
       <div id="welcomeBanner">
         <div id="bigLogo"></div>
-        <h1>踢踢控</h1>
-        <br/>
-        <h2 id="welcomeBannerPtt">Ptt</h2><h2 id="welcomeBannerChrome">Chrome</h2>
-        <br/>
+        <h1>&#36386;&#36386;&#25511;</h1><br>
+        <h2 id="welcomeBannerPtt">Ptt</h2>
+        <h2 id="welcomeBannerChrome">Chrome</h2><br>
         <div id="getAppBtn" class="btn btn-default btn-lg">Get from Chrome Web Store</div>
         <div id="alreadyInstalledHintContainer" style="margin-top:100px; font-size:20px;">
           <div id="alreadyInstalledHint1" style="margin-bottom:5px; font-size:30px;">Already have PttChrome installed?</div>
-          <div id="alreadyInstalledHint2">To launch PttChrome, please set Google Chrome as your default browser and launch from the "批" icon</div>
+          <div id="alreadyInstalledHint2">To launch PttChrome, please set Google Chrome as your default browser and launch from the "&#25209;" icon</div>
           <div id="alreadyInstalledHint3" style="margin:10px 0;">OR</div>
           <div id="alreadyInstalledHint4">Add http://iamchucky.github.io/PttChrome/ to Chrome bookmarks and launch PttChrome from the bookmark</div>
         </div>
       </div>
-    </div>
-    <img id="picPreview" src='' style='max-height:80%; max-width:90%'></img>
-    <i id="picLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate" style="display:none; position:absolute; z-index:2"></i>
-
+    </div><img id="picPreview" src="" style="max-height:80%; max-width:90%"><i id="picLoading" style="display:none; position:absolute; z-index:2" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></i>
     <div id="liveHelper" class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-body nomouse_command" style="height:60px;">
-          <button id="liveHelperClose" type="button" class="close nomouse_command"><span>&times;</span></button>
-          <button type="button" class="btn btn-default nomouse_command" style="float:left;margin-top:-6px" data-toggle="button" id="liveHelperEnable">Enable</button>
-          <span id="liveHelperSpan" class="nomouse_command" style="margin-left:5px;margin-right:5px;float:left;">pushthread auto-update every</span>
-          <input id="liveHelperSec" type="number" style="float:left;margin-top:-6px;width:70px;" class="form-control nomouse_command" value="1"></input>
-          <span id="liveHelperSpanSec" class="nomouse_command" style="margin-left:5px;float:left;">sec</span>
+        <div style="height:60px;" class="modal-body nomouse_command">
+          <button id="liveHelperClose" type="button" class="close nomouse_command"><span>&#215;</span></button>
+          <button id="liveHelperEnable" type="button" style="float:left;margin-top:-6px" data-toggle="button" class="btn btn-default nomouse_command">Enable</button><span id="liveHelperSpan" style="margin-left:5px;margin-right:5px;float:left;" class="nomouse_command">pushthread auto-update every</span>
+          <input id="liveHelperSec" type="number" style="float:left;margin-top:-6px;width:70px;" value="1" class="form-control nomouse_command"><span id="liveHelperSpanSec" style="margin-left:5px;float:left;" class="nomouse_command">sec</span>
         </div>
       </div>
     </div>
-
     <div id="inputHelper" class="modal-dialog">
       <div class="modal-content">
-
         <div class="modal-header">
-          <button id="inputHelperClose" type="button" class="close"><span>&times;</span></button>
+          <button id="inputHelperClose" type="button" class="close"><span>&#215;</span></button>
           <h4 class="modal-title">Modal title</h4>
         </div>
-
         <div class="modal-body">
-          <ul id="inputHelperTabTitle" class="nav nav-pills nav-justified" role="tablist">
-            <li class="active" id="colorsTabTitle">
-              <a href="#colorHelperTab" role="tab" data-toggle="tab"></a>
+          <ul id="inputHelperTabTitle" role="tablist" class="nav nav-pills nav-justified">
+            <li id="colorsTabTitle" class="active"><a href="#colorHelperTab" role="tab" data-toggle="tab"></a></li>
+            <li id="symbolsTabTitle" class="dropdown"><a data-toggle="dropdown" class="dropdown-toggle"></a>
+              <ul role="menu" class="dropdown-menu"></ul>
             </li>
-
-            <li class="dropdown" id="symbolsTabTitle">
-              <a class="dropdown-toggle" data-toggle="dropdown">
-              </a>
-              <ul class="dropdown-menu" role="menu">
-              </ul>
+            <li id="emoticonsTabTitle" class="dropdown"><a data-toggle="dropdown" class="dropdown-toggle"></a>
+              <ul role="menu" class="dropdown-menu"></ul>
             </li>
-
-            <li class="dropdown" id="emoticonsTabTitle">
-              <a class="dropdown-toggle" data-toggle="dropdown">
-              </a>
-              <ul class="dropdown-menu" role="menu">
-              </ul>
-            </li>
-
           </ul>
-
           <div id="inputHelperTabContent" class="tab-content">
-            <div id="colorHelperTab" class="tab-pane active" style="height:166px;">
+            <div id="colorHelperTab" style="height:166px;" class="tab-pane active">
               <ul id="colorHelperList">
                 <li style="background-color:black" value="0"></li>
-                <li class="b1" value="1"></li>
-                <li class="b2" value="2"></li>
-                <li class="b3" value="3"></li>
-                <li class="b4" value="4"></li>
-                <li class="b5" value="5"></li>
-                <li class="b6" value="6"></li>
-                <li class="b7" value="7"></li>
-                <li class="b8" value="8"></li>
-                <li class="b9" value="9"></li>
-                <li class="b10" value="10"></li>
-                <li class="b11" value="11"></li>
-                <li class="b12" value="12"></li>
-                <li class="b13" value="13"></li>
-                <li class="b14" value="14"></li>
-                <li class="b15" value="15"></li>
+                <li value="1" class="b1"></li>
+                <li value="2" class="b2"></li>
+                <li value="3" class="b3"></li>
+                <li value="4" class="b4"></li>
+                <li value="5" class="b5"></li>
+                <li value="6" class="b6"></li>
+                <li value="7" class="b7"></li>
+                <li value="8" class="b8"></li>
+                <li value="9" class="b9"></li>
+                <li value="10" class="b10"></li>
+                <li value="11" class="b11"></li>
+                <li value="12" class="b12"></li>
+                <li value="13" class="b13"></li>
+                <li value="14" class="b14"></li>
+                <li value="15" class="b15"></li>
               </ul>
-              <div align="center" style="color:#c0c0c0; background-color:black; height:38px; margin-bottom:10px; padding-top:8px;">
-                <span id="colorHelperPreview" class="q7 b0">▅ PREVIEW ▅</span>
-              </div>
-              <div id="colorHelperBlink" class="checkbox">
-              </div>
-              <div class="btn-group dropdown" style="float:right">
+              <div align="center" style="color:#c0c0c0; background-color:black; height:38px; margin-bottom:10px; padding-top:8px;"><span id="colorHelperPreview" class="q7 b0">&#9605; PREVIEW &#9605;</span></div>
+              <div id="colorHelperBlink" class="checkbox"></div>
+              <div style="float:right" class="btn-group dropdown">
                 <button id="colorHelperSend" type="button" class="btn btn-default">Send</button>
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                  <span class="caret"></span>
-                </button>
-                <ul id="colorHelperSendMenu" class="dropdown-menu" role="menu">
+                <button type="button" data-toggle="dropdown" class="btn btn-default dropdown-toggle"><span class="caret"></span></button>
+                <ul id="colorHelperSendMenu" role="menu" class="dropdown-menu">
                   <li><a id="colorHelperSendMenuFore" type="foreground">Send foreground only</a></li>
                   <li><a id="colorHelperSendMenuBack" type="background">Send background only</a></li>
                   <li class="divider"></li>
@@ -391,11 +290,35 @@
               </div>
             </div>
           </div>
-
-
         </div>
-
-      </div> <!-- /.modal-content -->
-    </div> <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal-content-->
+    </div>
+    <!-- /.modal-dialog-->
+    <div id="fb-root"></div>
+    <script>
+      (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.0";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+    </script>
+    <div id="welcome-jumbo">
+      <div id="welcome-banner">
+        <div id="big-logo"></div>
+        <h1>踢踢控</h1><br>
+        <h2 id="welcome-banner-ptt">Ptt</h2>
+        <h2 id="welcome-banner-chrome">Chrome</h2><br>
+        <div id="get-app-btn" class="btn btn-default btn-lg">Get from Chrome Web Store</div>
+        <div id="already-installed-hint-container">
+          <div id="already-installed-hint1">Already have PttChrome installed?</div>
+          <div id="already-installed-hint2">Please set Google Chrome as your default browser and launch PttChrome from "批" app icon</div>
+          <div id="already-installed-hint3">OR</div>
+          <div id="already-installed-hint4">Add http://iamchucky.github.io/PttChrome/ to Chrome bookmarks and launch PttChrome from the bookmark</div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

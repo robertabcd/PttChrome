@@ -1,0 +1,26 @@
+doctype html
+html
+  head
+    title PttChrome
+    
+    link(rel='icon', type='image/png', href='icon/logo.png')
+    meta(
+      name='viewport', 
+      content='user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1'
+    )
+    meta(charset='UTF-8')
+
+    link(
+      rel='chrome-webstore-item',
+      href='https://chrome.google.com/webstore/detail/hhnlfapopmaimdlldbknjdgekpgffmbo'
+    )
+
+    link(rel='stylesheet', href='build/css/app.css', type='text/css')
+
+  body
+    include ./includes/fb.jade
+    include ./includes/welcome.jade
+
+    #root
+  
+  script(src='/static/bundle.js')

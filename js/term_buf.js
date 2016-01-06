@@ -161,10 +161,10 @@ TermHtml.prototype = {
   }
 };
 
-function TermBuf(cols, rows) {
+function TermBuf(app, cols, rows) {
   this.cols = cols;
   this.rows = rows;
-  this.view = null;
+  this.view = app.view;
   this.cur_x = 0;
   this.cur_y = 0;
   this.cur_x_sav = -1;
@@ -236,7 +236,7 @@ TermBuf.prototype = {
     this.view = view;
   },
 
-  puts: function(str) {
+  puts: function(str, attr) {
     if (!str)
       return;
     if (this.view && this.view.conn && this.view.charset == 'UTF-8')
@@ -286,7 +286,7 @@ TermBuf.prototype = {
       default:
         var ch2 = line[this.cur_x];
         ch2.ch=ch;
-        ch2.copyAttr(this.attr);
+        ch2.copyAttr(attr);
         ch2.needUpdate=true;
         ++this.cur_x;
         if (ch2.isLeadByte) // previous state before this function
@@ -294,7 +294,7 @@ TermBuf.prototype = {
         if (this.view.charset == 'UTF-8' && this.isFullWidth(ch) && this.cur_x < cols) {
           ch2 = line[this.cur_x];
           ch2.ch = '';
-          ch2.copyAttr(this.attr);
+          ch2.copyAttr(attr);
           ch2.needUpdate = true;
           ++this.cur_x;
           // assume server will handle mouse moving on full-width char

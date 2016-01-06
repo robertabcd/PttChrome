@@ -1,146 +1,147 @@
-if (typeof lib != 'undefined')
-  throw new Error('Global "lib" object already exists.');
+'use strict';
 
-var lib = {};
+(function() {
 
-lib.AppConnection = function(spec) {
-  // Callback functions.
-  this.callbacks = {
-    connect: spec.onConnect,        // Called when socket is connected.
-    disconnect: spec.onDisconnect,  // Called when socket is disconnected.
-    recv: spec.onReceive,           // Called when client receives data from server.
-    sent: spec.onSent,               // Called when client sends data to server.
-    paste: spec.onPasteDone,
-    storage: spec.onStorageDone,
-    font: spec.onSymFont
+  var appId = 'hhnlfapopmaimdlldbknjdgekpgffmbo';
+
+  pttchrome.AppConnection = function() {
+    this.appPort = null;
+    this.connected = false;
+    this.handlers = {};
   };
 
-  this.isConnected = false;
-  this.appId = 'hhnlfapopmaimdlldbknjdgekpgffmbo';
-  this.appPort = null;
-};
+  pttchrome.AppConnection.prototype = {
 
-lib.AppConnection.prototype.checkChromeApp = function(callback) {
-  var appId = this.appId;
-  var self = this;
-  if (!chrome.runtime) {
-    self.showJumbo();
-    return;
-  }
-  chrome.runtime.sendMessage(appId, { action: 'status' }, function(response) {
-    if (!response) {
-      self.showJumbo();
-    } else {
-      callback();
-    }
-  });
-};
+    setHandler: function(handlers) {
+      this.handlers = Object.assign({}, this.handlers, handlers);
+    },
 
-lib.AppConnection.prototype.showJumbo = function() {
-  var self = this;
-  $('#getAppBtn').off();
-  $('#getAppBtn').click(function() {
-    if (typeof(chrome) == 'undefined') {
-      window.open('https://chrome.google.com/webstore/detail/pttchrome/'+self.appId, '_self');
-      return;
-    }
-    // turn it on when it works
-    chrome.webstore.install(undefined, function() {
-      // successfully installed
-      location.reload();
-    });
-    //window.open('https://chrome.google.com/webstore/detail/pttchrome/'+self.appId, '_self');
-  });
-  console.log('app is not running or installed');
-  $('#getAppBtn').text(i18n('getAppBtn'));
-  for (var i = 1; i < 5; ++i) {
-    $('#alreadyInstalledHint'+i).text(i18n('alreadyInstalledHint'+i));
-  }
-  $('#welcomeJumbo').show();
-};
+    connect: function() {
+      var self = this;
+      return checkChromeApp().then(function() {
+        return onValidChromeApp(self);
+      });
+    },
 
-lib.AppConnection.prototype.connect = function(callback) {
-  var self = this;
-  this.checkChromeApp(function() {
-    //var tabid = document.getElementById('cmdHandler').getAttribute('mapcode');
-    //_this.so.connect(_this.host, _this.port, tabid);
-    self.appPort = chrome.runtime.connect(self.appId);
-    self.appPort.onMessage.addListener(function(msg) {
-      switch(msg.action) {
-        case "connected":
-          self.callbacks.connect();
-          break;
-        case "onReceive":
-          self.callbacks.recv(msg.data);
-          break;
-        case "disconnected":
-          self.callbacks.disconnect();
-          break;
-        case "onPasteDone":
-          self.callbacks.paste(msg.data);
-          break;
-        case "onStorageDone":
-          self.callbacks.storage(msg);
-          break;
-        case "onSymFont":
-          self.callbacks.font(msg);
-          break;
-        default:
-          break;
+    connectTcp: function(host, port, keepAlive) {
+      if (!this.connected) {
+        return;
       }
-    });
-    
-    self.appPort.onDisconnect.addListener(function(msg) {
-      self.callbacks.disconnect();
-    });
-    self.isConnected = true;
-    
-    callback();
-  });
-};
 
-lib.AppConnection.prototype.connectTcp = function(host, port, keepAlive) {
-  if (!this.isConnected) {
-    return;
-  }
-  this.appPort.postMessage({
-    action: "connect",
-    host: host,
-    port: port,
-    keepAlive: keepAlive
-  });
-};
+      this.appPort.postMessage({
+        action: 'connect',
+        host: host,
+        port: port,
+        keepAlive: keepAlive
+      });
+    },
 
-lib.AppConnection.prototype.sendTcp = function(str) {
-  if (this.appPort === null) {
-    return;
-  }
-  if (!this.isConnected) {
-    return;
-  }
+    sendTcp: function(str) {
+      if (this.appPort === null || !this.connected) {
+        return;
+      }
 
-  // because ptt seems to reponse back slowly after large
-  // chunk of text is pasted, so better to split it up.
-  var chunk = 1000;
-  for (var i = 0; i < str.length; i += chunk) {
-    var chunkStr = str.substring(i, i+chunk);
-    this.appPort.postMessage({
-      action: 'send',
-      data: chunkStr
-    });
-  }
-};
+      // because ptt seems to reponse back slowly after large
+      // chunk of text is pasted, so better to split it up.
+      var chunk = 1000;
+      for (var i = 0; i < str.length; i += chunk) {
+        var chunkStr = str.substring(i, i+chunk);
+        this.appPort.postMessage({
+          action: 'send',
+          data: chunkStr
+        });
+      }
+    },
 
-lib.AppConnection.prototype.disconnect = function() {
-  if (!this.isConnected) {
-    return;
-  }
-  if (this.appPort) {
-    try {
-      this.appPort.postMessage({ action: 'disconnect' });
-    } catch (e) {
+    disconnect: function() {
+      if (!this.connected) {
+        return;
+      }
+      if (this.appPort) {
+        try {
+          this.appPort.postMessage({ action: 'disconnect' });
+        } catch (e) {
+        }
+      }
+      this.connected = false;
     }
-  }
-  this.isConnected = false;
-};
+  };
 
+  function checkChromeApp() {
+    return new Promise(function(resolve, reject) {
+      
+      if (!chrome.runtime) {
+        showJumbo();
+        return reject('no chrome.runtime');
+      }
+
+      chrome.runtime.sendMessage(appId, { action: 'status' }, function(response) {
+        if (!response) {
+          showJumbo();
+          reject();
+        } else {
+          resolve();
+        }
+      });
+
+    });
+  }
+
+  function onValidChromeApp(obj) {
+    return new Promise(function(resolve, reject) {
+      obj.appPort = chrome.runtime.connect(appId);
+
+      obj.appPort.onMessage.addListener(function(msg) {
+        if (obj.handlers[msg.action]) {
+          obj.handlers[msg.action](msg.data);
+        } else {
+          console.warn('AppConnection: no such action handler');
+        }
+      });
+
+      obj.appPort.onDisconnect.addListener(function(msg) {
+        if (obj.handlers['disconnect']) {
+          obj.handlers.disconnect();
+        }
+      });
+
+      obj.connected = true;
+
+      resolve();
+    });
+  }
+
+  function showJumbo() {
+    console.log('app is not running or installed');
+    document.getElementById('welcome-jumbo').style.display = 'block';
+  }
+
+
+  // setup the warning message and inform to click button to install app
+  var getAppBtn = document.getElementById('get-app-btn');
+  if (getAppBtn) {
+    getAppBtn.addEventListener('click', function() {
+      if (typeof(chrome) == 'undefined') {
+        window.open('https://chrome.google.com/webstore/detail/pttchrome/'+appId, '_self');
+        return;
+      }
+      // turn it on when it works
+      chrome.webstore.install(undefined, function() {
+        // successfully installed
+        location.reload();
+      });
+      //window.open('https://chrome.google.com/webstore/detail/pttchrome/'+self.appId, '_self');
+    });
+
+  }
+
+  document.addEventListener('DOMContentReady', function() {
+    if (getAppBtn) {
+      getAppBtn.textContent = i18n('getAppBtn');
+    }
+    for (var i = 1; i < 5; ++i) {
+      document.getElementById('already-installed-hint'+i).textContent = i18n('alreadyInstalledHint'+i);
+    }
+  });
+
+})();

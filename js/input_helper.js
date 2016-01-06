@@ -1,4 +1,4 @@
-function InputHelper(app) {
+pttchrome.InputHelper = function(app) {
   this.app = app;
   this.node = document.getElementById('inputHelper');
   this.nodeOffsetTop = 20;
@@ -20,7 +20,7 @@ function InputHelper(app) {
   this.registerHandlers();
 }
 
-InputHelper.prototype.setupUi = function() {
+pttchrome.InputHelper.prototype.setupUi = function() {
   var self = this;
   var modalTitle = document.querySelector('#inputHelper .modal-title');
   modalTitle.textContent = i18n('inputHelperTitle');
@@ -37,18 +37,18 @@ InputHelper.prototype.setupUi = function() {
   $('#colorHelperSendMenuBack').text(i18n('colorHelperSendMenuBack'));
   $('#colorHelperSendMenuReset').text(i18n('colorHelperSendMenuReset'));
 
-  this.symbols = new lib.Symbols(this.app);
-  this.emoticons = new lib.Emoticons(this.app);
+  this.symbols = new pttchrome.Symbols(this.app);
+  this.emoticons = new pttchrome.Emoticons(this.app);
 };
 
-InputHelper.prototype.onMouseDrag = function(e) {
+pttchrome.InputHelper.prototype.onMouseDrag = function(e) {
   window.getSelection().removeAllRanges();
   this.nodeOffsetTop += e.webkitMovementY;
   this.nodeOffsetLeft += e.webkitMovementX;
   this.node.style.cssText += 'top:'+this.nodeOffsetTop+'px;left:'+this.nodeOffsetLeft+'px;';
 };
 
-InputHelper.prototype.registerHandlers = function() {
+pttchrome.InputHelper.prototype.registerHandlers = function() {
   var self = this;
   var colorHelperList = document.getElementById('colorHelperList');
   var tooltipHtml = '<div>'+i18n('colorHelperTooltip1')+'</div><div>'+i18n('colorHelperTooltip2')+'</div>';
@@ -133,7 +133,7 @@ InputHelper.prototype.registerHandlers = function() {
   this.emoticons.registerHandlers();
 };
 
-InputHelper.prototype.sendColorCommand = function(type) {
+pttchrome.InputHelper.prototype.sendColorCommand = function(type) {
   if (type == 'reset') {
     this.app.conn.send('\x15[m');
     return;
@@ -192,10 +192,10 @@ InputHelper.prototype.sendColorCommand = function(type) {
   this.app.conn.send(cmd);
 };
 
-InputHelper.prototype.showHelper = function() {
+pttchrome.InputHelper.prototype.showHelper = function() {
   this.node.style.display = 'block';
 };
 
-InputHelper.prototype.hideHelper = function() {
+pttchrome.InputHelper.prototype.hideHelper = function() {
   this.node.style.display = 'none';
 };

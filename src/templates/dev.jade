@@ -1,0 +1,62 @@
+doctype html
+html
+  head
+    title PttChrome
+    
+    link(rel='icon', type='image/png', href='icon/logo.png')
+    meta(
+      name='viewport', 
+      content='user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1'
+    )
+    meta(charset='UTF-8')
+
+    link(
+      rel='chrome-webstore-item',
+      href='https://chrome.google.com/webstore/detail/hhnlfapopmaimdlldbknjdgekpgffmbo'
+    )
+
+    link(rel='stylesheet', href='build/css/app.css', type='text/css')
+
+    script(src='js/jquery-2.1.1.min.js')
+    script(src='js/bootstrap.min.js')
+    script(src='js/paramikojs_ssh.min.js')
+    script(src='js/hammer.min.js')
+
+    script(src='https://apis.google.com/js/api.js')
+    script(src='https://apis.google.com/js/client.js')
+
+    script(src='js/pttchrome.js')
+    script(src='js/constants.js')
+    script(src='js/touch_controller.js')
+    script(src='js/google_drive.js')
+    script(src='js/app_conn.js')
+    script(src='js/predefined_config.js')
+    script(src='js/pref.js')
+    script(src='js/emoticon.js')
+    script(src='js/symbols.js')
+    script(src='js/input_helper.js')
+    script(src='js/ssh.js')
+    script(src='js/telnet.js')
+    script(src='js/b2u_table.js')
+    script(src='js/u2b_table.js')
+    //script(src='js/term_char.js')
+    script(src='js/term_buf.js')
+    script(src='js/term_view.js')
+    script(src='js/ansi_parser.js')
+    script(src='js/symbol_table.js')
+    script(src='js/string_util.js')
+    script(src='js/i18n.js')
+    script(src='js/en_US_messages.js')
+    script(src='js/zh_TW_messages.js')
+    script(src='js/main.js')
+  
+  body
+    #BBSWindow(style='display:none')
+      input#t(type='text', autocomplete='off', style='box-sizing:content-box; color:initial; border: none; width: 200px; height: 24px; position:absolute; left:-10000px; top:0px; z-index:2;resize: none; font-family:inherit !important;', autofocus='')
+      #cursor.terminal_display _
+
+    include ./includes/old.jade
+
+    include ./includes/fb.jade
+    include ./includes/welcome.jade
+

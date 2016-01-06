@@ -49,8 +49,8 @@ pttchrome.App = function(onInitializedCallback, options) {
   }
   this.conn.keepAlive = options.keepAlive;
 
-  this.view = new TermView(24);
-  this.buf = new TermBuf(80, 24);
+  this.view = new TermView(this, 24);
+  this.buf = new TermBuf(this, 80, 24);
   this.buf.setView(this.view);
   //this.buf.severNotifyStr=this.getLM('messageNotify');
   //this.buf.PTTZSTR1=this.getLM('PTTZArea1');
@@ -58,7 +58,7 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.view.setBuf(this.buf);
   this.view.setConn(this.conn);
   this.view.setCore(this);
-  this.parser = new lib.AnsiParser(this.buf);
+  this.parser = new pttchrome.AnsiParser(this.buf);
 
   //new pref - start
   this.antiIdleStr = '\x1b\x1b';
@@ -86,7 +86,7 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.alertBeforeUnload = false;
   this.modalShown = false;
 
-  this.inputHelper = new InputHelper(this);
+  this.inputHelper = new pttchrome.InputHelper(this);
 
   this.navigateTo = { board: getQueryVariable('board'), aid: getQueryVariable('aid') };
   this.navigationDone = false;
@@ -173,7 +173,7 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.isFromApp = (options.from === 'app');
   window.addEventListener('message', function(e) {
     var msg = e.data;
-    if (self.isFromApp && msg.action === 'newwindow' && self.appConn && self.appConn.isConnected) {
+    if (self.isFromApp && msg.action === 'newwindow' && self.appConn && self.appConn.connected) {
       self.appConn.appPort.postMessage({ action: 'newWindow', data: msg.data });
     } else if (msg.action == 'navigate') {
       self.navigationDone = false;
@@ -211,16 +211,18 @@ pttchrome.App = function(onInitializedCallback, options) {
 
 pttchrome.App.prototype.setupAppConnection = function(callback) {
   var self = this;
-  this.appConn = new lib.AppConnection({
-    onConnect: self.onConnect.bind(self),
-    onDisconnect: self.onClose.bind(self),
+  this.appConn = new pttchrome.AppConnection();
+  this.appConn.setHandler({
+    connected: self.onConnect.bind(self),
+    disconnected: self.onClose.bind(self),
     onReceive: self.conn.onDataAvailable.bind(self.conn),
     onSent: null,
     onPasteDone: self.onPasteDone.bind(self),
     onStorageDone: self.pref.onStorageDone.bind(self.pref),
     onSymFont: self.onSymFont.bind(self)
   });
-  this.appConn.connect(callback);
+  this.appConn.connect()
+    .then(callback);
 };
 
 pttchrome.App.prototype.connect = function(url) {
@@ -235,7 +237,7 @@ pttchrome.App.prototype.connect = function(url) {
   this.connectedUrl.site = url;
   this.connectedUrl.port = port;
 
-  if (!this.appConn.isConnected) {
+  if (!this.appConn.connected) {
     this.setupAppConnection(function() {
       dumpLog(DUMP_TYPE_LOG, "connect to " + url);
       self.conn.connect(url, port);
@@ -453,7 +455,7 @@ pttchrome.App.prototype.setupOtherSiteInput = function() {
   $('#siteModal input').keyup(function(e) {
     if (e.keyCode == 13) {
       var url = $(this).val();
-      if (self.appConn && self.appConn.isConnected) {
+      if (self.appConn && self.appConn.connected) {
         self.appConn.disconnect();
         self.onClose();
       }
@@ -487,7 +489,7 @@ pttchrome.App.prototype.doCopy = function(str) {
   
   // Doing copy by having the launch.js read message
   // and then copy onto clipboard
-  if (this.appConn.isConnected) {
+  if (this.appConn.connected) {
     port.postMessage({ action: 'copy', data: str });
   }
 };
@@ -532,7 +534,7 @@ pttchrome.App.prototype.doPaste = function() {
   
   // Doing paste by having the launch.js read the clipboard data
   // and then send the content on the onPasteDone
-  if (this.appConn.isConnected) {
+  if (this.appConn.connected) {
     port.postMessage({ action: 'paste' });
   }
 };

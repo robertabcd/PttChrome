@@ -1,6 +1,6 @@
 // Terminal View
 
-function TermView(rowCount) {
+function TermView(app, rowCount) {
   //new pref - start
   this.screenType = 0;
   this.bbsWidth = 0;
@@ -36,7 +36,8 @@ function TermView(rowCount) {
   this.cursorShow = true;
 
   this.buf = null;
-  this.bbscore = null;
+  this.bbscore = app;
+  this.conn = app.conn;
   this.page = null;
 
   // Cursor
@@ -69,7 +70,7 @@ function TermView(rowCount) {
 
   this.selection = null;
   this.input = document.getElementById('t');
-  this.symtable = lib.symbolTable;
+  this.symtable = pttchrome.symbolTable;
   this.bbsCursor = document.getElementById('cursor');
   this.trackKeyWordList = document.getElementById('TrackKeyWordList');
   this.BBSWin = document.getElementById('BBSWindow');

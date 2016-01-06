@@ -1,0 +1,253 @@
+#hideobj(style="display: none;")
+  span#cmdHandler
+  select#TrackKeyWordList
+#flashcontent(style="width:1px; height:1px; left:-10000px; top:-10000px;position: absolute;overflow: hidden;")
+
+ul#contextMenus.dropdown-menu(role='menu', style='display:none')
+  li#cmenu_copy.cmenuItem.contextSel
+    a
+  li#cmenu_copyAnsi.cmenuItem.contextSel
+    a
+  li#cmenu_paste.cmenuItem.contextNormal
+    a
+  li#cmenu_searchGoogle.cmenuItem.contextSel
+    a
+  li#cmenu_openUrlNewTab.cmenuItem.contextUrl
+    a
+  li#cmenu_copyLinkUrl.cmenuItem.contextUrl
+    a
+  li#cmenu_divider1.divider
+  li#cmenu_quickSearch.cmenuItem.contextQuickSearch
+    a
+    ul#quickSearchMenus.dropdown-menu(role='menu')
+  li#cmenu_divider2.divider.contextQuickSearch
+  li#cmenu_selectAll.cmenuItem.contextNormal
+    a
+  li#cmenu_mouseBrowsing.cmenuItem.contextNormal
+    a
+  li#cmenu_goToOtherSite.cmenuItem.contextNormal
+    a
+  li#cmenu_showInputHelper.cmenuItem.contextNormal
+    a
+  li#cmenu_showLiveArticleHelper.cmenuItem.contextNormal
+    a
+  li#cmenu_addBlacklistUserId.cmenuItem
+    a
+  li#cmenu_removeBlacklistUserId.cmenuItem
+    a
+  li#cmenu_divider3.divider.contextNormal
+  li#cmenu_settings.cmenuItem
+    a
+
+#siteModal.modal.fade(style="color:black;overflow-y:auto")
+  .modal-dialog
+    .modal-content
+      .modal-body
+        input.form-control(type="text")
+// Preferences Modal
+#prefModal.modal.fade(style="color:black;overflow-y:auto;z-index:2;")
+  .modal-dialog
+    .modal-content
+      #modalNav
+        h3#opt_title Settings
+        // Nav tabs
+        ul#opt_tabs.nav.nav-pills.nav-stacked
+          li
+            a#optNav_general(href="#tabContentGeneral", name="general", data-toggle="pill") General
+          li
+            a#optNav_autologin(href="#tabContentAutologin", name="autologin", data-toggle="pill") Auto login
+          li
+            a#optNav_blacklist(href="#tabContentBlacklist", name="blacklist", data-toggle="pill") Blacklist
+          li
+            a#optNav_extensions(href="#tabContentExtensions", name="extensions", data-toggle="pill") Extensions
+          li
+            a#optNav_about(href="#tabContentAbout", name="about", data-toggle="pill") About
+        button#opt_reset.btn.btn-default(type="button")
+      h3#modalHeader General
+      button.close(type="button", data-dismiss="modal", aria-hidden="true") &#215;
+      .modal-body
+        // Tab panes
+        .tab-content
+          #tabContentGeneral.tab-pane
+            .group
+              .list-group
+                .list-group-item-text
+                  #opt_openInPackagedApp.checkbox
+                  #opt_closeQuery.checkbox
+                  #opt_enablePicPreview.checkbox
+                  #opt_enableNotifications.checkbox
+                  #opt_enableEasyReading.checkbox
+                  #opt_endTurnsOnLiveUpdate.checkbox
+                  #opt_copyOnSelect.checkbox
+                  #opt_antiIdleTime.form-group
+                  #opt_lineWrap.form-group
+              .list-group
+                h4#opt_appearance.list-group-item-heading
+                .list-group-item-text
+                  #opt_fontFitWindowWidth.checkbox
+                  #opt_fontFace.form-group
+                  #opt_bbsMargin.form-group
+            .group
+              .list-group
+                h4#opt_mouseBrowsing.list-group-item-heading
+                .list-group-item-text
+                  #opt_useMouseBrowsing.checkbox
+                  #opt_mouseBrowsingHighlight.checkbox
+                  #opt_mouseBrowsingHighlightColor
+                  #opt_mouseLeftFunction.form-group
+                  #opt_mouseMiddleFunction.form-group
+                  #opt_mouseWheelFunction1.form-group
+                  #opt_mouseWheelFunction2.form-group
+                  #opt_mouseWheelFunction3.form-group
+          #tabContentAutologin.tab-pane
+            .group
+              small#opt_autologinWarning(style="color:red;")
+              .list-group
+                h4#opt_autologin.list-group-item-heading(style="margin-bottom:10px;")
+                .list-group-item-text
+                  #login_username.form-group
+                  #login_password.form-group
+                #opt_enableDeleteDupLogin.checkbox
+                .btn-group(data-toggle="buttons", style="margin-left:20px;")
+                  label.btn.btn-default
+                    input#opt_deleteDupLoginYes(type="radio", name="options")
+                    | Y
+                  label.btn.btn-default.active
+                    input#opt_deleteDupLoginNo(type="radio", name="options", checked="")
+                    | N
+          #tabContentBlacklist.tab-pane
+            #opt_enableBlacklist.checkbox
+            #blacklist_driveSync(style="margin-bottom:10px")
+              span#blacklist_driveSyncTitle(style="margin-right:5px") Use Google Drive:
+              a#blacklist_driveAuthorize.btn.btn-default(style="margin-top:-3px") Authorize PttChrome
+              a#blacklist_driveLoad.btn.btn-default(style="margin-top:-3px") Load
+              .btn-group(style="margin-top:-3px")
+                button#blacklist_driveSave.btn.btn-default.dropdown-toggle(type="button", data-toggle="dropdown")
+                ul.dropdown-menu(role="menu")
+                  li
+                    a#blacklist_driveSaveNew(style="padding:3px 20px; cursor:pointer;") New Document
+                  li
+                    a#blacklist_driveSaveExisting(style="padding:3px 20px; cursor:pointer;") Existing Document
+              span#blacklist_driveDone(style="margin-left:5px; display:none;") Done!
+              span#blacklist_driveLoading(style="margin-left:5px; display:none;") Loading ...
+            span#opt_blacklistInstruction
+            // blacklist item start
+            textarea#opt_blacklistedUsers.form-control
+            // blacklist item end
+          #tabContentExtensions.tab-pane
+            .group
+              .list-group
+                h4#ext_quickSearch.list-group-item-heading
+                .list-group-item-text(style="margin-top:15px;")
+                  ul#ext_quickSearchList.form-group(style="padding:0px")
+          #tabContentAbout.tab-pane
+            .list-group
+              h4.list-group-item-heading
+                | PttChrome
+                small
+                  | by
+                  a(href="mailto:yangchuck@gmail.com", target="_blank", rel="noreferrer") Chuck Yang
+              a(href="https://github.com/iamchucky/PttChrome", target="_blank", rel="noreferrer") https://github.com/iamchucky/PttChrome
+              .list-group-item-text(style="margin-top:10px;")
+                a#about_review.btn.btn-default(href="https://chrome.google.com/webstore/detail/pttchrome/hhnlfapopmaimdlldbknjdgekpgffmbo/reviews", target="_blank", rel="noreferrer")
+                a#about_feedback.btn.btn-default(href="mailto:pttchrome.feedback@gmail.com", target="_blank", rel="noreferrer")
+                a#about_fbpage.btn.btn-default(href="https://www.facebook.com/pttchrome", target="_blank", rel="noreferrer")
+            .list-group
+              span#about_promote(style="color:red;")
+              a(href="https://chrome.google.com/webstore/detail/web2pttchrome/pjemnpgdmnlkkcpaddlnlegmdfpohnep", target="_blank", rel="noreferrer") Web2PttChrome
+            .list-group
+              h4#about_version_title.list-group-item-heading
+              .list-group-item-text
+                #about_version
+            .list-group
+              h4#about_new_title.list-group-item-heading
+              .list-group-item-text
+                ul#about_new
+#connectionAlert.alert.alert-danger.alert-dismissable.fade.in
+  button.close(type="button", data-dismiss="alert", aria-hidden="true") &#215;
+  h4#connectionAlertHeader
+  p#connectionAlertText
+  p
+    button#connectionAlertReconnect.btn.btn-danger
+    span#connectionAlertPortOption1(style="margin-left:5px;") or
+    span#connectionAlertPortOption2(style="cursor:pointer;margin-left:5px;text-decoration:underline;")  Try with port 443 
+#welcomeJumbo(style="cursor:default;")
+  #welcomeBanner
+    #bigLogo
+    h1 &#36386;&#36386;&#25511;
+    br
+    h2#welcomeBannerPtt Ptt
+    h2#welcomeBannerChrome Chrome
+    br
+    #getAppBtn.btn.btn-default.btn-lg Get from Chrome Web Store
+    #alreadyInstalledHintContainer(style="margin-top:100px; font-size:20px;")
+      #alreadyInstalledHint1(style="margin-bottom:5px; font-size:30px;") Already have PttChrome installed?
+      #alreadyInstalledHint2
+        | To launch PttChrome, please set Google Chrome as your default browser and launch from the "&#25209;" icon
+      #alreadyInstalledHint3(style="margin:10px 0;") OR
+      #alreadyInstalledHint4
+        | Add http://iamchucky.github.io/PttChrome/ to Chrome bookmarks and launch PttChrome from the bookmark
+img#picPreview(src="", style="max-height:80%; max-width:90%")
+i#picLoading.glyphicon.glyphicon-refresh.glyphicon-refresh-animate(style="display:none; position:absolute; z-index:2")
+#liveHelper.modal-dialog
+  .modal-content
+    .modal-body.nomouse_command(style="height:60px;")
+      button#liveHelperClose.close.nomouse_command(type="button")
+        span &#215;
+      button#liveHelperEnable.btn.btn-default.nomouse_command(type="button", style="float:left;margin-top:-6px", data-toggle="button") Enable
+      span#liveHelperSpan.nomouse_command(style="margin-left:5px;margin-right:5px;float:left;") pushthread auto-update every
+      input#liveHelperSec.form-control.nomouse_command(type="number", style="float:left;margin-top:-6px;width:70px;", value="1")
+      span#liveHelperSpanSec.nomouse_command(style="margin-left:5px;float:left;") sec
+#inputHelper.modal-dialog
+  .modal-content
+    .modal-header
+      button#inputHelperClose.close(type="button")
+        span &#215;
+      h4.modal-title Modal title
+    .modal-body
+      ul#inputHelperTabTitle.nav.nav-pills.nav-justified(role="tablist")
+        li#colorsTabTitle.active
+          a(href="#colorHelperTab", role="tab", data-toggle="tab")
+        li#symbolsTabTitle.dropdown
+          a.dropdown-toggle(data-toggle="dropdown")
+          ul.dropdown-menu(role="menu")
+        li#emoticonsTabTitle.dropdown
+          a.dropdown-toggle(data-toggle="dropdown")
+          ul.dropdown-menu(role="menu")
+      #inputHelperTabContent.tab-content
+        #colorHelperTab.tab-pane.active(style="height:166px;")
+          ul#colorHelperList
+            li(style="background-color:black", value="0")
+            li.b1(value="1")
+            li.b2(value="2")
+            li.b3(value="3")
+            li.b4(value="4")
+            li.b5(value="5")
+            li.b6(value="6")
+            li.b7(value="7")
+            li.b8(value="8")
+            li.b9(value="9")
+            li.b10(value="10")
+            li.b11(value="11")
+            li.b12(value="12")
+            li.b13(value="13")
+            li.b14(value="14")
+            li.b15(value="15")
+          div(align="center", style="color:#c0c0c0; background-color:black; height:38px; margin-bottom:10px; padding-top:8px;")
+            span#colorHelperPreview.q7.b0 &#9605; PREVIEW &#9605;
+          #colorHelperBlink.checkbox
+          .btn-group.dropdown(style="float:right")
+            button#colorHelperSend.btn.btn-default(type="button") Send
+            button.btn.btn-default.dropdown-toggle(type="button", data-toggle="dropdown")
+              span.caret
+            ul#colorHelperSendMenu.dropdown-menu(role="menu")
+              li
+                a#colorHelperSendMenuFore(type="foreground") Send foreground only
+              li
+                a#colorHelperSendMenuBack(type="background") Send background only
+              li.divider
+              li
+                a#colorHelperSendMenuReset(type="reset") Send reset code
+  // /.modal-content
+// /.modal-dialog
+
