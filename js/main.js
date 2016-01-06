@@ -1,20 +1,14 @@
-﻿$(document).ready(function() {
+﻿document.addEventListener('DOMContentLoaded', function() {
   var site = getQueryVariable('site');
   var from = getQueryVariable('from');
   var keepAlive = getQueryVariable('keepAlive');
   setupI18n();
+  // setup the warning message and inform to click button to install app
+  setupJumbo();
   if (typeof(chrome) == 'undefined') {
     // don't seem to be using chrome, show msg
-    $('#getAppBtn').off();
-    $('#getAppBtn').click(function() {
-      window.open('https://chrome.google.com/webstore/detail/pttchrome/hhnlfapopmaimdlldbknjdgekpgffmbo', '_self');
-    });
     console.log('app is not running or installed');
-    $('#getAppBtn').text(i18n('getAppBtn'));
-    for (var i = 1; i < 5; ++i) {
-      $('#alreadyInstalledHint'+i).text(i18n('alreadyInstalledHint'+i));
-    }
-    $('#welcomeJumbo').show();
+    document.getElementById('welcome-jumbo').style.display = 'block';
     return;
   }
 
@@ -24,13 +18,36 @@
       site = 'ptt.cc';
     }
     app.connect(site);
-    $('#BBSWindow').show();
-    //$('#sideMenus').show();
+    document.getElementById('BBSWindow').style.display = 'block';
     app.onWindowResize();
   }, { from: from, keepAlive: keepAlive });
   // calls the gapi onload
   handleGapiClientLoad();
 });
+
+function setupJumbo() {
+  var getAppBtn = document.getElementById('get-app-btn');
+  if (getAppBtn) {
+    getAppBtn.addEventListener('click', function() {
+      if (typeof(chrome) == 'undefined') {
+        window.open('https://chrome.google.com/webstore/detail/pttchrome/hhnlfapopmaimdlldbknjdgekpgffmbo', '_self');
+        return;
+      }
+      // turn it on when it works
+      chrome.webstore.install(undefined, function() {
+        // successfully installed
+        location.reload();
+      });
+      //window.open('https://chrome.google.com/webstore/detail/pttchrome/'+self.appId, '_self');
+    });
+
+    getAppBtn.textContent = i18n('getAppBtn');
+  }
+
+  for (var i = 1; i < 5; ++i) {
+    document.getElementById('already-installed-hint'+i).textContent = i18n('alreadyInstalledHint'+i);
+  }
+}
 
 /**
   * Called when the client library is loaded.
@@ -75,14 +92,5 @@ function getQueryVariable(variable) {
     }
   }
   return null;
-}
-
-function dumpLog(type, string) {
-	switch(type){
-		case DUMP_TYPE_LOG: 	 console.log(string); break;
-		case DUMP_TYPE_WARN: 	 console.warn(string); break;
-		case DUMP_TYPE_ERROR: 	 console.error(string); break;
-		default: console.log(string); break;
-	}
 }
 

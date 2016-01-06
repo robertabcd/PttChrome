@@ -117,31 +117,4 @@
   }
 
 
-  // setup the warning message and inform to click button to install app
-  var getAppBtn = document.getElementById('get-app-btn');
-  if (getAppBtn) {
-    getAppBtn.addEventListener('click', function() {
-      if (typeof(chrome) == 'undefined') {
-        window.open('https://chrome.google.com/webstore/detail/pttchrome/'+appId, '_self');
-        return;
-      }
-      // turn it on when it works
-      chrome.webstore.install(undefined, function() {
-        // successfully installed
-        location.reload();
-      });
-      //window.open('https://chrome.google.com/webstore/detail/pttchrome/'+self.appId, '_self');
-    });
-
-  }
-
-  document.addEventListener('DOMContentReady', function() {
-    if (getAppBtn) {
-      getAppBtn.textContent = i18n('getAppBtn');
-    }
-    for (var i = 1; i < 5; ++i) {
-      document.getElementById('already-installed-hint'+i).textContent = i18n('alreadyInstalledHint'+i);
-    }
-  });
-
 })();
