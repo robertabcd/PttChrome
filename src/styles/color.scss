@@ -20,6 +20,7 @@
   @if ($i == 0 and $transparentZero) {
     @return transparent;
   }
+  /*
   $colors: (
     #000000,
     #800000,
@@ -37,7 +38,46 @@
     #ff00ff,
     #00ffff,
     #ffffff
+  ); 
+  */
+  $colors: (
+    #222,
+    #C75646,
+    #8EB33B,
+    #D0B03C,
+    #337AB7,
+    #9644A9,
+    #0C606B,
+    #B0B0B0,
+    #5D5D5D,
+    #E09690,
+    #CDEE69,
+    #FFE377,
+    #9CD9F0,
+    #FBB1F9,
+    #77DFD8,
+    #F7F7F7
   );
+  /*
+  $colors: (
+    white,
+    #C75646,
+    #8EB33B,
+    #D0B03C,
+    #337AB7,
+    #9644A9,
+    #0C606B,
+    #333,
+    #5D5D5D,
+    #E09690,
+    #CDEE69,
+    #FFE377,
+    #9CD9F0,
+    #FBB1F9,
+    #77DFD8,
+    darkgray
+  );
+  */
   @return nth($colors, $i);
 }
 

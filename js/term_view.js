@@ -96,7 +96,7 @@ function TermView(app, rowCount) {
   for (var i = 0; i < rowCount; ++i) {
     this.htmlRowStrArray.push('<span type="bbsrow" srow="'+i+'"></span>');
   }
-  mainDiv.innerHTML = '<div id="mainContainer">'+this.htmlRowStrArray.join('')+'</div>';
+  mainDiv.innerHTML = '<div id="mainContainer" class="q7">'+this.htmlRowStrArray.join('')+'</div>';
   this.BBSWin.appendChild(mainDiv);
   this.mainDisplay = mainDiv;
 

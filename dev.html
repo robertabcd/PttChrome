@@ -38,7 +38,7 @@
     <script src="js/main.js"></script>
   </head>
   <body>
-    <div id="BBSWindow" style="display:none">
+    <div id="BBSWindow" style="display:none" class="b0">
       <input id="t" type="text" autocomplete="off" style="box-sizing:content-box; color:initial; border: none; width: 200px; height: 24px; position:absolute; left:-10000px; top:0px; z-index:2;resize: none; font-family:inherit !important;" autofocus="">
       <div id="cursor" class="terminal_display">_</div>
     </div>
@@ -258,7 +258,7 @@
           <div id="inputHelperTabContent" class="tab-content">
             <div id="colorHelperTab" style="height:166px;" class="tab-pane active">
               <ul id="colorHelperList">
-                <li style="background-color:black" value="0"></li>
+                <li value="0" class="b0"></li>
                 <li value="1" class="b1"></li>
                 <li value="2" class="b2"></li>
                 <li value="3" class="b3"></li>
@@ -275,7 +275,7 @@
                 <li value="14" class="b14"></li>
                 <li value="15" class="b15"></li>
               </ul>
-              <div align="center" style="color:#c0c0c0; background-color:black; height:38px; margin-bottom:10px; padding-top:8px;"><span id="colorHelperPreview" class="q7 b0">&#9605; PREVIEW &#9605;</span></div>
+              <div align="center" style="height:38px; margin-bottom:10px; padding-top:8px;" class="b0 q7"><span id="colorHelperPreview" class="q7 b0">&#9605; PREVIEW &#9605;</span></div>
               <div id="colorHelperBlink" class="checkbox"></div>
               <div style="float:right" class="btn-group dropdown">
                 <button id="colorHelperSend" type="button" class="btn btn-default">Send</button>
