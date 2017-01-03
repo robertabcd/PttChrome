@@ -488,7 +488,7 @@ pttchrome.App.prototype.setupConnectionAlert = function() {
 
   var self = this;
   $('#connectionAlertReconnect').click(function(e) {
-    self.connect(self.connectedUrl.site);
+    self.connect(self.connectedUrl.url);
     $('#connectionAlert').hide();
   });
   $('#connectionAlertPortOption2').click(function(e) {
