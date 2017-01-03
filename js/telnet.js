@@ -37,49 +37,30 @@ const STATE_DO=4;
 const STATE_DONT=5;
 const STATE_SB=6;
 
-function TelnetConnection(app) {
-  this.app = app;
-
-  this.host = 'ptt.cc';
-  this.port = 23;
-  this.keepAlive = null;
+function TelnetConnection(socket) {
+  this.socket = socket;
+  this.socket.addEventListener('open', this._onOpen.bind(this));
+  this.socket.addEventListener('data', this._onDataAvailable.bind(this));
+  this.socket.addEventListener('close', this._onClose.bind(this));
 
   this.state = STATE_DATA;
   this.iac_sb = '';
 
-  this.EscChar = '\x15'; // Ctrl-U
   this.termType = 'VT100';
-  this.lineWrap = 78;
-
-  //AutoLogin - start
-  this.autoLoginStage = 0;
-  this.loginPrompt = ['','',''];
-  this.loginStr = ['','','',''];
-  //AutoLogin - end
-  this.isConnected = false;
 }
 
-TelnetConnection.prototype.connect = function(host, port) {
-  if (host) {
-    this.host = host;
-    this.port = port;
-  }
+pttchrome.Event.mixin(TelnetConnection.prototype);
 
-  // Check AutoLogin Stage
-  //this.app.loadLoginData(); //load login data
-  if(this.loginStr[1])
-    this.autoLoginStage = this.loginStr[0] ? 1 : 2;
-  else if(this.loginStr[2])
-    this.autoLoginStage = 3;
-  else
-    this.autoLoginStage = 0;
-
-  //this.initialAutoLogin();
-  this.isConnected = false;
-  this.app.appConn.connectTcp(this.host, this.port, this.keepAlive);
+TelnetConnection.prototype._onOpen = function(e) {
+  this.dispatchEvent(new CustomEvent('open'));
 };
 
-TelnetConnection.prototype.onDataAvailable = function(str) {
+TelnetConnection.prototype._onClose = function(e) {
+  this.dispatchEvent(new CustomEvent('close'));
+};
+
+TelnetConnection.prototype._onDataAvailable = function(e) {
+  var str = e.detail.data;
   var data='';
   var count = str.length;
   while (count > 0) {
@@ -92,7 +73,7 @@ TelnetConnection.prototype.onDataAvailable = function(str) {
       case STATE_DATA:
         if( ch == IAC ) {
           if (data) {
-            this.app.onData(data);
+            this._dispatchData(data);
             data='';
           }
           this.state = STATE_IAC;
@@ -125,24 +106,25 @@ TelnetConnection.prototype.onDataAvailable = function(str) {
         switch (ch) {
         case ECHO:
         case SUPRESS_GO_AHEAD:
-          this.send( IAC + DO + ch );
+          this._sendRaw( IAC + DO + ch );
           break;
         default:
-          this.send( IAC + DONT + ch );
+          this._sendRaw( IAC + DONT + ch );
         }
         this.state = STATE_DATA;
         break;
       case STATE_DO:
         switch (ch) {
         case TERM_TYPE:
-          this.send( IAC + WILL + ch );
+          this._sendRaw( IAC + WILL + ch );
           break;
         case NAWS:
-          this.send( IAC + WILL + ch );
-          this.sendNaws();
+          // Don't respond.
+          //this._sendRaw( IAC + WILL + ch );
+          //this.sendNaws();
           break;
         default:
-          this.send( IAC + WONT + ch );
+          this._sendRaw( IAC + WONT + ch );
         }
         this.state = STATE_DATA;
         break;
@@ -159,7 +141,7 @@ TelnetConnection.prototype.onDataAvailable = function(str) {
             // FIXME: support other terminal types
             //var termType = this.app.prefs.TermType;
             var rep = IAC + SB + TERM_TYPE + IS + this.termType + IAC + SE;
-            this.send( rep );
+            this._sendRaw( rep );
             break;
           }
           this.state = STATE_DATA;
@@ -169,20 +151,30 @@ TelnetConnection.prototype.onDataAvailable = function(str) {
       }
     }
     if (data) {
-      this.app.onData(data);
+      this._dispatchData(data);
       data='';
     }
   }
 };
 
-TelnetConnection.prototype.send = function(str) {
-  if (str) {
-    if (this.app && this.app.appConn) {
-      this.app.idleTime = 0;
-      this.app.appConn.sendTcp(str);
+TelnetConnection.prototype._dispatchData = function(data) {
+  this.dispatchEvent(new CustomEvent('data', {
+    detail: {
+      data: data
     }
-  }
+  }));
 };
+
+TelnetConnection.prototype.send = function(str) {
+  // XXX Should do escape on IAC.
+  this._sendRaw(str);
+};
+
+TelnetConnection.prototype._sendRaw = function(data) {
+  if (data) {
+    this.socket.send(data);
+  }
+}
 
 TelnetConnection.prototype.convSend = function(unicode_str) {
   // supports UAO
@@ -192,39 +184,12 @@ TelnetConnection.prototype.convSend = function(unicode_str) {
   // detect ;50m (half color) and then convert accordingly
   if (s) {
     s = s.ansiHalfColorConv();
-    this.send(s);
+    this._sendRaw(s);
   }
 };
 
-TelnetConnection.prototype.sendNaws = function() {
-  var cols = this.app.buf ? this.app.buf.cols : 80;
-  var rows = this.app.buf ? this.app.buf.rows : 24;
+TelnetConnection.prototype.sendNaws = function(cols, rows) {
   var nawsStr = String.fromCharCode(Math.floor(cols/256), cols%256, Math.floor(rows/256), rows%256).replace(/(\xff)/g,'\xff\xff');
   var rep = IAC + SB + NAWS + nawsStr + IAC + SE;
-  this.send( rep );
+  this._sendRaw( rep );
 };
-
-TelnetConnection.prototype.checkAutoLogin = function(row) {
-  if (this.autoLoginStage > 3 || this.autoLoginStage < 1) {
-    this.autoLoginStage = 0;
-    return;
-  }
-
-  var line = this.app.buf.getRowText(row, 0, this.app.buf.cols);
-  if (line.indexOf(this.loginPrompt[this.autoLoginStage - 1]) < 0)
-    return;
-
-  if (this.host == 'ptt.cc') {
-    var unicode_str = this.loginStr[this.autoLoginStage-1] + this.app.view.EnterChar;
-    this.convSend(unicode_str);
-  }
-
-  if (this.autoLoginStage == 3) {
-    if (this.loginStr[3] && this.host == 'ptt.cc')
-      this.convSend(this.loginStr[3]);
-    this.autoLoginStage = 0;
-    return;
-  }
-  ++this.autoLoginStage;
-};
-

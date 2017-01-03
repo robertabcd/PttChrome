@@ -3,7 +3,7 @@
   var from = getQueryVariable('from');
   var keepAlive = getQueryVariable('keepAlive');
   setupI18n();
-  if (typeof(chrome) == 'undefined') {
+  if (0 && typeof(chrome) == 'undefined') {
     // don't seem to be using chrome, show msg
     $('#getAppBtn').off();
     $('#getAppBtn').click(function() {
@@ -20,10 +20,6 @@
 
   pttchrome.app = new pttchrome.App(function(app) {
     app.setInputAreaFocus();
-    if (!site) {
-      site = 'ptt.cc';
-    }
-    app.connect(site);
     $('#BBSWindow').show();
     //$('#sideMenus').show();
     app.onWindowResize();

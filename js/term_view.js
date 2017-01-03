@@ -15,6 +15,7 @@ function TermView(rowCount) {
   this.highlightBG = 2;
   this.charset = 'big5';
   this.EnterChar = '\r';
+  this.EscChar = '\x15'; // Ctrl-U
   this.dropToPaste = false;
   this.ctrlPicturePreview = false;
   this.picturePreviewInfo = false;
@@ -60,6 +61,8 @@ function TermView(rowCount) {
   this.curCol = 0;
 
   this.actualRowIndex = 0;
+
+  this.lineWrap = 78;
 
   //this.DBDetection = false;
   this.blinkShow = false;
@@ -209,7 +212,7 @@ TermView.prototype = {
   },
 
   resetCursorBlink: function() {
-    if (!this.conn.isConnected)
+    if (!this._isConnected())
       return;
     var self = this;
     this.cursorShow = true;
@@ -230,8 +233,22 @@ TermView.prototype = {
     this.conn=conn;
   },
 
+  _send: function(data) {
+    if (this.conn)
+      this.conn.send(data);
+  },
+
+  _convSend: function(data) {
+    if (this.conn)
+      this.conn.convSend(data);
+  },
+
   setCore: function(core) {
     this.bbscore=core;
+  },
+
+  _isConnected: function() {
+    return this.bbscore.isConnected() && !!this.conn;
   },
 
   setFontFace: function(fontFace) {
@@ -592,25 +609,23 @@ TermView.prototype = {
 
   onTextInput: function(text, isPasting) {
     this.resetCursorBlink();
-    var conn = this.conn;
     if (isPasting) {
       text = text.replace(/\r\n/g, '\r');
       text = text.replace(/\n/g, '\r');
       text = text.replace(/\r/g, this.EnterChar);
 
-      if(text.indexOf('\x1b') < 0 && conn.lineWrap > 0) {
-        text = text.wrapText(conn.lineWrap, this.EnterChar);
+      if(text.indexOf('\x1b') < 0 && this.lineWrap > 0) {
+        text = text.wrapText(this.lineWrap, this.EnterChar);
       }
 
       //FIXME: stop user from pasting DBCS words with 2-color
-      text = text.replace(/\x1b/g, conn.EscChar);
+      text = text.replace(/\x1b/g, this.EscChar);
     }
-    conn.convSend(text);
+    this._convSend(text);
   },
 
   onkeyDown: function(e) {
     // dump('onKeyPress:'+e.charCode + ', '+e.keyCode+'\n');
-    var conn = this.conn;
     var charCode;
     this.resetCursorBlink();
 
@@ -625,12 +640,12 @@ TermView.prototype = {
       if (e.ctrlKey && !e.altKey && !e.shiftKey) {
         // Ctrl + @, NUL, is not handled here
         if ( e.charCode >= 65 && e.charCode <=90 ) { // A-Z
-          conn.send( String.fromCharCode(e.charCode - 64) );
+          this._send( String.fromCharCode(e.charCode - 64) );
           e.preventDefault();
           e.stopPropagation();
           return;
         } else if ( e.charCode >= 97 && e.charCode <=122 ) { // a-z
-          conn.send( String.fromCharCode(e.charCode - 96) );
+          this._send( String.fromCharCode(e.charCode - 96) );
           e.preventDefault();
           e.stopPropagation();
           return;
@@ -641,78 +656,78 @@ TermView.prototype = {
       switch (e.keyCode) {
       case 8:
         if (this.checkLeftDB())
-          conn.send('\b\b');
+          this._send('\b\b');
         else
-          conn.send('\b');
+          this._send('\b');
         break;
       case 9:
-        conn.send('\t');
+        this._send('\t');
         // don't move input focus to next control
         e.preventDefault();
         e.stopPropagation();
         break;
       case 13:
-        conn.send('\r');
+        this._send('\r');
         break;
       case 27: //ESC
-        conn.send('\x1b');
+        this._send('\x1b');
         break;
       case 33: //Page Up
-        conn.send('\x1b[5~');
+        this._send('\x1b[5~');
         break;
       case 34: //Page Down
-        conn.send('\x1b[6~');
+        this._send('\x1b[6~');
         break;
       case 35: //End
         if ((this.bbscore.buf.pageState == 2 || this.bbscore.buf.pageState == 3) &&
             this.bbscore.endTurnsOnLiveUpdate) {
           this.bbscore.onLiveHelperEnableClicked(false);
         } else {
-          conn.send('\x1b[4~');
+          this._send('\x1b[4~');
         }
         break;
       case 36: //Home
-        conn.send('\x1b[1~');
+        this._send('\x1b[1~');
         break;
       case 37: //Arrow Left
         if(this.checkLeftDB())
-          conn.send('\x1b[D\x1b[D');
+          this._send('\x1b[D\x1b[D');
         else
-          conn.send('\x1b[D');
+          this._send('\x1b[D');
         break;
       case 38: //Arrow Up
-        conn.send('\x1b[A');
+        this._send('\x1b[A');
         break;
       case 39: //Arrow Right
         if(this.checkCurDB())
-          conn.send('\x1b[C\x1b[C');
+          this._send('\x1b[C\x1b[C');
         else
-          conn.send('\x1b[C');
+          this._send('\x1b[C');
         break;
       case 40: //Arrow Down
-        conn.send('\x1b[B');
+        this._send('\x1b[B');
         break;
       case 45: //Insert
-        conn.send('\x1b[2~');
+        this._send('\x1b[2~');
         break;
       case 46: //DEL
         if (this.checkCurDB())
-          conn.send('\x1b[3~\x1b[3~');
+          this._send('\x1b[3~\x1b[3~');
         else
-          conn.send('\x1b[3~');
+          this._send('\x1b[3~');
         break;
         /*
       case 112: //F1
-        conn.send('\x1bOP');
+        this._send('\x1bOP');
         break;
       case 113: //F2
-        conn.send('\x1bOQ');
+        this._send('\x1bOQ');
         break;
       case 114: //F3
-        conn.send('\x1bOR');
+        this._send('\x1bOR');
         break;
       case 115: //F4
-        conn.send('\x1bOS');
+        this._send('\x1bOS');
         break;
       case 116: //F5
         this.bbscore.pref.reloadPreference();
@@ -720,25 +735,25 @@ TermView.prototype = {
         e.stopPropagation();
         break;
       case 117: //F6
-        conn.send('\x1b[17~');
+        this._send('\x1b[17~');
         break;
       case 118: //F7
-        conn.send('\x1b[18~');
+        this._send('\x1b[18~');
         break;
       case 119: //F8
-        conn.send('\x1b[19~');
+        this._send('\x1b[19~');
         break;
       case 120: //F9
-        conn.send('\x1b[20~');
+        this._send('\x1b[20~');
         break;
       case 121: //F10
-        conn.send('\x1b[21~');
+        this._send('\x1b[21~');
         break;
       case 122: //F11
-        //conn.send('\x1b[23~');//Firefox [Full Screen] hotkey
+        //this._send('\x1b[23~');//Firefox [Full Screen] hotkey
         break;
       case 123: //F12
-        conn.send('\x1b[24~');
+        this._send('\x1b[24~');
         break;
         */
       }
@@ -761,7 +776,7 @@ TermView.prototype = {
         charCode = e.keyCode - 192;
     } else if (!e.ctrlKey && e.altKey && !e.shiftKey) {
       if (e.keyCode == 87) {// alt+w
-        conn.send('^W'.unescapeStr());
+        this._send('^W'.unescapeStr());
         e.preventDefault();
         e.stopPropagation();
         return;
@@ -771,7 +786,7 @@ TermView.prototype = {
         e.stopPropagation();
         return;
       } else if (e.keyCode == 84) { // alt+t
-        conn.send('^T'.unescapeStr());
+        this._send('^T'.unescapeStr());
         e.preventDefault();
         e.stopPropagation();
         return;
@@ -811,7 +826,7 @@ TermView.prototype = {
       }
 
       if (sendCode)
-        conn.send( String.fromCharCode(charCode) );
+        this._send( String.fromCharCode(charCode) );
       if (preventDefault) {
         e.preventDefault();
         e.stopPropagation();
@@ -1468,13 +1483,12 @@ TermView.prototype = {
   },
 
   easyReadingOnKeyUp: function(e) {
-    var conn = this.conn;
     if (!e.ctrlKey && !e.altKey && !e.shiftKey) {
       switch (e.keyCode) {
         case 32: // spacebar
           if (this.mainDisplay.scrollTop >= this.mainContainer.clientHeight - this.chh * this.buf.rows) {
             this.buf.cancelPageDownAndResetPrevPageState();
-            conn.send(' ');
+            this._send(' ');
           } else {
             this.mainDisplay.scrollTop += this.chh * this.easyReadingTurnPageLines;
             e.preventDefault();
@@ -1483,19 +1497,19 @@ TermView.prototype = {
           break;
         case 187: // =
           this.buf.cancelPageDownAndResetPrevPageState();
-          conn.send('=');
+          this._send('=');
           break;
         case 189: // -
           this.buf.cancelPageDownAndResetPrevPageState();
-          conn.send('-');
+          this._send('-');
           break;
         case 219: // [
           this.buf.cancelPageDownAndResetPrevPageState();
-          conn.send('[');
+          this._send('[');
           break;
         case 221: // ]
           this.buf.cancelPageDownAndResetPrevPageState();
-          conn.send(']');
+          this._send(']');
           break;
         default: 
           e.preventDefault();
@@ -1505,7 +1519,7 @@ TermView.prototype = {
     } else if (!e.ctrlKey && !e.altKey && e.shiftKey) {
       if (e.keyCode == 187) { // +
         this.buf.cancelPageDownAndResetPrevPageState();
-        conn.send('+');
+        this._send('+');
       } else {
         e.preventDefault();
         e.stopPropagation();
@@ -1517,7 +1531,6 @@ TermView.prototype = {
   },
 
   easyReadingOnKeyDown: function(e) {
-    var conn = this.conn;
     this.easyReadingKeyDownKeyCode = e.keyCode;
 
     if (!e.ctrlKey && !e.altKey && !e.shiftKey) {
@@ -1540,13 +1553,13 @@ TermView.prototype = {
         case 8: // backspace
           if (this.mainDisplay.scrollTop === 0) {
             this.buf.cancelPageDownAndResetPrevPageState();
-            conn.send('\x1b[D\x1b[A\x1b[C');
+            this._send('\x1b[D\x1b[A\x1b[C');
           } else {
             this.mainDisplay.scrollTop -= this.chh * this.easyReadingTurnPageLines;
           }
           break;
         case 27: //ESC
-          conn.send('\x1b');
+          this._send('\x1b');
           break;
         case 32: //Spacebar
           if (this.mainDisplay.scrollTop >= this.mainContainer.clientHeight - this.chh * this.buf.rows) {
@@ -1576,14 +1589,14 @@ TermView.prototype = {
         case 37: //Arrow Left
           this.buf.sendCommandAfterUpdate = 'skipOne';
           if(this.checkLeftDB())
-            conn.send('\x1b[D\x1b[D');
+            this._send('\x1b[D\x1b[D');
           else
-            conn.send('\x1b[D');
+            this._send('\x1b[D');
           break;
         case 38: //Arrow Up
           if (this.mainDisplay.scrollTop === 0) {
             this.buf.cancelPageDownAndResetPrevPageState();
-            conn.send('\x1b[D\x1b[A\x1b[C');
+            this._send('\x1b[D\x1b[A\x1b[C');
           } else {
             this.mainDisplay.scrollTop -= this.chh;
           }
@@ -1592,9 +1605,9 @@ TermView.prototype = {
           if (this.mainDisplay.scrollTop >= this.mainContainer.clientHeight - this.chh * this.buf.rows) {
             this.buf.cancelPageDownAndResetPrevPageState();
             if(this.checkCurDB())
-              conn.send('\x1b[C\x1b[C');
+              this._send('\x1b[C\x1b[C');
             else
-              conn.send('\x1b[C');
+              this._send('\x1b[C');
           } else {
             this.mainDisplay.scrollTop += this.chh * this.easyReadingTurnPageLines;
           }
@@ -1603,19 +1616,19 @@ TermView.prototype = {
         case 40: //Arrow Down
           if (this.mainDisplay.scrollTop >= this.mainContainer.clientHeight - this.chh * this.buf.rows) {
             this.buf.cancelPageDownAndResetPrevPageState();
-            conn.send('\x1b[D\x1b[B\x1b[C');
+            this._send('\x1b[D\x1b[B\x1b[C');
           } else {
             this.mainDisplay.scrollTop += this.chh;
           }
           break;
         case 45: //Insert
-          conn.send('\x1b[2~');
+          this._send('\x1b[2~');
           break;
         case 46: //DEL
           if (this.checkCurDB())
-            conn.send('\x1b[3~\x1b[3~');
+            this._send('\x1b[3~\x1b[3~');
           else
-            conn.send('\x1b[3~');
+            this._send('\x1b[3~');
           break;
         case 84: // t
           if (this.mainDisplay.scrollTop >= this.mainContainer.clientHeight - this.chh * this.buf.rows) {
@@ -1673,7 +1686,7 @@ TermView.prototype = {
       }
     } else if (!e.ctrlKey && e.altKey && !e.shiftKey) {
       if (e.keyCode == 87) {// alt+w
-        conn.send('^W'.unescapeStr());
+        this._send('^W'.unescapeStr());
         e.preventDefault();
         e.stopPropagation();
         return;
@@ -1683,7 +1696,7 @@ TermView.prototype = {
         e.stopPropagation();
         return;
       } else if (e.keyCode == 84) { // alt+t
-        conn.send('^T'.unescapeStr());
+        this._send('^T'.unescapeStr());
         e.preventDefault();
         e.stopPropagation();
         return;
@@ -1706,7 +1719,7 @@ TermView.prototype = {
       } else if ( e.keyCode == 72 || e.keyCode == 104 ) { // ^H
         if (this.mainDisplay.scrollTop === 0) {
           this.buf.cancelPageDownAndResetPrevPageState();
-          conn.send('\x1b[D\x1b[A\x1b[C');
+          this._send('\x1b[D\x1b[A\x1b[C');
         } else {
           this.mainDisplay.scrollTop -= this.chh * this.easyReadingTurnPageLines;
         }

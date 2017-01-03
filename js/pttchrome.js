@@ -1,6 +1,6 @@
 ﻿// Main Program
 
-var pttchrome = {};
+pttchrome = pttchrome || {};
 
 pttchrome.App = function(onInitializedCallback, options) {
 
@@ -41,13 +41,7 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.CmdHandler.setAttribute('SkipMouseClick','0');
   this.pref = null;
 
-  var useSSH = getQueryVariable('ssh');
-  if (useSSH == 'true') {
-    this.conn = new SecureShellConnection(this);
-  } else {
-    this.conn = new TelnetConnection(this);
-  }
-  this.conn.keepAlive = options.keepAlive;
+  this.connect(getQueryVariable('site') || pttchrome.Constants.DEFAULT_SITE);
 
   this.view = new TermView(24);
   this.buf = new TermBuf(80, 24);
@@ -56,7 +50,6 @@ pttchrome.App = function(onInitializedCallback, options) {
   //this.buf.PTTZSTR1=this.getLM('PTTZArea1');
   //this.buf.PTTZSTR2=this.getLM('PTTZArea2');
   this.view.setBuf(this.buf);
-  this.view.setConn(this.conn);
   this.view.setCore(this);
   this.parser = new lib.AnsiParser(this.buf);
 
@@ -65,8 +58,6 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.antiIdleTime = 0;
   this.idleTime = 0;
   //new pref - end
-  this.connectState = 0;
-  this.connectedUrl = { site:'ptt.cc', port:23 };
 
   // for picPreview
   this.curX = 0;
@@ -195,10 +186,13 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.contextMenuShown = false;
 
   this.pref = new PttChromePref(this, onInitializedCallback);
-  this.appConn = null;
   // load the settings after the app connection is made
-  this.setupAppConnection(function() {
+  this.setupAppConnection().then(function() {
     self.appConn.appPort.postMessage({ action: 'getSymFont' });
+  }, function() {
+    self.onSymFont(null);
+  }).then(function() {
+    console.log("load pref from storage");
     // call getStorage to trigger load setting
     self.pref.getStorage();
   });
@@ -210,44 +204,59 @@ pttchrome.App = function(onInitializedCallback, options) {
 };
 
 pttchrome.App.prototype.setupAppConnection = function(callback) {
-  var self = this;
   this.appConn = new lib.AppConnection({
-    onConnect: self.onConnect.bind(self),
-    onDisconnect: self.onClose.bind(self),
-    onReceive: self.conn.onDataAvailable.bind(self.conn),
-    onSent: null,
-    onPasteDone: self.onPasteDone.bind(self),
-    onStorageDone: self.pref.onStorageDone.bind(self.pref),
-    onSymFont: self.onSymFont.bind(self)
+    onPasteDone: this.onPasteDone.bind(this),
+    onStorageDone: this.pref.onStorageDone.bind(this.pref),
+    onSymFont: this.onSymFont.bind(this)
   });
-  this.appConn.connect(callback);
+  return this.appConn.connect();
+};
+
+pttchrome.App.prototype.isConnected = function() {
+  return this.connectState == 1 && !!this.conn;
 };
 
 pttchrome.App.prototype.connect = function(url) {
-  var self = this;
-  var port = 23;
-  var splits = url.split(/:/g);
-  document.title = url;
-  if (splits.length == 2) {
-    url = splits[0];
-    port = parseInt(splits[1]);
-  }
-  this.connectedUrl.site = url;
-  this.connectedUrl.port = port;
+  this.connectState = 0;
+  console.log("connect:" + url);
 
-  if (!this.appConn.isConnected) {
-    this.setupAppConnection(function() {
-      dumpLog(DUMP_TYPE_LOG, "connect to " + url);
-      self.conn.connect(url, port);
-    });
+  var parser = document.createElement('a');
+  parser.href = url;
+  if (parser.protocol == 'ssh:') {
+    console.log("ssh is not supported");
+    //this.conn = new SecureShellConnection(this);
+  } else if (parser.protocol == 'wsstelnet:') {
+    parser.protocol = 'wss';
+    this._setupWebsocketConn(parser.href);
+  } else if (parser.protocol == 'wstelnet:') {
+    parser.protocol = 'ws';
+    this._setupWebsocketConn(parser.href);
   } else {
-    dumpLog(DUMP_TYPE_LOG, "connect to " + url);
-    this.conn.connect(url, port);
+    console.log('unsupport connect url protocol: ' + parser.protocol);
+    return;
   }
+
+  this.connectedUrl = {
+    url: url,
+    site: parser.hostname,
+    port: parser.port
+  };
+};
+
+pttchrome.App.prototype._setupWebsocketConn = function(url) {
+  var self = this;
+  var wsConn = new pttchrome.Websocket(url);
+  this.conn = new TelnetConnection(wsConn);
+  this.conn.addEventListener('open', this.onConnect.bind(this));
+  this.conn.addEventListener('close', this.onClose.bind(this));
+  this.conn.addEventListener('data', function(e) {
+    self.onData(e.detail.data);
+  });
 };
 
 pttchrome.App.prototype.onConnect = function() {
   this.conn.isConnected = true;
+  this.view.setConn(this.conn);
   $('#connectionAlert').hide();
   dumpLog(DUMP_TYPE_LOG, "pttchrome onConnect");
   this.connectState = 1;
@@ -465,10 +474,6 @@ pttchrome.App.prototype.setupOtherSiteInput = function() {
   $('#siteModal input').keyup(function(e) {
     if (e.keyCode == 13) {
       var url = $(this).val();
-      if (self.appConn && self.appConn.isConnected) {
-        self.appConn.disconnect();
-        self.onClose();
-      }
       self.connect(url);
       $('#siteModal').modal('hide');
     }
@@ -555,7 +560,9 @@ pttchrome.App.prototype.onPasteDone = function(content) {
 };
 
 pttchrome.App.prototype.onSymFont = function(content) {
-  var css = '@font-face { font-family: MingLiUNoGlyph; src: url('+content.data+'); }';
+  console.log("using " + (content ? "extension" : "system") + " font");
+  var font_src = content ? 'src: url('+content.data+');' : '';
+  var css = '@font-face { font-family: MingLiUNoGlyph; '+font_src+' }';
   var style = document.createElement('style');
   style.type = 'text/css';
   style.innerHTML = css;

@@ -595,11 +595,14 @@ PttChromePref.prototype = {
   },
 
   getStorage: function(key) {
+    var defaults = {
+      values: DEFAULT_PREFS,
+      logins: {'u':'', 'p':''}
+    };
     if (this.app.appConn.isConnected) {
-      this.app.appConn.appPort.postMessage({ action: 'storage', type: 'get', defaults: {
-        values: DEFAULT_PREFS,
-        logins: {'u':'', 'p':''}
-      } });
+      this.app.appConn.appPort.postMessage({ action: 'storage', type: 'get', defaults: defaults });
+    } else {
+      this.onStorageDone({ data: defaults });
     }
   },
 
