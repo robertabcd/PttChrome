@@ -220,17 +220,18 @@ pttchrome.App.prototype.connect = function(url) {
   this.connectState = 0;
   console.log("connect:" + url);
 
-  var parser = document.createElement('a');
-  parser.href = url;
-  if (parser.protocol == 'ssh:') {
+  var parsed = this._parseURLSimple(url);
+  console.log('parsed url:');
+  console.log(parsed);
+  if (parsed.protocol == 'ssh') {
     console.log("ssh is not supported");
     //this.conn = new SecureShellConnection(this);
-  } else if (parser.protocol == 'wsstelnet:') {
-    parser.protocol = 'wss';
-    this._setupWebsocketConn(parser.href);
-  } else if (parser.protocol == 'wstelnet:') {
-    parser.protocol = 'ws';
-    this._setupWebsocketConn(parser.href);
+  } else if (parsed.protocol == 'telnet') {
+    this._setupTelnetConn(parsed.host, parsed.port);
+  } else if (parsed.protocol == 'wsstelnet') {
+    this._setupWebsocketConn('wss://' + parsed.hostname + parsed.path);
+  } else if (parsed.protocol == 'wstelnet') {
+    this._setupWebsocketConn('ws://' + parsed.hostname + parsed.path);
   } else {
     console.log('unsupport connect url protocol: ' + parser.protocol);
     return;
@@ -238,15 +239,52 @@ pttchrome.App.prototype.connect = function(url) {
 
   this.connectedUrl = {
     url: url,
-    site: parser.hostname,
-    port: parser.port
+    site: parsed.hostname,
+    port: parsed.port
   };
 };
 
-pttchrome.App.prototype._setupWebsocketConn = function(url) {
+pttchrome.App.prototype._parseURLSimple = function(url) {
+  var protocol = url.split(/:\/\//, 2);
+  if (protocol.length != 2)
+    return null;
+  var hostname = protocol[1].split(/\//, 2);
+  var hostport = hostname[0].split(/:/);
+  if (hostport > 2)
+    return null;
+  var port = hostport.length > 1 ? parseInt(hostport[1]) : {
+    'wstelnet': 80,
+    'wsstelnet': 443,
+    'telnet': 23,
+    'ssh': 22
+  }[protocol[0]];
+  return {
+    protocol: protocol[0],
+    hostname: hostname[0],
+    host: hostport[0],
+    port: port,
+    path: '/' + (hostname.length > 1 ? hostname[1] : '')
+  };
+};
+
+pttchrome.App.prototype._setupTelnetConn = function(host, port) {
   var self = this;
+  var tcpSocket = new pttchrome.TcpSocket();
+  tcpSocket.connect(host, port).then(function() {
+    self._attachConn(new TelnetConnection(tcpSocket));
+  }, function() {
+    console.log('extension app not installed');
+  });
+};
+
+pttchrome.App.prototype._setupWebsocketConn = function(url) {
   var wsConn = new pttchrome.Websocket(url);
-  this.conn = new TelnetConnection(wsConn);
+  this._attachConn(new TelnetConnection(wsConn));
+};
+
+pttchrome.App.prototype._attachConn = function(conn) {
+  var self = this;
+  this.conn = conn;
   this.conn.addEventListener('open', this.onConnect.bind(this));
   this.conn.addEventListener('close', this.onClose.bind(this));
   this.conn.addEventListener('data', function(e) {
