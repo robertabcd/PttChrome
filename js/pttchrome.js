@@ -218,14 +218,11 @@ pttchrome.App.prototype.isConnected = function() {
 
 pttchrome.App.prototype.connect = function(url) {
   this.connectState = 0;
-  console.log("connect:" + url);
+  console.log('connect: ' + url);
 
   var parsed = this._parseURLSimple(url);
-  console.log('parsed url:');
-  console.log(parsed);
   if (parsed.protocol == 'ssh') {
-    console.log("ssh is not supported");
-    //this.conn = new SecureShellConnection(this);
+    this._setupSSHConn(parsed.host, parsed.port);
   } else if (parsed.protocol == 'telnet') {
     this._setupTelnetConn(parsed.host, parsed.port);
   } else if (parsed.protocol == 'wsstelnet') {
@@ -265,6 +262,16 @@ pttchrome.App.prototype._parseURLSimple = function(url) {
     port: port,
     path: '/' + (hostname.length > 1 ? hostname[1] : '')
   };
+};
+
+pttchrome.App.prototype._setupSSHConn = function(host, port) {
+  var self = this;
+  var tcpSocket = new pttchrome.TcpSocket();
+  tcpSocket.connect(host, port).then(function() {
+    self._attachConn(new SecureShellConnection(tcpSocket, host, port));
+  }, function() {
+    console.log('extension app not installed');
+  });
 };
 
 pttchrome.App.prototype._setupTelnetConn = function(host, port) {

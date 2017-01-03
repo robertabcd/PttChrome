@@ -1,6 +1,4 @@
-function SecureShellConnection(app) {
-  this.app = app;
-
+function SecureShellConnection(socket, host, port) {
   this.host = 'ptt.cc';
   this.port = 22;
   this.keepAlive = null;
@@ -17,44 +15,12 @@ function SecureShellConnection(app) {
   this.client = null;
   this.shell = null;
 
-  this.isConnected = false;         // are we connected?
-
-  this.EscChar = '\x15'; // Ctrl-U
-  this.termType = 'VT100';
-  this.lineWrap = 78;
-
-  //AutoLogin - start
-  this.autoLoginStage = 0;
-  this.loginPrompt = ['','',''];
-  this.loginStr = ['','','',''];
-  //AutoLogin - end
+  this._attachConn(socket, host, port);
 }
 
-SecureShellConnection.prototype.disconnect = function() {
-  this.isConnected = false;
-  this.client.close(true);
-  if (this.app.appConn && this.app.appConn.isConnected) {
-    this.app.appConn.disconnect();
-    this.app.onClose();
-  }
-  this.shell = null;
-};
+pttchrome.Event.mixin(SecureShellConnection.prototype);
 
-SecureShellConnection.prototype.connect = function(host, port) {
-  if (host) {
-    this.host = host;
-  }
-
-  // Check AutoLogin Stage
-  //this.app.loadLoginData(); //load login data
-  if(this.loginStr[1])
-    this.autoLoginStage = this.loginStr[0] ? 1 : 2;
-  else if(this.loginStr[2])
-    this.autoLoginStage = 3;
-  else
-    this.autoLoginStage = 0;
-
-  //this.initialAutoLogin();
+SecureShellConnection.prototype._attachConn = function(socket, host, port) {
   this.isConnected = false;
 
   var self = this;
@@ -72,10 +38,7 @@ SecureShellConnection.prototype.connect = function(host, port) {
 
   var write = function(str) {
     if (str) {
-      if (self.app && self.app.appConn) {
-        self.app.idleTime = 0;
-        self.app.appConn.sendTcp(str);
-      }
+      self.socket.send(str);
     }
   };
 
@@ -83,10 +46,22 @@ SecureShellConnection.prototype.connect = function(host, port) {
       write, auth_success, this.host, this.port, 
       this.login, this.password, null, this.privatekey);
 
-  this.app.appConn.connectTcp(this.host, this.port, this.keepAlive);
+  this.socket = socket;
+  this.socket.addEventListener('open', this._onOpen.bind(this));
+  this.socket.addEventListener('data', this._onDataAvailable.bind(this));
+  this.socket.addEventListener('close', this._onClose.bind(this));
 };
 
-SecureShellConnection.prototype.onDataAvailable = function(str) {
+SecureShellConnection.prototype._onOpen = function(e) {
+  this.dispatchEvent(new CustomEvent('open'));
+};
+
+SecureShellConnection.prototype._onClose = function(e) {
+  this.dispatchEvent(new CustomEvent('close'));
+};
+
+SecureShellConnection.prototype._onDataAvailable = function(e) {
+  var str = e.detail.data;
   try {
     this.transport.fullBuffer += str;  // read data
     this.transport.run();
@@ -105,7 +80,7 @@ SecureShellConnection.prototype.onDataAvailable = function(str) {
       return;
     }
     if (this.shell.closed) {
-      this.disconnect();
+      this.close();
       return;
     }
     data = this.shell.recv(65536);
@@ -118,8 +93,16 @@ SecureShellConnection.prototype.onDataAvailable = function(str) {
     }
   }
   if (data) {
-    this.app.onData(data);
+    this.dispatchEvent(new CustomEvent('data', {
+      detail: {
+        data: data
+      }
+    }));
   }
+};
+
+SecureShellConnection.prototype.close = function() {
+  this.socket.close();
 };
 
 // from cli to paramikojs
@@ -140,32 +123,6 @@ SecureShellConnection.prototype.convSend = function(unicode_str) {
 };
 
 // not tested
-SecureShellConnection.prototype.sendNaws = function() {
-  var cols = this.app.buf ? this.app.buf.cols : 80;
-  var rows = this.app.buf ? this.app.buf.rows : 24;
+SecureShellConnection.prototype.sendNaws = function(cols, rows) {
   this.shell.resize_pty(cols, rows);
-};
-
-SecureShellConnection.prototype.checkAutoLogin = function(row) {
-  if (this.autoLoginStage > 3 || this.autoLoginStage < 1) {
-    this.autoLoginStage = 0;
-    return;
-  }
-
-  var line = this.app.buf.getRowText(row, 0, this.app.buf.cols);
-  if (line.indexOf(this.loginPrompt[this.autoLoginStage - 1]) < 0)
-    return;
-
-  if (this.host == 'ptt.cc') {
-    var unicode_str = this.loginStr[this.autoLoginStage-1] + this.app.view.EnterChar;
-    this.convSend(unicode_str);
-  }
-
-  if (this.autoLoginStage == 3) {
-    if (this.loginStr[3] && this.host == 'ptt.cc')
-      this.convSend(this.loginStr[3]);
-    this.autoLoginStage = 0;
-    return;
-  }
-  ++this.autoLoginStage;
 };

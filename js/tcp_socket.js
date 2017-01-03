@@ -83,3 +83,7 @@ pttchrome.TcpSocket.prototype.send = function(data) {
     data: data
   });
 };
+
+pttchrome.TcpSocket.prototype.close = function() {
+  this.appPort.disconnect();
+};
