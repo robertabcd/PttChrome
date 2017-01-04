@@ -238,8 +238,6 @@ TermBuf.prototype = {
   puts: function(str) {
     if (!str)
       return;
-    if (this.view && this.view.conn && this.view.charset == 'UTF-8')
-      str = this.view.conn.utf8Data(str);
     var cols = this.cols;
     var rows = this.rows;
     var lines = this.lines;
@@ -383,9 +381,6 @@ TermBuf.prototype = {
           uris.push(uri);
           // dump('found URI: ' + res[0] + '\n');
         }
-
-        if (this.view.conn.autoLoginStage > 0)
-          this.view.conn.checkAutoLogin(row);
 
         if (uris) {
           line.uris = uris;
@@ -852,8 +847,6 @@ TermBuf.prototype = {
         }
         this.sendCommandAfterUpdate = '';
       }
-      //if (this.view.conn.autoLoginStage > 0)
-      //  this.view.conn.checkAutoLogin();
     }
 
     if (this.posChanged) { // cursor pos changed
