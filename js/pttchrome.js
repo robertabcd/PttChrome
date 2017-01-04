@@ -79,9 +79,6 @@ pttchrome.App = function(onInitializedCallback, options) {
 
   this.inputHelper = new InputHelper(this);
 
-  this.navigateTo = { board: getQueryVariable('board'), aid: getQueryVariable('aid') };
-  this.navigationDone = false;
-
   this.lastSelection = null;
 
   this.waterball = { userId: '', message: '' };
@@ -162,16 +159,6 @@ pttchrome.App = function(onInitializedCallback, options) {
   });
 
   this.isFromApp = (options.from === 'app');
-  window.addEventListener('message', function(e) {
-    var msg = e.data;
-    if (self.isFromApp && msg.action === 'newwindow' && self.appConn && self.appConn.isConnected) {
-      self.appConn.appPort.postMessage({ action: 'newWindow', data: msg.data });
-    } else if (msg.action == 'navigate') {
-      self.navigationDone = false;
-      self.navigateTo = msg.data;
-      self.conn.send('\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D');
-    }
-  });
 
   this.dblclickTimer=null;
   this.mbTimer=null;

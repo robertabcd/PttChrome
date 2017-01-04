@@ -197,7 +197,6 @@ function TermBuf(cols, rows) {
   this.sendCommandAfterUpdate = '';
   this.ignoreOneUpdate = false;
   this.prevPageState = 0;
-  this.autoWrapLineDisplay = false; // the default from PTT is false
 
   this.lines = new Array(rows);
   this.linesX = new Array(0);
@@ -756,30 +755,6 @@ TermBuf.prototype = {
         this.mouseCursor = 0;
       }
 
-      // support for url specified navigation
-      if (this.view.bbscore.navigateTo.board !== null && !this.view.bbscore.navigationDone) {
-        if (this.pageState == 1) {
-          this.sendNavigateToBoardCmd();
-          if (this.view.bbscore.navigateTo.aid === null) {
-            this.view.bbscore.navigationDone = true;
-          }
-        } else if (this.pageState == 2 && this.view.bbscore.navigateTo.aid !== null) {
-          this.view.bbscore.navigationDone = true;
-          this.sendNavigateToArticleCmd();
-        } else if (this.pageState == 5) {
-          // send enter to pass the screen
-          this.view.conn.send('\r');
-        }
-
-        // use this to stop page from rendering
-        /*
-        if (this.view.conn.loginStr[1] && !this.view.bbscore.navigationDone) {
-          this.changed = false;
-          return;
-        }
-        */
-      }
-
       if (this.enableDeleteDupLogin) {
         if (this.pageState === 0) {
           var strToSend = '\r';
@@ -809,10 +784,6 @@ TermBuf.prototype = {
         var lastRowText = this.getRowText(23, 0, this.cols);
         // dealing with page state jump to 0 because last row wasn't updated fully 
         if (this.pageState == 3) {
-          if (!this.autoWrapLineDisplay) {
-            this.sendToggleAutoWrapLineDisplayCmd();
-            return;
-          }
           this.startedEasyReading = true;
         } else if (this.startedEasyReading && lastRowText.parseReqNotMetText()) {
           this.easyReadingShowPushInitText = true;
@@ -1374,29 +1345,6 @@ TermBuf.prototype = {
       this.view.redraw(false);
     }
     this.mouseCursor = 0;
-  },
-
-  // send to toggle the diplay of auto wrapped line '\'
-  sendToggleAutoWrapLineDisplayCmd: function() {
-    this.autoWrapLineDisplay = !this.autoWrapLineDisplay;
-    this.cancelPageDownAndResetPrevPageState();
-    this.view.conn.send('om\r\x1b[D\x1b[C');
-  },
-
-  sendNavigateToBoardCmd: function() {
-    var conn = this.view.conn;
-    var board = this.view.bbscore.navigateTo.board;
-    // navigate to board
-    conn.send('s'+board+'\r');
-  },
-
-  sendNavigateToArticleCmd: function() {
-    var conn = this.view.conn;
-    var aid = this.view.bbscore.navigateTo.aid;
-    // navigate to article
-    if (aid) {
-      conn.send('#'+aid+'\r\r\x1b[1~');
-    }
   },
 
   cancelPageDownAndResetPrevPageState: function() {
