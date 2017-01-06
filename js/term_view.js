@@ -51,6 +51,7 @@ function TermView(rowCount) {
   this.curBlink = false;
   this.openSpan = false;
 
+  // TODO Move this into easy_reading.js
   this.useEasyReadingMode = false;
   this.easyReadingTurnPageLines = 22;
   this.easyReadingKeyDownKeyCode = 0;
@@ -271,223 +272,18 @@ TermView.prototype = {
       return ' type="p"';
   },
 
-  createTwoColorWord: function(ch, ch2, char1, fg, fg2, bg, bg2, forceWidth) {
-    var row = this.curRow;
-    var col = this.curCol;
-    // set to default color so that it'll create span for next char that has different color from default
-    this.setCurColorStyle(this.deffg, this.defbg, false);
-
-    var s1 = '';
-    var fwStyle = '';
-    var spanClass = '';
-    var bcValue = '';
-    var hasXNode = ((ch.blink && fg != bg) || (ch2.blink && fg2 != bg2));
-    var xNodeStr = '';
-    if (forceWidth !== 0) {
-      fwStyle = ' style="display:inline-block;width:'+forceWidth+'px;"';
-    }
-
-    s1 += this.closeSpanIfIsOpen();
-
-    if (fg != fg2) {
-      spanClass = 'w'+fg+' q'+fg2+' o';
-    } else {
-      spanClass = 'q'+fg;
-    }
-    if (bg != bg2) {
-      bcValue = 'b'+bg+'b'+bg2;
-    } else {
-      bcValue = 'b'+bg;
-    }
-    spanClass += ' ' + bcValue;
-
-    if (hasXNode) {
-      var xNodeAttrS = '';
-      if (fg != fg2) {
-        xNodeAttrS = 'w'+fg+' q'+fg2+' o';
-      } else {
-        xNodeAttrS = 'q'+fg;
-      }
-
-      var xNodeAttrH = '';
-      if (ch.blink && ch2.blink) {
-        if (fg != fg2) {
-          xNodeAttrH = 'qq';
-        } else if (bg != bg2) {
-          xNodeAttrH = 'qq'+bg;
-        } else {
-          // not possible
-          console.log('this is not possible');
-        }
-      } else if (ch.blink && !ch2.blink) {
-        if (fg2 == bg) {
-          xNodeAttrH = 'q'+bg;
-        } else {
-          xNodeAttrH = 'w'+bg+' q'+fg2+' o';
-        }
-      } else {// if(!ch.blink && ch2.blink)
-        if (fg == bg2) {
-          xNodeAttrH = 'q'+fg;
-        } else {
-          xNodeAttrH = 'w'+fg+' q'+bg2+' o';
-        }
-      }
-      xNodeAttrH += ' ' + bcValue;
-      xNodeAttrS += ' ' + bcValue;
-      xNodeStr = '<x s="'+xNodeAttrS+'" h="'+xNodeAttrH+'"></x>';
-    }
-
-    s1 += '<span class="'+spanClass+'" t="'+char1+'"'+fwStyle+'>';
-    if (hasXNode) {
-      s1 += xNodeStr;
-    }
-    s1 += char1+'</span>';
-    return s1;
-  },
-
-  createNormalWord: function(ch, ch2, char1, fg, bg, forceWidth) {
-    var row = this.curRow;
-    var col = this.curCol;
-    var s1 = '';
-    if ((this.openSpan && (fg == this.curFg && bg == this.curBg && ch.blink == this.curBlink)) && forceWidth === 0) {
-      return char1;
-    }
-
-    s1 += this.closeSpanIfIsOpen();
-    if (fg == this.deffg && bg == this.defbg && !ch.blink && forceWidth === 0) { // default colors
-      this.setCurColorStyle(fg, bg, false);
-      s1 += char1;
-    } else if (forceWidth === 0) { // different colors, so create span
-      this.setCurColorStyle(fg, bg, ch.blink);
-      s1 += '<span class="q' +fg+ ' b' +bg+'">';
-      s1 += (ch.blink?'<x s="q'+fg+' b'+bg+'" h="qq'+bg+'"></x>':'') + char1;
-      this.openSpan = true;
-    } else { // different colors, create span and set current color to default because forceWidth
-      this.setCurColorStyle(this.deffg, this.defbg, false);
-      s1 += '<span class="wpadding q' +fg+ ' b' +bg+'" ';
-      s1 += 'style="display:inline-block;width:'+forceWidth+'px;"' +'>' + (ch.blink?'<x s="q'+fg+' b'+bg+'" h="qq'+bg+'"></x>':'') + char1 + '</span>';
-    }
-    return s1;
-  },
-
-  createNormalChar: function(ch, char1, fg, bg) {
-    var row = this.curRow;
-    var col = this.curCol;
-    var useHyperLink = this.useHyperLink;
-    var s0 = '';
-    var s1 = '';
-    var s2 = '';
-    if (ch.isStartOfURL() && useHyperLink) {
-      s0 += this.closeSpanIfIsOpen();
-      s0 += '<a scol="'+col+'" class="y q'+this.deffg+' b'+this.defbg+'" href="' +ch.getFullURL() + '"' + this.prePicRel( ch.getFullURL()) + ' rel="noreferrer" target="_blank" srow="'+row+'">';
-      this.setCurColorStyle(this.deffg, this.defbg, false);
-    }
-    if (ch.isEndOfURL() && useHyperLink) {
-      s2 = '</a>';
-    }
-
-    if (this.openSpan && (bg == this.curBg && (fg == this.curFg || char1 <= ' ') && ch.blink == this.curBlink)) {
-      s1 += this.getHtmlEntitySafe(char1);
-    } else if (bg == this.defbg && (fg == this.deffg || char1 <= ' ') && !ch.blink) {
-      s1 += this.closeSpanIfIsOpen();
-      this.setCurColorStyle(fg, bg, false);
-      s1 += this.getHtmlEntitySafe(char1);
-    } else {
-      s1 += this.closeSpanIfIsOpen();
-      this.setCurColorStyle(fg, bg, ch.blink);
-      s1 +='<span '+ (ch.isPartOfURL()?'link="true" ':'') +'class="q' +fg+ ' b' +bg+ '">'+ (ch.blink?'<x s="q'+fg+' b'+bg+'" h="qq'+bg+'"></x>':'');
-      this.openSpan = true;
-      s1 += this.getHtmlEntitySafe(char1);
-    }
-    if (s2) {
-      this.setCurColorStyle(this.deffg, this.defbg, false);
-      s1 += this.closeSpanIfIsOpen();
-    }
-    return s0+s1+s2;
-  },
-
-  determineAndSetHtmlForCol: function(line, outhtml) {
-    var ch = line[this.curCol];
-    var curColOutHtml = outhtml[this.curCol];
-
-    var fg = ch.getFg();
-    var bg = ch.getBg();
-
-    if (this.doHighlightOnCurRow) {
-      this.defbg = this.highlightBG;
-      bg = this.highlightBG;
-    }
-
-    if (ch.isLeadByte) { // first byte of DBCS char
-      var col2 = this.curCol + 1;
-      if (col2 < this.buf.cols) {
-        var ch2 = line[col2];
-        var curColOutHtml2 = outhtml[col2];
-        var fg2 = ch2.getFg();
-        var bg2 = ch2.getBg();
-        var spanstr1 = '';
-        var spanstr2 = '';
-        if (this.doHighlightOnCurRow) {
-          bg2 = this.highlightBG;
-        }
-
-        if (ch2.ch=='\x20') { //a LeadByte + ' ' //we set this in '?' + ' '
-          spanstr1 = this.createNormalChar(ch, '?', fg, bg);
-          spanstr2 = this.createNormalChar(ch, ' ', fg2, bg2);
-        } else { //maybe normal ...
-          var b5 = ch.ch + ch2.ch; // convert char to UTF-8 before drawing
-          var u = (this.charset == 'UTF-8' || b5.length == 1) ? b5 : b5.b2u();
-          if (u) { // can be converted to valid UTF-8
-            if (u.length == 1) { //normal chinese word
-              var code = this.symtable['x'+u.charCodeAt(0).toString(16)];
-              if (code == 3) { //[4 code char]
-                spanstr1 = this.createNormalChar(ch, '?', fg2, bg2);
-                spanstr2 = this.createNormalChar(ch2, '?', fg2, bg2);
-              } else { 
-                var forceWidth = 0;
-                if (code == 1 || code == 2) {
-                  forceWidth = this.chh;
-                }
-                if (bg != bg2 || fg != fg2 || ch.blink != ch2.blink ) {
-                  spanstr1 = this.createTwoColorWord(ch, ch2, u, fg, fg2, bg, bg2, forceWidth);
-                } else {
-                  spanstr1 = this.createNormalWord(ch, ch2, u, fg, bg, forceWidth);
-                }
-              }
-            } else { //a <?> + one normal char // we set this in '?' + ch2
-              spanstr1 = this.createNormalChar(ch, '?', fg, bg);
-              spanstr2 = this.createNormalChar(ch, ch2.ch, fg2, bg2);
-            }
-          }
-        }
-        curColOutHtml.setHtml(spanstr1);
-        curColOutHtml2.setHtml(spanstr2);
-        ch2.needUpdate = false;
-      }
-      this.curCol = col2;
-    } else { // NOT LeadByte
-      var spanstr = this.createNormalChar(ch, ch.ch, fg, bg);
-      curColOutHtml.setHtml(spanstr);
-    }
-    ch.needUpdate = false;
-
-  },
-
   redraw: function(force) {
 
     //var start = new Date().getTime();
     var cols = this.buf.cols;
     var rows = this.buf.rows;
     var lineChangeds = this.buf.lineChangeds;
-    var lineChangedCount = 0;
     var changedLineHtmlStr = '';
     var changedLineHtmlStrs = [];
     var changedRows = [];
-    var fullUpdateRowThreshold = 3;
 
     var lines = this.buf.lines;
     var outhtmls = this.buf.outputhtmls;
-    var anylineUpdate = false;
     for (var row = 0; row < rows; ++row) {
       var chh = this.chh;
       this.curRow = row;
@@ -505,11 +301,13 @@ TermView.prototype = {
 
       for (this.curCol = 0; this.curCol < cols; ++this.curCol) {
         // always check all because it's hard to know about openSpan when jump update
-        this.determineAndSetHtmlForCol(line, outhtml);
+        // TODO: maybe set ch.needUpdate false?
         lineUpdated = true;
       }
+      /*
       // after all cols, close the span if open
       outhtml[this.curCol-1].addHtml(this.closeSpanIfIsOpen());
+      */
 
       if (lineUpdated) {
         lineUpdated = false;
@@ -530,6 +328,7 @@ TermView.prototype = {
           }
         }
 
+        /*
         if (this.doHighlightOnCurRow) 
           tmp.push('<span type="highlight" class="b'+this.defbg+'" srow="'+row+'">');
 
@@ -540,37 +339,34 @@ TermView.prototype = {
           tmp.push('</span>');
 
         changedLineHtmlStr = tmp.join('');
-        if (changedLineHtmlStrs.length < fullUpdateRowThreshold) { // only store up to the threshold
-          changedLineHtmlStrs.push(changedLineHtmlStr);
-          changedRows.push(row);
-        }
+        changedLineHtmlStrs.push(changedLineHtmlStr);
+        */
+        changedLineHtmlStrs.push(line);
+        changedRows.push(row);
         this.htmlRowStrArray[row] = '<span type="bbsrow" class="'+(userid?'blu_'+userid:'')+'"'+ (shouldFade ? ' style="opacity:0.2"' : '') +' srow="'+row+'">' + changedLineHtmlStr + '</span>';
-        anylineUpdate = true;
         lineChangeds[row] = false;
-        lineChangedCount += 1;
       }
     }
 
-    if (anylineUpdate) {
-      if (lineChangedCount > fullUpdateRowThreshold) {
-        if (!this.useEasyReadingMode) {
-          this.mainContainer.innerHTML = this.htmlRowStrArray.join('');
-          this.buf.prevPageState = this.buf.pageState;
+    if (changedLineHtmlStrs.length > 0) {
+      if (this.useEasyReadingMode) {
+        if (this.buf.startedEasyReading && this.buf.easyReadingShowReplyText) {
+          this.updateEasyReadingReplyTextWithHtmlStr(changedLineHtmlStrs[changedLineHtmlStrs.length-1]);
+        } else if (this.buf.startedEasyReading && this.buf.easyReadingShowPushInitText) {
+          this.updateEasyReadingPushInitTextWithHtmlStr(changedLineHtmlStrs[changedLineHtmlStrs.length-1]);
         } else {
           this.populateEasyReadingPage();
         }
       } else {
-        if (this.useEasyReadingMode && this.buf.startedEasyReading && this.buf.easyReadingShowReplyText) {
-          this.updateEasyReadingReplyTextWithHtmlStr(changedLineHtmlStrs[changedLineHtmlStrs.length-1]);
-        } else if (this.useEasyReadingMode && this.buf.startedEasyReading && this.buf.easyReadingShowPushInitText) {
-          this.updateEasyReadingPushInitTextWithHtmlStr(changedLineHtmlStrs[changedLineHtmlStrs.length-1]);
-        } else {
-          for (var i = 0; i < changedRows.length; ++i) {
-            this.mainContainer.childNodes[changedRows[i]].innerHTML = changedLineHtmlStrs[i];
-          }
+        while (this.mainContainer.childNodes.length > rows)
+          this.mainContainer.removeChild(this.mainContainer.lastChild);
+        for (var i = 0; i < changedRows.length; ++i) {
+          //this.mainContainer.childNodes[changedRows[i]].innerHTML = changedLineHtmlStrs[i];
+          renderRowHtml(changedLineHtmlStrs[i], changedRows[i], this.chh,
+            this.mainContainer.childNodes[changedRows[i]]);
         }
-        this.buf.prevPageState = this.buf.pageState;
       }
+      this.buf.prevPageState = this.buf.pageState;
 
       if (this.enablePicPreview) {
         // hide preview if any update
@@ -1151,19 +947,6 @@ TermView.prototype = {
     this.curBlink = blink;
   },
 
-  getHtmlEntitySafe: function(inputChar) {
-    if (inputChar <= ' ' || inputChar == '\x80') // only display visible chars to speed up
-      return ' ';
-    else if (inputChar == '\x3c')
-      return '&lt;';
-    else if (inputChar == '\x3e')
-      return '&gt;';
-    else if (inputChar == '\x26')
-      return '&amp;';
-    else
-      return inputChar;
-  },
-
   setupPicPreviewOnHover: function() {
     var self = this;
     var aNodes = $(".main a[href^='http://ppt.cc/'], .main a[type='p'], .main a[href^='http://imgur.com/'], .main a[href^='https://imgur.com/'], .main a[href^='https://flic.kr/p/'], .main a[href^='https://www.flickr.com/photos/']")
@@ -1329,16 +1112,20 @@ TermView.prototype = {
         // deep clone lines for selection (getRowText and get ansi color)
         this.buf.pageLines = this.buf.pageLines.concat(JSON.parse(JSON.stringify(this.buf.lines.slice(0, -1))));
       } else {
-        this.lastRowDiv.style.display = '';
-        this.replyRowDiv.style.display = '';
-        this.fbSharingDiv.style.display = '';
-        this.hideFbSharing = true;
-        // clear the deep cloned copy of lines
-        this.buf.pageLines = [];
-        this.mainContainer.innerHTML = this.htmlRowStrArray.join('');
+        this.hideEasyReading();
       }
       this.buf.prevPageState = this.buf.pageState;
     }
+  },
+
+  hideEasyReading: function() {
+    this.lastRowDiv.style.display = '';
+    this.replyRowDiv.style.display = '';
+    this.fbSharingDiv.style.display = '';
+    this.hideFbSharing = true;
+    // clear the deep cloned copy of lines
+    this.buf.pageLines = [];
+    this.mainContainer.innerHTML = this.htmlRowStrArray.join('');
   },
 
   updateFbSharing: function(pttUrl) {
@@ -1487,7 +1274,7 @@ TermView.prototype = {
       switch (e.keyCode) {
         case 32: // spacebar
           if (this.mainDisplay.scrollTop >= this.mainContainer.clientHeight - this.chh * this.buf.rows) {
-            this.buf.cancelPageDownAndResetPrevPageState();
+            this.bbscore.easyReading.leaveCurrentPost();
             this._send(' ');
           } else {
             this.mainDisplay.scrollTop += this.chh * this.easyReadingTurnPageLines;
@@ -1496,19 +1283,19 @@ TermView.prototype = {
           }
           break;
         case 187: // =
-          this.buf.cancelPageDownAndResetPrevPageState();
+          this.bbscore.easyReading.leaveCurrentPost();
           this._send('=');
           break;
         case 189: // -
-          this.buf.cancelPageDownAndResetPrevPageState();
+          this.bbscore.easyReading.leaveCurrentPost();
           this._send('-');
           break;
         case 219: // [
-          this.buf.cancelPageDownAndResetPrevPageState();
+          this.bbscore.easyReading.leaveCurrentPost();
           this._send('[');
           break;
         case 221: // ]
-          this.buf.cancelPageDownAndResetPrevPageState();
+          this.bbscore.easyReading.leaveCurrentPost();
           this._send(']');
           break;
         default: 
@@ -1518,7 +1305,7 @@ TermView.prototype = {
       }
     } else if (!e.ctrlKey && !e.altKey && e.shiftKey) {
       if (e.keyCode == 187) { // +
-        this.buf.cancelPageDownAndResetPrevPageState();
+        this.bbscore.easyReading.leaveCurrentPost();
         this._send('+');
       } else {
         e.preventDefault();
@@ -1536,7 +1323,7 @@ TermView.prototype = {
     if (!e.ctrlKey && !e.altKey && !e.shiftKey) {
       if ((e.keyCode > 48 && e.keyCode < 58) || e.location == 3) { // 1 ~ 9 or num pad keys
         if (e.keyCode == 109 || e.keyCode == 107) { // for the + or - at numpad
-          this.buf.cancelPageDownAndResetPrevPageState();
+          this.bbscore.easyReading.leaveCurrentPost();
           return;
         }
         e.preventDefault();
@@ -1552,7 +1339,7 @@ TermView.prototype = {
       switch (e.keyCode) {
         case 8: // backspace
           if (this.mainDisplay.scrollTop === 0) {
-            this.buf.cancelPageDownAndResetPrevPageState();
+            this.bbscore.easyReading.leaveCurrentPost();
             this._send('\x1b[D\x1b[A\x1b[C');
           } else {
             this.mainDisplay.scrollTop -= this.chh * this.easyReadingTurnPageLines;
@@ -1563,7 +1350,7 @@ TermView.prototype = {
           break;
         case 32: //Spacebar
           if (this.mainDisplay.scrollTop >= this.mainContainer.clientHeight - this.chh * this.buf.rows) {
-            this.buf.cancelPageDownAndResetPrevPageState();
+            this.bbscore.easyReading.leaveCurrentPost();
           } else {
             this.mainDisplay.scrollTop += this.chh * this.easyReadingTurnPageLines;
             e.preventDefault();
@@ -1587,7 +1374,7 @@ TermView.prototype = {
           this.mainDisplay.scrollTop = 0;
           break;
         case 37: //Arrow Left
-          this.buf.sendCommandAfterUpdate = 'skipOne';
+          this.bbscore.easyReading.stopEasyReading();
           if(this.checkLeftDB())
             this._send('\x1b[D\x1b[D');
           else
@@ -1595,7 +1382,7 @@ TermView.prototype = {
           break;
         case 38: //Arrow Up
           if (this.mainDisplay.scrollTop === 0) {
-            this.buf.cancelPageDownAndResetPrevPageState();
+            this.bbscore.easyReading.leaveCurrentPost();
             this._send('\x1b[D\x1b[A\x1b[C');
           } else {
             this.mainDisplay.scrollTop -= this.chh;
@@ -1603,7 +1390,7 @@ TermView.prototype = {
           break;
         case 39: //Arrow Right
           if (this.mainDisplay.scrollTop >= this.mainContainer.clientHeight - this.chh * this.buf.rows) {
-            this.buf.cancelPageDownAndResetPrevPageState();
+            this.bbscore.easyReading.leaveCurrentPost();
             if(this.checkCurDB())
               this._send('\x1b[C\x1b[C');
             else
@@ -1615,7 +1402,7 @@ TermView.prototype = {
         case 13: //Enter
         case 40: //Arrow Down
           if (this.mainDisplay.scrollTop >= this.mainContainer.clientHeight - this.chh * this.buf.rows) {
-            this.buf.cancelPageDownAndResetPrevPageState();
+            this.bbscore.easyReading.leaveCurrentPost();
             this._send('\x1b[D\x1b[B\x1b[C');
           } else {
             this.mainDisplay.scrollTop += this.chh;
@@ -1632,7 +1419,7 @@ TermView.prototype = {
           break;
         case 84: // t
           if (this.mainDisplay.scrollTop >= this.mainContainer.clientHeight - this.chh * this.buf.rows) {
-            this.buf.cancelPageDownAndResetPrevPageState();
+            this.bbscore.easyReading.leaveCurrentPost();
           } else {
             this.mainDisplay.scrollTop += this.chh * this.easyReadingTurnPageLines;
             e.preventDefault();
@@ -1647,7 +1434,7 @@ TermView.prototype = {
         case 189: // -
         case 219: // [
         case 221: // ]
-          this.buf.cancelPageDownAndResetPrevPageState();
+          this.bbscore.easyReading.leaveCurrentPost();
           break;
         case 48: // 0
         case 71: // g
@@ -1718,7 +1505,7 @@ TermView.prototype = {
         this.mainDisplay.scrollTop -= this.chh * this.easyReadingTurnPageLines;
       } else if ( e.keyCode == 72 || e.keyCode == 104 ) { // ^H
         if (this.mainDisplay.scrollTop === 0) {
-          this.buf.cancelPageDownAndResetPrevPageState();
+          this.bbscore.easyReading.leaveCurrentPost();
           this._send('\x1b[D\x1b[A\x1b[C');
         } else {
           this.mainDisplay.scrollTop -= this.chh * this.easyReadingTurnPageLines;
@@ -1732,7 +1519,7 @@ TermView.prototype = {
         case 65: // A
         case 66: // B
         case 70: // F
-          this.buf.cancelPageDownAndResetPrevPageState();
+          this.bbscore.easyReading.leaveCurrentPost();
           break;
         case 52: // $
         case 71: // G
@@ -1741,7 +1528,7 @@ TermView.prototype = {
           e.stopPropagation();
           break;
         case 187: // +
-          this.buf.cancelPageDownAndResetPrevPageState();
+          this.bbscore.easyReading.leaveCurrentPost();
           break;
         // block
         case 72: // H

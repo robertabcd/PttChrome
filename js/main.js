@@ -1,4 +1,4 @@
-﻿$(document).ready(function() {
+﻿function startApp() {
   var site = getQueryVariable('site');
   var from = getQueryVariable('from');
   var keepAlive = getQueryVariable('keepAlive');
@@ -26,7 +26,8 @@
   }, { from: from, keepAlive: keepAlive });
   // calls the gapi onload
   handleGapiClientLoad();
-});
+}
+//$(document).ready(startApp);
 
 /**
   * Called when the client library is loaded.

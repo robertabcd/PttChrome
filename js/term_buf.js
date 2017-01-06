@@ -113,6 +113,10 @@ TermChar.prototype = {
     return this.invert ? this.fg : this.bg;
   },
 
+  getColor: function() {
+    return new ColorState(this.getFg(), this.getBg(), this.blink);
+  },
+
   isUnderLine: function() {
     return this.underLine;
   },
@@ -193,9 +197,6 @@ function TermBuf(cols, rows) {
   this.startedEasyReading = false;
   this.easyReadingShowReplyText = false;
   this.easyReadingShowPushInitText = false;
-  this.easyReadingReachedPageEnd = false;
-  this.sendCommandAfterUpdate = '';
-  this.ignoreOneUpdate = false;
   this.prevPageState = 0;
 
   this.lines = new Array(rows);
@@ -765,88 +766,14 @@ TermBuf.prototype = {
         }
       }
 
-      // make sure to come back to easy reading mode
-      if (this.prevPageState == 2 && this.pageState == 3 && 
-          !this.view.useEasyReadingMode && 
-          this.view.bbscore.pref.values.enableEasyReading &&
-          this.view.bbscore.connectedUrl.site == 'ptt.cc') {
-        this.view.useEasyReadingMode = true;
-      } else if (!this.view.bbscore.pref.values.enableEasyReading) {
-        this.view.useEasyReadingMode = false;
-      }
-
-      if (this.view.useEasyReadingMode) {
-        var lastRowText = this.getRowText(23, 0, this.cols);
-        // dealing with page state jump to 0 because last row wasn't updated fully 
-        if (this.pageState == 3) {
-          this.startedEasyReading = true;
-        } else if (this.startedEasyReading && lastRowText.parseReqNotMetText()) {
-          this.easyReadingShowPushInitText = true;
-        } else {
-          this.easyReadingShowReplyText = false;
-          this.easyReadingShowPushInitText = false;
-          this.startedEasyReading = false;
-        }
-        if (this.startedEasyReading) {
-          if (this.cur_y == 23 && this.cur_x == 79) {
-            if (this.ignoreOneUpdate) {
-              this.ignoreOneUpdate = false;
-              return;
-            }
-            var result = lastRowText.parseStatusRow();
-            if (result) {
-              var lastRowFirstCh = this.lines[23][0];
-              if (lastRowFirstCh.getBg() == 4 && lastRowFirstCh.getFg() == 7) {
-                this.easyReadingReachedPageEnd = true;
-              } else {
-                this.easyReadingReachedPageEnd = false;
-                if (!this.sendCommandAfterUpdate) {
-                  // send page down
-                  this.sendCommandAfterUpdate = '\x1b[6~';
-                }
-              }
-            } else if (!this.easyReadingShowPushInitText) { // only if not showing last row text
-              this.pageState = 5;
-              this.startedEasyReading = false;
-            }
-          } else if (this.cur_y == 23) {
-            if (!this.easyReadingShowPushInitText) {
-              var lastRowText = this.getRowText(23, 0, this.cols);
-              var result = lastRowText.parsePushInitText();
-              if (result) {
-                this.easyReadingShowPushInitText = true;
-              } else {
-                this.easyReadingShowPushInitText = false;
-                return;
-              }
-            }
-          } else if (this.cur_y == 22) {
-            var secondToLastRowText = this.getRowText(22, 0, this.cols);
-            var result = secondToLastRowText.parseReplyText();
-            if (result) {
-              this.easyReadingShowReplyText = true;
-            } else {
-              this.easyReadingShowReplyText = false;
-              return;
-            }
-          } else {
-            // last line hasn't changed
-            return;
-          }
-        }
-      }
+      this.dispatchEvent(new CustomEvent('change'));
 
       if (this.view) {
         this.view.update();
       }
       this.changed = false;
 
-      if (this.sendCommandAfterUpdate) {
-        if (this.sendCommandAfterUpdate != 'skipOne') {
-          this.view.conn.send(this.sendCommandAfterUpdate);
-        }
-        this.sendCommandAfterUpdate = '';
-      }
+      this.dispatchEvent(new CustomEvent('viewUpdate'));
     }
 
     if (this.posChanged) { // cursor pos changed
@@ -1338,13 +1265,7 @@ TermBuf.prototype = {
       this.view.redraw(false);
     }
     this.mouseCursor = 0;
-  },
-
-  cancelPageDownAndResetPrevPageState: function() {
-    if (!this.easyReadingReachedPageEnd) {
-      this.ignoreOneUpdate = true;
-    }
-    this.prevPageState = 0;
   }
-
 };
+
+pttchrome.Event.mixin(TermBuf.prototype);

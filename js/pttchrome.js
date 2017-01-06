@@ -52,6 +52,7 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.view.setBuf(this.buf);
   this.view.setCore(this);
   this.parser = new lib.AnsiParser(this.buf);
+  this.easyReading = new pttchrome.EasyReading(this, this.view, this.buf);
 
   //new pref - start
   this.antiIdleStr = '\x1b\x1b';
@@ -224,7 +225,8 @@ pttchrome.App.prototype.connect = function(url) {
   this.connectedUrl = {
     url: url,
     site: parsed.hostname,
-    port: parsed.port
+    port: parsed.port,
+    easyReadingSupported: true
   };
 };
 
@@ -445,7 +447,7 @@ pttchrome.App.prototype.disableLiveHelper = function(fromUi) {
 };
 
 pttchrome.App.prototype.switchToEasyReadingMode = function(doSwitch) {
-  this.buf.cancelPageDownAndResetPrevPageState();
+  this.easyReading.leaveCurrentPost();
   if (doSwitch) {
     this.disableLiveHelper();
     // clear the deep cloned copy of lines
@@ -800,7 +802,7 @@ pttchrome.App.prototype.onMouse_click = function (cX, cY) {
   switch (this.buf.mouseCursor) {
     case 1:
       if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.buf.sendCommandAfterUpdate = 'skipOne';
+        this.easyReading.stopEasyReading();
       }
       this.conn.send('\x1b[D');  //Arrow Left
       break;
@@ -865,43 +867,43 @@ pttchrome.App.prototype.onMouse_click = function (cX, cY) {
       break;
     case 0:
       if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.buf.sendCommandAfterUpdate = 'skipOne';
+        this.easyReading.stopEasyReading();
       }
       this.conn.send('\x1b[D'); //Arrow Left
       break;
     case 8:
       if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.buf.cancelPageDownAndResetPrevPageState();
+        this.easyReading.leaveCurrentPost();
       } 
       this.conn.send('['); //Previous post with the same title
       break;
     case 9:
       if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.buf.cancelPageDownAndResetPrevPageState();
+        this.easyReading.leaveCurrentPost();
       } 
       this.conn.send(']'); //Next post with the same title
       break;
     case 10:
       if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.buf.cancelPageDownAndResetPrevPageState();
+        this.easyReading.leaveCurrentPost();
       } 
       this.conn.send('='); //First post with the same title
       break;
     case 12:
       if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.buf.cancelPageDownAndResetPrevPageState();
+        this.easyReading.leaveCurrentPost();
       } 
       this.conn.send('\x1b[D\r\x1b[4~'); //Refresh post / pushed texts
       break;
     case 13:
       if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.buf.cancelPageDownAndResetPrevPageState();
+        this.easyReading.leaveCurrentPost();
       } 
       this.conn.send('\x1b[D\r\x1b[4~[]'); //Last post with the same title (LIST)
       break;
     case 14:
       if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.buf.cancelPageDownAndResetPrevPageState();
+        this.easyReading.leaveCurrentPost();
       } 
       this.conn.send('\x1b[D\x1b[4~[]\r'); //Last post with the same title (READING)
       break;
@@ -921,7 +923,7 @@ pttchrome.App.prototype.overlayCommandListener = function (e) {
         case "doArrowUp":
           if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
             if (this.view.mainDisplay.scrollTop === 0) {
-              this.buf.cancelPageDownAndResetPrevPageState();
+              this.easyReading.leaveCurrentPost();
               this.conn.send('\x1b[D\x1b[A\x1b[C');
             } else {
               this.view.mainDisplay.scrollTop -= this.view.chh;
@@ -933,7 +935,7 @@ pttchrome.App.prototype.overlayCommandListener = function (e) {
         case "doArrowDown":
           if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
             if (this.view.mainDisplay.scrollTop >= this.view.mainContainer.clientHeight - this.view.chh * this.buf.rows) {
-              this.buf.cancelPageDownAndResetPrevPageState();
+              this.easyReading.leaveCurrentPost();
               this.conn.send('\x1b[B');
             } else {
               this.view.mainDisplay.scrollTop += this.view.chh;
@@ -958,7 +960,7 @@ pttchrome.App.prototype.overlayCommandListener = function (e) {
           break;
         case "previousThread":
           if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-            this.buf.cancelPageDownAndResetPrevPageState();
+            this.easyReading.leaveCurrentPost();
             this.conn.send('[');
           } else if (this.buf.pageState==2 || this.buf.pageState==3 || this.buf.pageState==4) {
             this.conn.send('[');
@@ -966,7 +968,7 @@ pttchrome.App.prototype.overlayCommandListener = function (e) {
           break;
         case "nextThread":
           if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-            this.buf.cancelPageDownAndResetPrevPageState();
+            this.easyReading.leaveCurrentPost();
             this.conn.send(']');
           } else if (this.buf.pageState==2 || this.buf.pageState==3 || this.buf.pageState==4) {
             this.conn.send(']');
@@ -975,7 +977,7 @@ pttchrome.App.prototype.overlayCommandListener = function (e) {
         case "doEnter":
           if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
             if (this.view.mainDisplay.scrollTop >= this.view.mainContainer.clientHeight - this.view.chh * this.buf.rows) {
-              this.buf.cancelPageDownAndResetPrevPageState();
+              this.easyReading.leaveCurrentPost();
               this.conn.send('\r');
             } else {
               this.view.mainDisplay.scrollTop += this.view.chh;
@@ -987,7 +989,7 @@ pttchrome.App.prototype.overlayCommandListener = function (e) {
         case "doRight":
           if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
             if (this.view.mainDisplay.scrollTop >= this.view.mainContainer.clientHeight - this.view.chh * this.buf.rows) {
-              this.buf.cancelPageDownAndResetPrevPageState();
+              this.easyReading.leaveCurrentPost();
               this.conn.send('\x1b[C');
             } else {
               this.view.mainDisplay.scrollTop += this.view.chh * this.view.easyReadingTurnPageLines;
