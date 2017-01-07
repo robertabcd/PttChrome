@@ -85,9 +85,10 @@ class ColorState {
 }
 
 class ColorSegmentBuilder {
-  constructor() {
+  constructor(currCol) {
     this.segs = [];
     this.curr = null;
+    this.currCol = currCol;
   }
 
   _isLastSegmentSameColor(color) {
@@ -96,8 +97,9 @@ class ColorSegmentBuilder {
 
   _addSegment(color) {
     this.curr = {
+      col: this.currCol,
       colorState: color,
-      chars: []
+      texts: []
     };
     this.segs.push(this.curr);
   }
@@ -105,7 +107,8 @@ class ColorSegmentBuilder {
   _append(type, text, color) {
     if (!this._isLastSegmentSameColor(color))
       this._addSegment(color);
-    this.curr.chars.push({
+    this.curr.texts.push({
+      col: this.currCol,
       type: type,
       text: text
     });
@@ -114,33 +117,45 @@ class ColorSegmentBuilder {
   _reuseChars(type, color) {
     if (!this._isLastSegmentSameColor(color))
       return null;
-    let len = this.curr.chars.length;
+    let len = this.curr.texts.length;
     if (len == 0)
       return null;
-    let last = this.curr.chars[len - 1];
+    let last = this.curr.texts[len - 1];
     return last.type == type ? last : null;
   }
 
-  appendNormalText(text, color) {
+  _appendNormalText(width, text, color) {
     let reuse = this._reuseChars('normalText', color);
     if (reuse)
       reuse.text += text;
     else
       this._append('normalText', text, color);
+    this.currCol += width;
   }
 
-  appendForceWidthWord(text, color, forceWidth) {
-    this._append('forceWidthWord', text, color);
+  appendNormalChar(text, color) {
+    this._appendNormalText(1, text, color);
+  }
+
+  appendNormalWord(text, color, forceWidth) {
+    if (forceWidth) {
+      this._append('forceWidthWord', text, color);
+      this.currCol += 2;
+    } else {
+      this._appendNormalText(2, text, color);
+    }
   }
 
   appendTwoColorWord(text, color, color2) {
     this._addSegment(color);
-    this.curr.chars.push({
+    this.curr.texts.push({
+      col: this.currCol,
       type: 'twoColorWord',
       text: text,
       color: color,
       color2: color2
     });
+    this.currCol += 2;
     this.curr = null;
   }
 
@@ -170,8 +185,8 @@ class Row extends React.Component {
     return segments;
   }
 
-  _segmentTwoColorDBCS(chars) {
-    let builder = new ColorSegmentBuilder();
+  _segmentTwoColorDBCS(colOffset, chars) {
+    let builder = new ColorSegmentBuilder(colOffset);
     let lead = null;
     for (let ch of chars) {
       if (ch.isLeadByte) {
@@ -182,57 +197,64 @@ class Row extends React.Component {
         let u = (lead.ch + ch.ch).b2u();
         if (u.length == 1) {
           if (this._isBadDBCS(u)) {
-            builder.appendNormalText('?', lead.getColor());
-            builder.appendNormalText('?', ch.getColor());
+            builder.appendNormalChar('?', lead.getColor());
+            builder.appendNormalChar('?', ch.getColor());
           } else if (lead.getColor().equals(ch.getColor())) {
-            builder.appendNormalText(u, lead.getColor());
+            builder.appendNormalWord(u, lead.getColor(),
+              this._shouldForceWidth(u) ? this.props.forceWidth : 0);
           } else {
             builder.appendTwoColorWord(u, lead.getColor(), ch.getColor());
           }
         } else {
           // Conversion error.
-          builder.appendNormalText('?', lead.getColor());
-          builder.appendNormalText(ch.ch == '\x20' ? ' ' : '?', ch.getColor());
+          builder.appendNormalChar('?', lead.getColor());
+          builder.appendNormalChar(ch.ch == '\x20' ? ' ' : '?', ch.getColor());
         }
         lead = null
       } else {
-        builder.appendNormalText(ch.ch, ch.getColor());
+        builder.appendNormalChar(ch.ch, ch.getColor());
       }
     }
     return builder.build();
   }
 
   render() {
+    let colOffset = 0;
     let cols = [];
     for (let linkSeg of this._segmentHyperLinks(this.props.chars)) {
       let inner = [];
-      for (let colorSeg of this._segmentTwoColorDBCS(linkSeg.chars)) {
-        let chars = [];
-        for (let ch of colorSeg.chars) {
-          let forceWidth = (this.props.forceWidth && this._shouldForceWidth) ?
-            this.props.forceWidth : 0;
+      for (let colorSeg of this._segmentTwoColorDBCS(colOffset, linkSeg.chars)) {
+        let texts = [];
+        for (let ch of colorSeg.texts) {
+          let key = 'text-c-' + ch.col;
+          let forceWidth = this.props.forceWidth ? this.props.forceWidth : 0;
           switch (ch.type) {
             case 'normalText':
-              chars.push(<NormalText text={ch.text} />);
+              texts.push(<NormalText key={key} text={ch.text} />);
               break;
             case 'forceWidthWord':
-              chars.push(<ForceWidthWord inner={ch.text} forceWidth={forceWidth} />);
+              texts.push(<ForceWidthWord key={key} inner={ch.text}
+                forceWidth={forceWidth} />);
               break;
             case 'twoColorWord':
-              chars.push(<TwoColorWord text={ch.text}
-                colorLead={ch.color} colorTail={ch.color2} forceWidth={forceWidth} />);
+              texts.push(<TwoColorWord key={key} text={ch.text}
+                colorLead={ch.color} colorTail={ch.color2}
+                forceWidth={forceWidth} />);
               break;
           }
         }
-        inner.push(<ColorSpan colorState={colorSeg.colorState}
-          inner={chars} />);
+        let key = 'colorSpan-c-' + colorSeg.col;
+        inner.push(<ColorSpan key={key} colorState={colorSeg.colorState}
+          inner={texts} />);
       }
       if (linkSeg.href) {
-        cols.push(<HyperLink scol={linkSeg.col} srow={this.props.row}
-          href={linkSeg.href} inner={inner} />);
+        let key = 'hyperLink-c-' + linkSeg.col;
+        cols.push(<HyperLink key={key} href={linkSeg.href} inner={inner}
+          data-scol={linkSeg.col} data-srow={this.props.row} />);
       } else {
         cols = cols.concat(inner);
       }
+      colOffset += linkSeg.chars.length;
     }
     return <span>{cols}</span>;
   }
