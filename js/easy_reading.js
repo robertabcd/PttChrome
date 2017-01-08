@@ -3,6 +3,8 @@ pttchrome.EasyReading = function(core, view, termBuf) {
   this._view = view;
   this._termBuf = termBuf;
 
+  this._turnPageLines = 22;
+
   this.easyReadingReachedPageEnd = false;
   this.sendCommandAfterUpdate = '';
   this.ignoreOneUpdate = false;
@@ -106,7 +108,7 @@ pttchrome.EasyReading.prototype._onViewUpdated = function(e) {
   if (this.sendCommandAfterUpdate) {
     console.log("send:" + this.sendCommandAfterUpdate);
     if (this.sendCommandAfterUpdate != 'skipOne') {
-      this._view.conn.send(this.sendCommandAfterUpdate);
+      this._send(this.sendCommandAfterUpdate);
     }
     this.sendCommandAfterUpdate = '';
   }
@@ -123,4 +125,202 @@ pttchrome.EasyReading.prototype.leaveCurrentPost = function() {
 pttchrome.EasyReading.prototype.stopEasyReading = function() {
   console.log('stop easy reading');
   this.sendCommandAfterUpdate = 'skipOne';
+};
+
+pttchrome.EasyReading.prototype._send = function(data) {
+  this._view.conn.send(data);
+};
+
+pttchrome.EasyReading.prototype._onKeyDown = function(e) {
+  if (!this._enabled || !this.startedEasyReading)
+    return;
+
+  this._onKeyDownProcessUI(e);
+  if (e.defaultPrevented)
+    return;
+
+  var stop = false;
+  if (!e.ctrlKey && !e.altKey) {
+    switch (e.key) {
+      case 'Backspace':
+      case 'ArrowUp':
+        this._send('\x1b[D\x1b[A\x1b[C');
+        stop = true;
+        break;
+      case 'ArrowDown':
+        this._send('\x1b[D\x1b[B\x1b[C');
+        stop = true;
+        break;
+    }
+  } else if (e.ctrlKey && !e.altKey) {
+    switch (e.key) {
+      case 'h':
+        this._send('\x1b[D\x1b[A\x1b[C');
+        stop = true;
+        break;
+    }
+  }
+  if (stop)
+    e.preventDefault();
+};
+
+pttchrome.EasyReading.prototype._scrollBy = function(lines) {
+  var cont = this._view.mainDisplay;
+  if (lines < 0 && cont.scrollTop == 0)
+    return false;
+  if (lines > 0 && cont.scrollTop >=
+    this._view.mainContainer.clientHeight -
+      this._view.chh * this._termBuf.rows)
+    return false;
+  cont.scrollTop += this._view.chh * lines;
+  return true;
+};
+
+pttchrome.EasyReading.prototype._scrollEnd = function() {
+  this._view.mainDisplay.scrollTop = this._view.mainContainer.clientHeight;
+  return true;
+};
+
+pttchrome.EasyReading.prototype._scrollTop = function() {
+  this._view.mainDisplay.scrollTop = 0;
+  return true;
+};
+
+pttchrome.EasyReading.prototype._onKeyDownProcessUI = function(e) {
+  var stop = false;
+  if (!e.ctrlKey && !e.altKey) {
+    switch (e.key) {
+      case 'Backspace':
+        stop = this._scrollBy(-this._turnPageLines);
+        if (!stop)
+          this.leaveCurrentPost();
+        break;
+      case 'ArrowRight':
+      case ' ':
+      case 't':
+        stop = this._scrollBy(this._turnPageLines);
+        if (!stop)
+          this.leaveCurrentPost();
+        break;
+      case 'PageUp':
+        this._scrollBy(-this._turnPageLines);
+        stop = true;
+        break;
+      case 'PageDown':
+        this._scrollBy(this._turnPageLines);
+        stop = true;
+        break;
+      case 'ArrowLeft':
+        this.stopEasyReading();
+        break;
+      case 'ArrowUp':
+        stop = this._scrollBy(-1);
+        if (!stop)
+          this.leaveCurrentPost();
+        break;
+      case 'Enter':
+      case 'ArrowDown':
+        stop = this._scrollBy(1);
+        if (!stop)
+          this.leaveCurrentPost();
+        break;
+      case 'k':
+        this._scrollBy(-1);
+        stop = true;
+        break;
+      case 'j':
+        this._scrollBy(1);
+        stop = true;
+        break;
+      case 'Home':
+      case '0':
+      case 'g':
+        stop = this._scrollTop();
+        break;
+      case 'End':
+      case '$':
+      case 'G':
+        stop = this._scrollEnd();
+        break;
+      case 'Tab':
+        stop = true;
+        break;
+      default:
+        if ("abf=+-[]ABF".indexOf(e.key) >= 0) {
+          this.leaveCurrentPost();
+          break;
+        }
+        if ("123456789hops;,./\\H#OP:<>".indexOf(e.key) >= 0) {
+          stop = true;
+          break;
+        }
+    }
+  } else if (e.ctrlKey && !e.altKey) {
+    switch (e.key) {
+      case 'f':
+        this._scrollBy(this._turnPageLines);
+        stop = true;
+        break;
+      case 'b':
+        this._scrollBy(-this._turnPageLines);
+        stop = true;
+        break;
+      case 'h':
+        stop = this._scrollBy(-this._turnPageLines);
+        if (!stop)
+          this.leaveCurrentPost();
+        break;
+      default:
+        if ("@^_?".indexOf(e.key) >= 0) {
+          stop = true;
+          break;
+        }
+    }
+  }
+  if (stop)
+    e.preventDefault();
+};
+
+pttchrome.EasyReading.prototype._onMouseClick = function(e) {
+  if (!this._enabled || !this.startedEasyReading)
+    return;
+  var stop = false;
+  // XXX Should not use term buffer to track mouse cursor.
+  switch (this._termBuf.mouseCursor) {
+    case 0:
+    case 1: // Arrow Left
+      this.stopEasyReading();
+      break;
+    case 2: // Page Up
+      this._scrollBy(-this._turnPageLines);
+      stop = true;
+      break;
+    case 3: // Page Down
+      this._scrollBy(this._turnPageLines);
+      stop = true;
+      break;
+    case 4: // Home
+      this._scrollTop();
+      stop = true;
+      break;
+    case 5: // End
+      this._scrollEnd();
+      stop = true;
+      break;
+    case 6:
+    case 7:
+      break;
+    case 8: // [
+    case 9: // ]
+    case 10: // =
+    case 12: // Refresh post / pushed texts
+    case 13: // Last post with the same title (LIST)
+    case 14: // Last post with the same title (READING)
+      this.leaveCurrentPost();
+      break;
+    default: // Do nothing
+      break;
+  }
+  if (stop)
+    e.preventDefault();
 };

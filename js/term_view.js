@@ -53,10 +53,11 @@ function TermView(rowCount) {
 
   // TODO Move this into easy_reading.js
   this.useEasyReadingMode = false;
-  this.easyReadingTurnPageLines = 22;
   this.easyReadingKeyDownKeyCode = 0;
 
   this.doHighlightOnCurRow = false;
+
+  this.displayingRows = [];
 
   this.curRow = 0;
   this.curCol = 0;
@@ -98,6 +99,7 @@ function TermView(rowCount) {
   mainDiv.setAttribute('class', 'main');
   for (var i = 0; i < rowCount; ++i) {
     this.htmlRowStrArray.push('<span type="bbsrow" srow="'+i+'"></span>');
+    this.displayingRows.push(null);
   }
   mainDiv.innerHTML = '<div id="mainContainer">'+this.htmlRowStrArray.join('')+'</div>';
   this.BBSWin.appendChild(mainDiv);
@@ -175,12 +177,6 @@ function TermView(rowCount) {
       return;
     if (document.getElementById('connectionAlert').style.display != 'none' && 
       (e.keyCode == 13 || e.keyCode == 27)) {
-      return;
-    }
-    if (self.useEasyReadingMode && self.buf.startedEasyReading && 
-        !self.buf.easyReadingShowReplyText && !self.buf.easyReadingShowPushInitText &&
-        self.easyReadingKeyDownKeyCode == 229) { // only use on chinese IME
-      self.easyReadingOnKeyUp(e);
       return;
     }
     // set input area focus whenever key down even if there is selection
@@ -297,7 +293,6 @@ TermView.prototype = {
         continue;
       var lineUpdated = false;
       var chw = this.chw;
-      this.doHighlightOnCurRow = (this.buf.highlightCursor && this.buf.nowHighlight != -1 && this.buf.nowHighlight == row);
 
       for (this.curCol = 0; this.curCol < cols; ++this.curCol) {
         // always check all because it's hard to know about openSpan when jump update
@@ -329,15 +324,6 @@ TermView.prototype = {
         }
 
         /*
-        if (this.doHighlightOnCurRow) 
-          tmp.push('<span type="highlight" class="b'+this.defbg+'" srow="'+row+'">');
-
-        for (var j = 0; j < cols; ++j)
-          tmp.push(outhtml[j].getHtml());
-
-        if (this.doHighlightOnCurRow)
-          tmp.push('</span>');
-
         changedLineHtmlStr = tmp.join('');
         changedLineHtmlStrs.push(changedLineHtmlStr);
         */
@@ -351,9 +337,9 @@ TermView.prototype = {
     if (changedLineHtmlStrs.length > 0) {
       if (this.useEasyReadingMode) {
         if (this.buf.startedEasyReading && this.buf.easyReadingShowReplyText) {
-          this.updateEasyReadingReplyTextWithHtmlStr(changedLineHtmlStrs[changedLineHtmlStrs.length-1]);
+          this.updateEasyReadingReplyRow(changedLineHtmlStrs[changedLineHtmlStrs.length-1]);
         } else if (this.buf.startedEasyReading && this.buf.easyReadingShowPushInitText) {
-          this.updateEasyReadingPushInitTextWithHtmlStr(changedLineHtmlStrs[changedLineHtmlStrs.length-1]);
+          this.updateEasyReadingPushInitRow(changedLineHtmlStrs[changedLineHtmlStrs.length-1]);
         } else {
           this.populateEasyReadingPage();
         }
@@ -363,10 +349,11 @@ TermView.prototype = {
         for (var i = 0; i < changedRows.length; ++i) {
           //this.mainContainer.childNodes[changedRows[i]].innerHTML = changedLineHtmlStrs[i];
           var row = changedRows[i];
-          console.log('redraw: ' + row);
           var component = renderRowHtml(changedLineHtmlStrs[i], row, this.chh,
             this.mainContainer.childNodes[row]);
-          component.setHighlight(this.buf.highlightCursor && this.buf.nowHighlight == row);
+          component.setHighlight(
+            this.buf.highlightCursor && this.buf.currentHighlighted == row);
+          this.displayingRows[row] = component;
         }
       }
       this.buf.prevPageState = this.buf.pageState;
@@ -382,6 +369,20 @@ TermView.prototype = {
     //var time = new Date().getTime() - start;
     //console.log(time);
 
+  },
+
+  setHighlightedRow: function(row) {
+    if (this.currentHighlighted == row || this.currentHighlighted === null && row < 0)
+      return;
+    console.log('highlight: ' + row);
+    if (this.currentHighlighted)
+      this.displayingRows[this.currentHighlighted].setHighlight(false);
+    if (row >= 0) {
+      this.displayingRows[row].setHighlight(true);
+      this.currentHighlighted = row;
+    } else {
+      this.currentHighlighted = null;
+    }
   },
 
   onInput: function(e) {
@@ -430,8 +431,10 @@ TermView.prototype = {
 
     if (this.useEasyReadingMode && this.buf.startedEasyReading && 
         !this.buf.easyReadingShowReplyText && !this.buf.easyReadingShowPushInitText) {
-      this.easyReadingOnKeyDown(e);
-      return;
+      this.easyReadingKeyDownKeyCode = e.keyCode;
+      this.bbscore.easyReading._onKeyDown(e);
+      if (e.defaultPrevented)
+        return;
     }
 
     if (e.charCode) {
@@ -1126,6 +1129,7 @@ TermView.prototype = {
 
   clearRows: function() {
     this.mainContainer.innerHTML = '';
+    this.displayingRows = [];
   },
 
   appendRows: function(lines) {
@@ -1135,8 +1139,18 @@ TermView.prototype = {
       el.setAttribute('type', 'bbsrow');
       el.setAttribute('srow', this.mainContainer.childNodes.length);
       this.mainContainer.appendChild(el);
-      renderRowHtml(line, this.mainContainer.childNodes.length, this.chh, el);
+      var component = renderRowHtml(
+        line, this.mainContainer.childNodes.length, this.chh, el);
+      this.displayingRows.push(component);
     }
+  },
+
+  renderSingleRow: function(target, row) {
+    var el = document.createElement('span');
+    el.setAttribute('type', 'bbsrow');
+    el.setAttribute('srow', '0');
+    target.appendChild(el);
+    return renderRowHtml(row, 0, this.chh, el);
   },
 
   hideEasyReading: function() {
@@ -1292,311 +1306,28 @@ TermView.prototype = {
     }
   },
 
-  easyReadingOnKeyUp: function(e) {
-    if (!e.ctrlKey && !e.altKey && !e.shiftKey) {
-      switch (e.keyCode) {
-        case 32: // spacebar
-          if (this.mainDisplay.scrollTop >= this.mainContainer.clientHeight - this.chh * this.buf.rows) {
-            this.bbscore.easyReading.leaveCurrentPost();
-            this._send(' ');
-          } else {
-            this.mainDisplay.scrollTop += this.chh * this.easyReadingTurnPageLines;
-            e.preventDefault();
-            e.stopPropagation();
-          }
-          break;
-        case 187: // =
-          this.bbscore.easyReading.leaveCurrentPost();
-          this._send('=');
-          break;
-        case 189: // -
-          this.bbscore.easyReading.leaveCurrentPost();
-          this._send('-');
-          break;
-        case 219: // [
-          this.bbscore.easyReading.leaveCurrentPost();
-          this._send('[');
-          break;
-        case 221: // ]
-          this.bbscore.easyReading.leaveCurrentPost();
-          this._send(']');
-          break;
-        default: 
-          e.preventDefault();
-          e.stopPropagation();
-          break;
-      }
-    } else if (!e.ctrlKey && !e.altKey && e.shiftKey) {
-      if (e.keyCode == 187) { // +
-        this.bbscore.easyReading.leaveCurrentPost();
-        this._send('+');
-      } else {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    } else {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  },
-
-  easyReadingOnKeyDown: function(e) {
-    this.easyReadingKeyDownKeyCode = e.keyCode;
-
-    if (!e.ctrlKey && !e.altKey && !e.shiftKey) {
-      if ((e.keyCode > 48 && e.keyCode < 58) || e.location == 3) { // 1 ~ 9 or num pad keys
-        if (e.keyCode == 109 || e.keyCode == 107) { // for the + or - at numpad
-          this.bbscore.easyReading.leaveCurrentPost();
-          return;
-        }
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
-      if (e.keyCode == 229) { // in chinese IME mode
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
-
-      switch (e.keyCode) {
-        case 8: // backspace
-          if (this.mainDisplay.scrollTop === 0) {
-            this.bbscore.easyReading.leaveCurrentPost();
-            this._send('\x1b[D\x1b[A\x1b[C');
-          } else {
-            this.mainDisplay.scrollTop -= this.chh * this.easyReadingTurnPageLines;
-          }
-          break;
-        case 27: //ESC
-          this._send('\x1b');
-          break;
-        case 32: //Spacebar
-          if (this.mainDisplay.scrollTop >= this.mainContainer.clientHeight - this.chh * this.buf.rows) {
-            this.bbscore.easyReading.leaveCurrentPost();
-          } else {
-            this.mainDisplay.scrollTop += this.chh * this.easyReadingTurnPageLines;
-            e.preventDefault();
-            e.stopPropagation();
-          }
-          break;
-        case 33: //Page Up
-          this.mainDisplay.scrollTop -= this.chh * this.easyReadingTurnPageLines;
-          break;
-        case 34: //Page Down
-          this.mainDisplay.scrollTop += this.chh * this.easyReadingTurnPageLines;
-          break;
-        case 35: //End
-          if (this.bbscore.endTurnsOnLiveUpdate) {
-            this.bbscore.onLiveHelperEnableClicked(false);
-          } else {
-            this.mainDisplay.scrollTop = this.mainContainer.clientHeight;
-          }
-          break;
-        case 36: //Home
-          this.mainDisplay.scrollTop = 0;
-          break;
-        case 37: //Arrow Left
-          this.bbscore.easyReading.stopEasyReading();
-          if(this.checkLeftDB())
-            this._send('\x1b[D\x1b[D');
-          else
-            this._send('\x1b[D');
-          break;
-        case 38: //Arrow Up
-          if (this.mainDisplay.scrollTop === 0) {
-            this.bbscore.easyReading.leaveCurrentPost();
-            this._send('\x1b[D\x1b[A\x1b[C');
-          } else {
-            this.mainDisplay.scrollTop -= this.chh;
-          }
-          break;
-        case 39: //Arrow Right
-          if (this.mainDisplay.scrollTop >= this.mainContainer.clientHeight - this.chh * this.buf.rows) {
-            this.bbscore.easyReading.leaveCurrentPost();
-            if(this.checkCurDB())
-              this._send('\x1b[C\x1b[C');
-            else
-              this._send('\x1b[C');
-          } else {
-            this.mainDisplay.scrollTop += this.chh * this.easyReadingTurnPageLines;
-          }
-          break;
-        case 13: //Enter
-        case 40: //Arrow Down
-          if (this.mainDisplay.scrollTop >= this.mainContainer.clientHeight - this.chh * this.buf.rows) {
-            this.bbscore.easyReading.leaveCurrentPost();
-            this._send('\x1b[D\x1b[B\x1b[C');
-          } else {
-            this.mainDisplay.scrollTop += this.chh;
-          }
-          break;
-        case 45: //Insert
-          this._send('\x1b[2~');
-          break;
-        case 46: //DEL
-          if (this.checkCurDB())
-            this._send('\x1b[3~\x1b[3~');
-          else
-            this._send('\x1b[3~');
-          break;
-        case 84: // t
-          if (this.mainDisplay.scrollTop >= this.mainContainer.clientHeight - this.chh * this.buf.rows) {
-            this.bbscore.easyReading.leaveCurrentPost();
-          } else {
-            this.mainDisplay.scrollTop += this.chh * this.easyReadingTurnPageLines;
-            e.preventDefault();
-            e.stopPropagation();
-          }
-          break;
-
-        case 65: // a
-        case 66: // b
-        case 70: // f
-        case 187: // =
-        case 189: // -
-        case 219: // [
-        case 221: // ]
-          this.bbscore.easyReading.leaveCurrentPost();
-          break;
-        case 48: // 0
-        case 71: // g
-          this.mainDisplay.scrollTop = 0;
-          e.preventDefault();
-          e.stopPropagation();
-          break;
-        case 74: // j
-          this.mainDisplay.scrollTop += this.chh;
-          e.preventDefault();
-          e.stopPropagation();
-          break;
-        case 75: // k
-          this.mainDisplay.scrollTop -= this.chh;
-          e.stopPropagation();
-          e.preventDefault();
-          break;
-
-        // block
-        case 72:  // h
-          // block help view
-          // optionally show my own help
-        case 9:   // tab
-        case 79:  // o (options setting)
-        case 80:  // p (playing animation)
-        case 83:  // s
-        case 186: // ; (go to page)
-        case 188: // , (shift left)
-        case 190: // . (shift right)
-        case 191: // / (search)
-        case 220: // \ (setup color display mode)
-          e.preventDefault();
-          e.stopPropagation();
-          break;
-
-      }
-    } else if (!e.ctrlKey && e.altKey && !e.shiftKey) {
-      if (e.keyCode == 87) {// alt+w
-        this._send('^W'.unescapeStr());
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      } else if (e.keyCode == 82) { // alt+r
-        this.bbscore.onLiveHelperEnableClicked(false);
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      } else if (e.keyCode == 84) { // alt+t
-        this._send('^T'.unescapeStr());
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
-    } else if (e.ctrlKey && !e.altKey && !e.shiftKey) {
-      // Control characters
-      // Ctrl + @, NUL, is not handled here
-      if ((e.keyCode == 99 || e.keyCode == 67) && !window.getSelection().isCollapsed) { //^C , do copy
-        var selectedText = window.getSelection().toString().replace(/\u00a0/g, " ");
-        this.bbscore.doCopy(selectedText);
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      } else if (e.keyCode == 97 || e.keyCode == 65) {    // ^A
-        this.bbscore.doSelectAll();
-      } else if ( e.keyCode == 70 || e.keyCode == 102 ) { // ^F 
-        this.mainDisplay.scrollTop += this.chh * this.easyReadingTurnPageLines;
-      } else if ( e.keyCode == 66 || e.keyCode == 98 ) {  // ^B 
-        this.mainDisplay.scrollTop -= this.chh * this.easyReadingTurnPageLines;
-      } else if ( e.keyCode == 72 || e.keyCode == 104 ) { // ^H
-        if (this.mainDisplay.scrollTop === 0) {
-          this.bbscore.easyReading.leaveCurrentPost();
-          this._send('\x1b[D\x1b[A\x1b[C');
-        } else {
-          this.mainDisplay.scrollTop -= this.chh * this.easyReadingTurnPageLines;
-        }
-      }
-      e.preventDefault();
-      e.stopPropagation();
-      return;
-    } else if (!e.ctrlKey && !e.altKey && e.shiftKey) {
-      switch(e.keyCode) {
-        case 65: // A
-        case 66: // B
-        case 70: // F
-          this.bbscore.easyReading.leaveCurrentPost();
-          break;
-        case 52: // $
-        case 71: // G
-          this.mainDisplay.scrollTop = this.mainContainer.clientHeight;
-          e.preventDefault();
-          e.stopPropagation();
-          break;
-        case 187: // +
-          this.bbscore.easyReading.leaveCurrentPost();
-          break;
-        // block
-        case 72: // H
-          // block help view
-          // optionally show my own help
-        case 9:   // tab
-        case 51:  // #
-        case 79:  // O (options setting)
-        case 80:  // P (playing animation)
-        case 186: // : (go to line)
-        case 188: // < (shift left)
-        case 190: // > (shift right)
-          e.preventDefault();
-          e.stopPropagation();
-          break;
-      }
-    } else if (e.ctrlKey && !e.altKey && e.shiftKey) {
-      switch(e.keyCode) {
-      case 50: // @
-      case 54: // ^
-      case 109: // _
-      case 191: // ?
-        e.preventDefault();
-        e.stopPropagation();
-        break;
-      case 86: //ctrl+shift+v
-        this.bbscore.doPaste();
-        e.preventDefault();
-        e.stopPropagation();
-        break;
-      }
-    }
-  },
-
-  updateEasyReadingReplyTextWithHtmlStr: function(htmlStr) {
-    var replyNode = this.replyRowDiv.childNodes[0];
-    replyNode.innerHTML = '<span style="background-color:black;">'+htmlStr+'</span>';
+  updateEasyReadingReplyRow: function(row) {
+    var el = document.createElement('span');
+    el.style = "background-color:black;";
+    this.renderSingleRow(el, row);
+    this.setSingleChild(this.replyRowDiv.childNodes[0], el);
     this.replyRowDiv.style.display = 'block';
   },
 
-  updateEasyReadingPushInitTextWithHtmlStr: function(htmlStr) {
+  updateEasyReadingPushInitRow: function(row) {
     this.hideFbSharing = true;
     this.fbSharingDiv.style.display = '';
-    var pushNode = this.lastRowDiv.childNodes[0];
-    pushNode.innerHTML = '<span style="background-color:black;">'+htmlStr+'</span>';
+
+    var el = document.createElement('span');
+    el.style = "background-color:black;";
+    this.renderSingleRow(el, row);
+    this.setSingleChild(this.lastRowDiv.childNodes[0], el);
+  },
+
+  setSingleChild: function(par, child) {
+    while (par.childNodes.length > 0)
+      par.removeChild(par.lastChild);
+    par.appendChild(child);
   }
 
 };

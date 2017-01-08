@@ -788,7 +788,8 @@ pttchrome.App.prototype.clientToPos = function(cX, cY) {
   return {col: col, row: row};
 };
 
-pttchrome.App.prototype.onMouse_click = function (cX, cY) {
+pttchrome.App.prototype.onMouse_click = function (e) {
+  var cX = e.clientX, cY = e.clientY;
   if (!this.conn.isConnected)
     return;
   if (this.inputHelper.clickedOn) {
@@ -799,40 +800,27 @@ pttchrome.App.prototype.onMouse_click = function (cX, cY) {
   // disable auto update pushthread if any command is issued;
   this.disableLiveHelper();
 
+  // TODO make a responder stack.
+  this.easyReading._onMouseClick(e);
+  if (e.defaultPrevented)
+    return;
+
+  // TODO Move this to mouse browsing module.
   switch (this.buf.mouseCursor) {
     case 1:
-      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.easyReading.stopEasyReading();
-      }
       this.conn.send('\x1b[D');  //Arrow Left
       break;
     case 2:
-      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.view.mainDisplay.scrollTop -= this.view.chh * this.view.easyReadingTurnPageLines;
-      } else {
-        this.conn.send('\x1b[5~'); //Page Up
-      }
+      this.conn.send('\x1b[5~'); //Page Up
       break;
     case 3:
-      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.view.mainDisplay.scrollTop += this.view.chh * this.view.easyReadingTurnPageLines;
-      } else {
-        this.conn.send('\x1b[6~'); //Page Down
-      }
+      this.conn.send('\x1b[6~'); //Page Down
       break;
     case 4:
-      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.view.mainDisplay.scrollTop = 0;
-      } else {
-        this.conn.send('\x1b[1~'); //Home
-      }
+      this.conn.send('\x1b[1~'); //Home
       break;
     case 5:
-      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.view.mainDisplay.scrollTop = this.view.mainContainer.clientHeight;
-      } else {
-        this.conn.send('\x1b[4~'); //End
-      }
+      this.conn.send('\x1b[4~'); //End
       break;
     case 6:
       if (this.buf.nowHighlight != -1) {
@@ -866,45 +854,24 @@ pttchrome.App.prototype.onMouse_click = function (cX, cY) {
       this.conn.send(sendstr);
       break;
     case 0:
-      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.easyReading.stopEasyReading();
-      }
       this.conn.send('\x1b[D'); //Arrow Left
       break;
     case 8:
-      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.easyReading.leaveCurrentPost();
-      } 
       this.conn.send('['); //Previous post with the same title
       break;
     case 9:
-      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.easyReading.leaveCurrentPost();
-      } 
       this.conn.send(']'); //Next post with the same title
       break;
     case 10:
-      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.easyReading.leaveCurrentPost();
-      } 
       this.conn.send('='); //First post with the same title
       break;
     case 12:
-      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.easyReading.leaveCurrentPost();
-      } 
       this.conn.send('\x1b[D\r\x1b[4~'); //Refresh post / pushed texts
       break;
     case 13:
-      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.easyReading.leaveCurrentPost();
-      } 
       this.conn.send('\x1b[D\r\x1b[4~[]'); //Last post with the same title (LIST)
       break;
     case 14:
-      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-        this.easyReading.leaveCurrentPost();
-      } 
       this.conn.send('\x1b[D\x1b[4~[]\r'); //Last post with the same title (READING)
       break;
     default:
@@ -946,14 +913,14 @@ pttchrome.App.prototype.overlayCommandListener = function (e) {
           break;
         case "doPageUp":
           if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-            this.view.mainDisplay.scrollTop -= this.view.chh * this.view.easyReadingTurnPageLines;
+            this.view.mainDisplay.scrollTop -= this.view.chh * this.easyReading._turnPageLines;
           } else {
             this.conn.send('\x1b[5~');
           }
           break;
         case "doPageDown":
           if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-            this.view.mainDisplay.scrollTop += this.view.chh * this.view.easyReadingTurnPageLines;
+            this.view.mainDisplay.scrollTop += this.view.chh * this.easyReading._turnPageLines;
           } else {
             this.conn.send('\x1b[6~');
           }
@@ -992,7 +959,7 @@ pttchrome.App.prototype.overlayCommandListener = function (e) {
               this.easyReading.leaveCurrentPost();
               this.conn.send('\x1b[C');
             } else {
-              this.view.mainDisplay.scrollTop += this.view.chh * this.view.easyReadingTurnPageLines;
+              this.view.mainDisplay.scrollTop += this.view.chh * this.easyReading._turnPageLines;
             }
           } else {
             this.conn.send('\x1b[C');
@@ -1253,7 +1220,7 @@ pttchrome.App.prototype.mouse_click = function(e) {
           this.buf.onMouse_move(pos.col, pos.row, true);
         }
         if (doMouseCommand) {
-          this.onMouse_click(e.clientX, e.clientY);
+          this.onMouse_click(e);
           this.setDblclickTimer();
           e.preventDefault();
           this.setInputAreaFocus();

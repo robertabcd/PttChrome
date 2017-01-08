@@ -742,17 +742,7 @@ TermBuf.prototype = {
       if (this.useMouseBrowsing) {
         // clear highlight and reset cursor on page change
         // without the redraw being called here
-        if (this.highlightCursor) {
-          var rows = this.rows;
-          var lines = this.lines;
-          if (this.nowHighlight != -1) {
-            var line = lines[this.nowHighlight];
-            for (var i = 0; i < this.cols; ++i)
-              line[i].needUpdate = true;
-          }
-        }
-        this.nowHighlight = -1;
-        this.mouseCursor = 0;
+        this.clearHighlight();
       }
 
       if (this.enableDeleteDupLogin) {
@@ -1087,10 +1077,8 @@ TermBuf.prototype = {
     this.tempMouseCol = tcol;
     this.tempMouseRow = trow;
 
-    if (this.nowHighlight !=  trow || doRefresh) {
-      if (this.nowHighlight!=-1) {
-        this.clearHighlight();
-      }
+    if (this.nowHighlight != trow || doRefresh) {
+      this.clearHighlight();
     }
 
     switch( this.pageState ) {
@@ -1104,30 +1092,20 @@ TermBuf.prototype = {
       if (trow>1 && trow < 22) {              //m_pTermData->m_RowsPerPage-1
         if ( tcol <= 6 ) {
           this.mouseCursor = 1;
-          if (this.nowHighlight != -1)
-            this.clearHighlight();
+          this.clearHighlight();
           //SetCursor(m_ExitCursor);m_CursorState=1;
         } else if ( tcol >= 64 ) {            //m_pTermData->m_ColsPerPage-16
           if ( trow > 12 )
             this.mouseCursor = 3;
           else
             this.mouseCursor = 2;
-          if (this.nowHighlight != -1)
-            this.clearHighlight();
+          this.clearHighlight();
         } else {
-          if (this.nowHighlight != trow) {
-            if (!this.isLineEmpty(trow)) {
-              this.mouseCursor = 6;
-              this.nowHighlight = trow;
-              if (this.highlightCursor) {
-                var line = this.lines[this.nowHighlight];
-                for (var i = 0; i < this.cols; ++i)
-                  line[i].needUpdate = true;
-                this.updateCharAttr();
-                this.view.redraw(false);
-              }
-            } else
-              this.mouseCursor = 11;
+          if (!this.isLineEmpty(trow)) {
+            this.mouseCursor = 6;
+            this.nowHighlight = trow;
+          } else {
+            this.mouseCursor = 11;
           }
         }
       } else if ( trow == 1 || trow == 2 ) {
@@ -1143,30 +1121,20 @@ TermBuf.prototype = {
       if (trow > 2 && trow < 23) {              //m_pTermData->m_RowsPerPage-1
         if ( tcol <= 6 ) {
           this.mouseCursor = 1;
-          if (this.nowHighlight != -1)
-            this.clearHighlight();
+          this.clearHighlight();
           //SetCursor(m_ExitCursor);m_CursorState=1;
         } else if ( tcol >= 64 ) {            //m_pTermData->m_ColsPerPage-16
           if ( trow > 12 )
             this.mouseCursor = 3;
           else
             this.mouseCursor = 2;
-          if (this.nowHighlight != -1)
-            this.clearHighlight();
+          this.clearHighlight();
         } else {
-          if (this.nowHighlight != trow) {
-            if ( !this.isLineEmpty(trow)) {
-              this.mouseCursor = 6;
-              this.nowHighlight = trow;
-              if (this.highlightCursor) {
-                var line = this.lines[this.nowHighlight];
-                for (var i = 0; i < this.cols; ++i)
-                  line[i].needUpdate = true;
-                this.updateCharAttr();
-                this.view.redraw(false);
-              }
-            } else
-              this.mouseCursor = 11;
+          if (!this.isLineEmpty(trow)) {
+            this.mouseCursor = 6;
+            this.nowHighlight = trow;
+          } else {
+            this.mouseCursor = 11;
           }
         }
       } else if ( trow == 1 || trow == 2 ) {
@@ -1255,24 +1223,11 @@ TermBuf.prototype = {
 
   setHighlight: function(row) {
     this._nowHighlight = row;
-    console.log('highlight: ' + row);
+    this.view.setHighlightedRow(row);
   },
 
   clearHighlight: function(){
-    if (this.highlightCursor) {
-      var rows = this.rows;
-      var lines = this.lines;
-      if (this.nowHighlight != -1) {
-        var line = lines[this.nowHighlight];
-        for (var i = 0; i < this.cols; ++i)
-          line[i].needUpdate = true;
-      }
-    }
     this.nowHighlight = -1;
-    if (this.highlightCursor) {
-      this.updateCharAttr();
-      this.view.redraw(false);
-    }
     this.mouseCursor = 0;
   }
 };
