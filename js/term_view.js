@@ -362,8 +362,11 @@ TermView.prototype = {
           this.mainContainer.removeChild(this.mainContainer.lastChild);
         for (var i = 0; i < changedRows.length; ++i) {
           //this.mainContainer.childNodes[changedRows[i]].innerHTML = changedLineHtmlStrs[i];
-          renderRowHtml(changedLineHtmlStrs[i], changedRows[i], this.chh,
-            this.mainContainer.childNodes[changedRows[i]]);
+          var row = changedRows[i];
+          console.log('redraw: ' + row);
+          var component = renderRowHtml(changedLineHtmlStrs[i], row, this.chh,
+            this.mainContainer.childNodes[row]);
+          component.setHighlight(this.buf.highlightCursor && this.buf.nowHighlight == row);
         }
       }
       this.buf.prevPageState = this.buf.pageState;
@@ -1082,7 +1085,8 @@ TermView.prototype = {
           }
           this.htmlRowStrArray[i] = this.htmlRowStrArray[i].replace(/(?: arow="\d+")* srow="\d+">/g, ' arow="'+this.actualRowIndex+'" srow="'+(rowOffset+i)+'">');
         }
-        this.mainContainer.innerHTML += this.htmlRowStrArray.slice(beginIndex, -1).join('');
+        //this.mainContainer.innerHTML += this.htmlRowStrArray.slice(beginIndex, -1).join('');
+        this.appendRows(this.buf.lines.slice(beginIndex, -1));
         this.findPttWebUrlAndInitFbSharing();
         this.embedPicAndVideo();
         // deep clone lines for selection (getRowText and get ansi color)
@@ -1103,7 +1107,9 @@ TermView.prototype = {
           }
           this.htmlRowStrArray[i] = this.htmlRowStrArray[i].replace(/ srow=/g, ' arow="'+this.actualRowIndex+'" srow=');
         }
-        this.mainContainer.innerHTML = this.htmlRowStrArray.slice(0, -1).join('');
+        //this.mainContainer.innerHTML = this.htmlRowStrArray.slice(0, -1).join('');
+        this.clearRows();
+        this.appendRows(this.buf.lines.slice(0, -1));
         this.lastRowDiv.innerHTML = this.lastRowDivContent;
         this.lastRowDiv.style.display = 'block';
         this.hideFbSharing = false;
@@ -1118,6 +1124,21 @@ TermView.prototype = {
     }
   },
 
+  clearRows: function() {
+    this.mainContainer.innerHTML = '';
+  },
+
+  appendRows: function(lines) {
+    for (var i in lines) {
+      var line = lines[i];
+      var el = document.createElement('span');
+      el.setAttribute('type', 'bbsrow');
+      el.setAttribute('srow', this.mainContainer.childNodes.length);
+      this.mainContainer.appendChild(el);
+      renderRowHtml(line, this.mainContainer.childNodes.length, this.chh, el);
+    }
+  },
+
   hideEasyReading: function() {
     this.lastRowDiv.style.display = '';
     this.replyRowDiv.style.display = '';
@@ -1125,7 +1146,9 @@ TermView.prototype = {
     this.hideFbSharing = true;
     // clear the deep cloned copy of lines
     this.buf.pageLines = [];
-    this.mainContainer.innerHTML = this.htmlRowStrArray.join('');
+    //this.mainContainer.innerHTML = this.htmlRowStrArray.join('');
+    this.clearRows();
+    this.appendRows(this.buf.lines);
   },
 
   updateFbSharing: function(pttUrl) {

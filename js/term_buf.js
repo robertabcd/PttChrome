@@ -175,7 +175,11 @@ function TermBuf(cols, rows) {
   this.cur_y_sav = -1;
   this.scrollStart = 0;
   this.scrollEnd = rows-1;
-  this.nowHighlight = -1;
+  this._nowHighlight = -1;
+  Object.defineProperty(this, 'nowHighlight', {
+    set: this.setHighlight.bind(this),
+    get: function() { return this._nowHighlight; }.bind(this)
+  });
   this.tempMouseCol = 0;
   this.tempMouseRow = 0;
   this.mouseCursor = 0;
@@ -1247,6 +1251,11 @@ TermBuf.prototype = {
     if (this.useMouseBrowsing) {
       this.onMouse_move(this.tempMouseCol, this.tempMouseRow, true);
     }
+  },
+
+  setHighlight: function(row) {
+    this._nowHighlight = row;
+    console.log('highlight: ' + row);
   },
 
   clearHighlight: function(){

@@ -165,6 +165,11 @@ class ColorSegmentBuilder {
 }
 
 class Row extends React.Component {
+  constructor() {
+    super();
+    this.state = {highlighted: false};
+  }
+
   _segmentHyperLinks(chars) {
     let segments = [];
     let cur = null;
@@ -256,7 +261,17 @@ class Row extends React.Component {
       }
       colOffset += linkSeg.chars.length;
     }
-    return <span>{cols}</span>;
+    let classes = [];
+    if (this.state.highlighted) {
+      classes.push('b2');
+    }
+    return <span className={classes.join(' ')}>{cols}</span>;
+  }
+
+  setHighlight(shouldHighlight) {
+    if (this.state.highlighted != shouldHighlight) {
+      this.setState({highlighted: shouldHighlight});
+    }
   }
 
   _isBadDBCS(u) {
@@ -270,7 +285,7 @@ class Row extends React.Component {
 }
 
 function renderRowHtml(chars, row, forceWidth, cont) {
-  ReactDOM.render(<Row chars={chars} row={row} forceWidth={forceWidth} />, cont);
+  return ReactDOM.render(<Row chars={chars} row={row} forceWidth={forceWidth} />, cont);
 }
 
 $(document).ready(startApp);
