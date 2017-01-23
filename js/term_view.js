@@ -44,13 +44,6 @@ function TermView(rowCount) {
   this.cursorX = 0;
   this.cursorY = 0;
 
-  this.deffg = 7;
-  this.defbg = 0;
-  this.curFg = 7;
-  this.curBg = 0;
-  this.curBlink = false;
-  this.openSpan = false;
-
   // TODO Move this into easy_reading.js
   this.useEasyReadingMode = false;
   this.easyReadingKeyDownKeyCode = 0;
@@ -93,15 +86,14 @@ function TermView(rowCount) {
   this.titleTimer = null;
   this.notif = null;
 
-  this.htmlRowStrArray = [];
-
   var mainDiv = document.createElement('div');
   mainDiv.setAttribute('class', 'main');
+  var defaultRows = '';
   for (var i = 0; i < rowCount; ++i) {
-    this.htmlRowStrArray.push('<span type="bbsrow" srow="'+i+'"></span>');
+    defaultRows += '<span type="bbsrow" srow="'+i+'"></span>';
     this.displayingRows.push(null);
   }
-  mainDiv.innerHTML = '<div id="mainContainer">'+this.htmlRowStrArray.join('')+'</div>';
+  mainDiv.innerHTML = '<div id="mainContainer">' + defaultRows + '</div>';
   this.BBSWin.appendChild(mainDiv);
   this.mainDisplay = mainDiv;
 
@@ -284,8 +276,6 @@ TermView.prototype = {
       var chh = this.chh;
       this.curRow = row;
       // resets color
-      this.setCurColorStyle(this.deffg, this.defbg, false);
-      this.defbg = 0;
       var line = lines[row];
       var outhtml = outhtmls[row];
       var lineChanged = lineChangeds[row];
@@ -299,16 +289,11 @@ TermView.prototype = {
         // TODO: maybe set ch.needUpdate false?
         lineUpdated = true;
       }
-      /*
-      // after all cols, close the span if open
-      outhtml[this.curCol-1].addHtml(this.closeSpanIfIsOpen());
-      */
 
       if (lineUpdated) {
         lineUpdated = false;
         changedLineHtmlStrs.push(line);
         changedRows.push(row);
-        this.htmlRowStrArray[row] = '<span type="bbsrow" class="" srow="'+row+'">' + changedLineHtmlStr + '</span>';
         lineChangeds[row] = false;
       }
     }
@@ -326,7 +311,6 @@ TermView.prototype = {
         while (this.mainContainer.childNodes.length > rows)
           this.mainContainer.removeChild(this.mainContainer.lastChild);
         for (var i = 0; i < changedRows.length; ++i) {
-          //this.mainContainer.childNodes[changedRows[i]].innerHTML = changedLineHtmlStrs[i];
           var row = changedRows[i];
           var component = renderRowHtml(changedLineHtmlStrs[i], row, this.chh,
             this.mainContainer.childNodes[row]);
@@ -917,21 +901,6 @@ TermView.prototype = {
     return selection;
   },
 
-  closeSpanIfIsOpen: function() {
-    var output = '';
-    if (this.openSpan) {
-      output += '</span>';
-      this.openSpan = false;
-    }
-    return output;
-  },
-
-  setCurColorStyle: function(fg, bg, blink) {
-    this.curFg = fg;
-    this.curBg = bg;
-    this.curBlink = blink;
-  },
-
   setupPicPreviewOnHover: function() {
     var self = this;
     var aNodes = $(".main a[href^='http://ppt.cc/'], .main a[type='p'], .main a[href^='http://imgur.com/'], .main a[href^='https://imgur.com/'], .main a[href^='https://flic.kr/p/'], .main a[href^='https://www.flickr.com/photos/']")
@@ -1055,7 +1024,7 @@ TermView.prototype = {
           rowOffset -= beginIndex-1;
         }
 
-        for (var i = beginIndex; i < this.htmlRowStrArray.length-1; ++i) {
+        for (var i = beginIndex; i < this.buf.rows-1; ++i) {
           if (i > 0 && this.buf.isTextWrappedRow(i-1)) {
             this.buf.pageWrappedLines[this.actualRowIndex] += 1;
             // if the second row is the wrapped line from first row 
@@ -1065,9 +1034,7 @@ TermView.prototype = {
           } else {
             this.buf.pageWrappedLines[++this.actualRowIndex] = 1;
           }
-          this.htmlRowStrArray[i] = this.htmlRowStrArray[i].replace(/(?: arow="\d+")* srow="\d+">/g, ' arow="'+this.actualRowIndex+'" srow="'+(rowOffset+i)+'">');
         }
-        //this.mainContainer.innerHTML += this.htmlRowStrArray.slice(beginIndex, -1).join('');
         this.appendRows(this.buf.lines.slice(beginIndex, -1));
         this.findPttWebUrlAndInitFbSharing();
         this.embedPicAndVideo();
@@ -1081,15 +1048,13 @@ TermView.prototype = {
       this.buf.pageWrappedLines = [];
       if (this.buf.pageState == 3) {
         var lastRowText = this.buf.getRowText(23, 0, this.buf.cols);
-        for (var i = 0; i < this.htmlRowStrArray.length-1; ++i) {
+        for (var i = 0; i < this.buf.rows-1; ++i) {
           if (i == 4 || i > 0 && this.buf.isTextWrappedRow(i-1)) { // row with i == 4 and the i == 3 is the wrapped line
             this.buf.pageWrappedLines[this.actualRowIndex] += 1;
           } else {
             this.buf.pageWrappedLines[++this.actualRowIndex] = 1;
           }
-          this.htmlRowStrArray[i] = this.htmlRowStrArray[i].replace(/ srow=/g, ' arow="'+this.actualRowIndex+'" srow=');
         }
-        //this.mainContainer.innerHTML = this.htmlRowStrArray.slice(0, -1).join('');
         this.clearRows();
         this.appendRows(this.buf.lines.slice(0, -1));
         this.lastRowDiv.innerHTML = this.lastRowDivContent;
@@ -1139,7 +1104,6 @@ TermView.prototype = {
     this.hideFbSharing = true;
     // clear the deep cloned copy of lines
     this.buf.pageLines = [];
-    //this.mainContainer.innerHTML = this.htmlRowStrArray.join('');
     this.clearRows();
     this.appendRows(this.buf.lines);
   },

@@ -746,12 +746,11 @@ pttchrome.App.prototype.getWindowInnerBounds = function() {
 };
 
 pttchrome.App.prototype.getFirstGridOffsets = function() {
-  var firstGrid = $(".main span[srow='0']")[0];
-  var offsets = {
-    top: firstGrid.offsetTop,
-    left: firstGrid.offsetLeft
+  var container = $("#mainContainer")[0];
+  return {
+    top: container.offsetTop,
+    left: container.offsetLeft
   };
-  return offsets;
 };
 
 pttchrome.App.prototype.clientToPos = function(cX, cY) {
