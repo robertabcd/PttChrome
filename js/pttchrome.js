@@ -643,22 +643,16 @@ pttchrome.App.prototype.doAddBlacklistUserId = function(userid) {
   this.pref.blacklistedUserIds[userid] = true;
   this.pref.setBlacklistValue();
   this.pref.setBlacklistStorage();
-  if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-    $('.blu_'+userid).css('opacity', '0.2');
-  } else {
-    this.view.redraw(true);
-  }
+  // XXX This should be changed to use a stylesheet to manage.
+  $('.blu_'+userid).css('opacity', '0.2');
 };
 
 pttchrome.App.prototype.doRemoveBlacklistUserId = function(userid) {
   delete this.pref.blacklistedUserIds[userid];
   this.pref.setBlacklistValue();
   this.pref.setBlacklistStorage();
-  if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-    $('.blu_'+userid).css('opacity', '');
-  } else {
-    this.view.redraw(true);
-  }
+  // XXX This should be changed to use a stylesheet to manage.
+  $('.blu_'+userid).css('opacity', '');
 };
 
 pttchrome.App.prototype.doSettings = function() {

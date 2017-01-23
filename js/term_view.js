@@ -306,30 +306,9 @@ TermView.prototype = {
 
       if (lineUpdated) {
         lineUpdated = false;
-        var tmp = [];
-        var shouldFade = false;
-        var userid = '';
-
-        // check blacklist for user and fade row
-        if (this.bbscore.pref.enableBlacklist) {
-          var rowText = this.buf.getRowText(row, 0, this.buf.cols);
-          if (this.buf.pageState == 3) {
-            userid = rowText.parsePushthreadForUserId();
-          } else if (this.buf.pageState == 2) {
-            userid = rowText.parseThreadForUserId();
-          }
-          if (userid in this.bbscore.pref.blacklistedUserIds) {
-            shouldFade = true;
-          }
-        }
-
-        /*
-        changedLineHtmlStr = tmp.join('');
-        changedLineHtmlStrs.push(changedLineHtmlStr);
-        */
         changedLineHtmlStrs.push(line);
         changedRows.push(row);
-        this.htmlRowStrArray[row] = '<span type="bbsrow" class="'+(userid?'blu_'+userid:'')+'"'+ (shouldFade ? ' style="opacity:0.2"' : '') +' srow="'+row+'">' + changedLineHtmlStr + '</span>';
+        this.htmlRowStrArray[row] = '<span type="bbsrow" class="" srow="'+row+'">' + changedLineHtmlStr + '</span>';
         lineChangeds[row] = false;
       }
     }

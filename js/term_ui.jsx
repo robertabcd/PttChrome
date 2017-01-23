@@ -265,6 +265,7 @@ class Row extends React.Component {
     if (this.state.highlighted) {
       classes.push('b2');
     }
+    // TODO: Detect userid and apply class "blu_$userid".
     return <span className={classes.join(' ')}>{cols}</span>;
   }
 
