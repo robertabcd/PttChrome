@@ -1,5 +1,6 @@
 ﻿// Main Program
 
+
 pttchrome = pttchrome || {};
 
 pttchrome.App = function(onInitializedCallback, options) {
@@ -151,13 +152,6 @@ pttchrome.App = function(onInitializedCallback, options) {
   window.onresize = function() {
     self.onWindowResize();
   };
-  this.view.picPreview.addEventListener('load', function(e) {
-    if (self.view.picPreviewShouldShown) {
-      self.view.picPreview.style.display = 'block';
-      self.view.picLoading.style.display = 'none';
-      self.updatePicPreviewPosition();
-    }
-  });
 
   this.isFromApp = (options.from === 'app');
 
@@ -1118,6 +1112,7 @@ pttchrome.App.prototype.onPrefChange = function(pref, name) {
       this.endTurnsOnLiveUpdate = pref.get(name);
       break;
     case 'enablePicPreview':
+      // TODO: move this to ImagePreview.
       this.view.enablePicPreview = pref.get(name);
       break;
     case 'enableNotifications':
@@ -1333,20 +1328,10 @@ pttchrome.App.prototype.mouse_up = function(e) {
 };
 
 pttchrome.App.prototype.mouse_move = function(e) {
-  this.curX = e.clientX;
-  this.curY = e.clientY;
   if (this.inputHelper.mouseDown) {
     this.inputHelper.onMouseDrag(e);
     return;
   }
-
-  if (this.view.enablePicPreview && this.view.picLoading.style.display != 'none') {
-    this.view.picLoading.style.cssText += [
-      'left:'+(e.clientX + 20)+'px',
-      'top:'+e.clientY+'px'
-      ].join(';');
-  }
-  this.updatePicPreviewPosition();
 
   if (this.buf.useMouseBrowsing) {
     if (window.getSelection().isCollapsed) {
@@ -1785,29 +1770,4 @@ pttchrome.App.prototype.setBBSCmd = function(cmd, cmdhandler) {
     evt.initEvent("OverlayCommand", false, false);
     cmdhandler.dispatchEvent(evt);
   }
-};
-
-pttchrome.App.prototype.updatePicPreviewPosition = function() {
-  if (this.view.picPreview.style.display == 'none')
-    return;
-  var mouseHeight = this.curY;
-  var curX = this.curX;
-  var pageHeight = $(window).height();
-  var imageHeight = this.view.picPreview.clientHeight;
-  var imgTop = 20;
-
-  // opening image would pass the bottom of the page
-  if (mouseHeight + imageHeight / 2 > pageHeight - 20) {
-    if (imageHeight / 2 < mouseHeight) {
-      imgTop = pageHeight - 20 - imageHeight;
-    }
-  } else if (mouseHeight - 20 > imageHeight / 2) {
-    imgTop = mouseHeight - imageHeight / 2;
-  }
-  var fontSize = this.view.chh;
-  this.view.picPreview.style.cssText += [
-    'font-size:'+fontSize+'px',
-    'left:'+(curX+20)+'px',
-    'top:'+imgTop+'px'
-    ].join(';');
 };

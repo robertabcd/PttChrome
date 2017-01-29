@@ -29,6 +29,8 @@
     <script type="text/javascript" src="js/constants_local.js"></script>
     <script type="text/javascript" src="js/pttchrome.js"></script>
     <script type="text/babel" src="js/term_ui.jsx"></script>
+    <script type="text/babel" src="js/image_urls.js"></script>
+    <script type="text/babel" src="js/image_preview.jsx"></script>
     <script type="text/javascript" src="js/event.js"></script>
     <script type="text/javascript" src="js/touch_controller.js"></script>
     <script type="text/javascript" src="js/google_drive.js"></script>
@@ -319,9 +321,7 @@
         </div>
       </div>
     </div>
-    <img id="picPreview" src='' style='max-height:80%; max-width:90%'></img>
-    <i id="picLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate" style="display:none; position:absolute; z-index:2"></i>
-
+    <div id="imagePreviewContainer"></div>
     <div id="liveHelper" class="modal-dialog">
       <div class="modal-content">
         <div class="modal-body nomouse_command" style="height:60px;">

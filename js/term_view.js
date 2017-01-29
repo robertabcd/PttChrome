@@ -71,8 +71,6 @@ function TermView(rowCount) {
   this.bbsCursor = document.getElementById('cursor');
   this.trackKeyWordList = document.getElementById('TrackKeyWordList');
   this.BBSWin = document.getElementById('BBSWindow');
-  this.picPreview = document.getElementById('picPreview');
-  this.picLoading = document.getElementById('picLoading');
   this.enablePicPreview = true;
   this.scaleX = 1;
   this.scaleY = 1;
@@ -122,9 +120,6 @@ function TermView(rowCount) {
   this.mainContainer = document.getElementById('mainContainer');
   this.mainDisplay.style.border = '0px';
   this.setFontFace('MingLiu,monospace');
-
-  this.picPreviewShouldShown = false;
-  this.picPreviewAjaxLoading = false;
 
   var self = this;
   this.input.addEventListener('compositionstart', function(e) {
@@ -323,9 +318,8 @@ TermView.prototype = {
 
       if (this.enablePicPreview) {
         // hide preview if any update
-        this.picPreviewShouldShown = false;
-        this.picPreview.style.display = 'none';
-        this.picLoading.style.display = 'none';
+        renderImagePreview(document.getElementById('imagePreviewContainer'),
+          null);
         this.setupPicPreviewOnHover();
       }
     }
@@ -903,66 +897,31 @@ TermView.prototype = {
 
   setupPicPreviewOnHover: function() {
     var self = this;
-    var aNodes = $(".main a[href^='http://ppt.cc/'], .main a[type='p'], .main a[href^='http://imgur.com/'], .main a[href^='https://imgur.com/'], .main a[href^='https://flic.kr/p/'], .main a[href^='https://www.flickr.com/photos/']")
-                  .not("a[href^='http://imgur.com/a/'], a[href^='https://imgur.com/a/'], a[href^='http://imgur.com/gallery/'], a[href^='https://imgur.com/gallery/']");
-    var onover = function(elem) {
-      var setPicPreviewSrc = function(src) {
-        var currSrc = self.picPreview.getAttribute('src');
-        if (src !== currSrc) {
-          self.picLoading.style.display = 'block';
-          self.picPreview.setAttribute('src', src);
-        } else {
-          self.picPreview.style.display = 'block';
-        }
-        self.picPreviewShouldShown = true;
-      };
-      var found_flickr = elem.getAttribute('href').match('flic\.kr\/p\/\(\\w\+\)|flickr\.com\/photos\/[\\w@]\+\/\(\\d\+\)');
-      if (found_flickr) {
-        var flickrBase58Id = found_flickr[1];
-        var flickrPhotoId = flickrBase58Id ? base58_decode(flickrBase58Id) : found_flickr[2];
-        elem.setAttribute('data-flickr-photo-id', flickrPhotoId);
-
-        return function(e) {
-          var currPhotoId = self.picPreview.getAttribute('data-flickr-photo-id');
-          if (flickrPhotoId == currPhotoId) {
-            self.picPreview.style.display = 'block';
-            self.picPreviewShouldShown = true;
-          } else {
-            self.picPreviewAjaxLoading = true;
-            self.picLoading.style.display = 'block';
-            var flickrApi = "https://api.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=c8c95356e465b8d7398ff2847152740e&photo_id="+flickrPhotoId+"&format=json&jsoncallback=?";
-            $.getJSON(flickrApi, function(data){
-              if (data.photo) {
-                var p = data.photo;
-                var src = "https://farm"+p.farm+".staticflickr.com/"+p.server+"/"+p.id+"_"+p.secret+".jpg";
-                if (self.picPreviewAjaxLoading) {
-                  setPicPreviewSrc(src);
-                  self.picPreview.setAttribute('data-flickr-photo-id', p.id);
-                }
-                self.picPreviewAjaxLoading = false;
-              }
-            });
-          }
-        };
-      } else if (elem.getAttribute('href').indexOf('flickr.com/photos/') < 0) {  
-        // handle with non-photo flickr urls, such as albums or sets, and straight image links, imgur urls. 
-        return function(e) {
-          var href = elem.getAttribute('href');
-          var type = elem.getAttribute('type');
-          var src = (type == 'p') ? href : (href.indexOf('imgur.com') > 0) ? href.replace(/(http(s)?):\/\/imgur.com/, "$1://i.imgur.com") + '.jpg' : href + '@.jpg';
-          setPicPreviewSrc(src);
-        };
-      }
+    var aNodes = $([
+      ".main a[href^='http://ppt.cc/']",
+      ".main a[type='p']",
+      ".main a[href^='http://imgur.com/']",
+      ".main a[href^='https://imgur.com/']",
+      ".main a[href^='http://i.imgur.com/']",
+      ".main a[href^='https://i.imgur.com/']",
+      ".main a[href^='https://flic.kr/p/']",
+      ".main a[href^='https://www.flickr.com/photos/']"
+    ].join(",")).not([
+      "a[href^='http://imgur.com/a/']",
+      "a[href^='https://imgur.com/a/']",
+      "a[href^='http://imgur.com/gallery/']",
+      "a[href^='https://imgur.com/gallery/']"
+    ].join(","));
+    var cont = document.getElementById('imagePreviewContainer');
+    var onover = function(e) {
+      renderImagePreview(cont, this.getAttribute('href'));
     };
     var onout = function(e) {
-      self.picPreviewShouldShown = false;
-      self.picPreviewAjaxLoading = false;
-      self.picPreview.style.display = 'none';
-      self.picLoading.style.display = 'none';
+      renderImagePreview(cont, null);
     };
     for (var i = 0; i < aNodes.length; ++i) {
       var aNode = aNodes[i];
-      aNode.addEventListener('mouseover', onover(aNode));
+      aNode.addEventListener('mouseover', onover);
       aNode.addEventListener('mouseout', onout);
     }
   },
@@ -1274,18 +1233,3 @@ TermView.prototype = {
   }
 
 };
-
-// To decode base58 of flickr photo id
-// ref: https://www.flickr.com/groups/51035612836@N01/discuss/72157616713786392/72157620931323757
-function base58_decode(snipcode)
-{
-    var alphabet = '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
-    var num = snipcode.length;
-    var decoded = 0;
-    var multi = 1;
-    for (var i = (num-1); i >= 0; i--) {
-        decoded = decoded + multi * alphabet.indexOf(snipcode[i]);
-        multi = multi * alphabet.length;
-    }
-    return decoded;
-}
