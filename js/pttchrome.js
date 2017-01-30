@@ -452,8 +452,6 @@ pttchrome.App.prototype.switchToEasyReadingMode = function(doSwitch) {
     this.view.lastRowIndex = 22;
     this.view.lastRowDiv.style.display = '';
     this.view.replyRowDiv.style.display = '';
-    this.view.fbSharingDiv.style.display = '';
-    this.view.hideFbSharing = true;
     // clear the deep cloned copy of lines
     this.buf.pageLines = [];
   }

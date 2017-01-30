@@ -95,14 +95,6 @@ function TermView(rowCount) {
   this.BBSWin.appendChild(mainDiv);
   this.mainDisplay = mainDiv;
 
-  var fbSharingDiv = document.createElement('div');
-  fbSharingDiv.setAttribute('id', 'fbSharing');
-  fbSharingDiv.setAttribute('align', 'left');
-  fbSharingDiv.innerHTML = '<div class="fb-like" data-href="" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true"></div>';
-  this.fbSharingDiv = fbSharingDiv;
-  this.BBSWin.appendChild(fbSharingDiv);
-  this.hideFbSharing = false;
-
   var lastRowDiv = document.createElement('div');
   lastRowDiv.setAttribute('id', 'easyReadingLastRow');
   this.lastRowDivContent = '<span align="left"><span class="q0 b7">                                                       </span><span class="q1 b7">(y)</span><span class="q0 b7">回應</span><span class="q1 b7">(X%)</span><span class="q0 b7">推文</span><span class="q1 b7">(←)</span><span class="q0 b7">離開 </span> </span>';
@@ -649,7 +641,6 @@ TermView.prototype = {
     this.firstGridOffset = this.bbscore.getFirstGridOffsets();
 
     this.updateCursorPos();
-    this.updateFbSharingPos();
   },
 
   convertMN2XYEx: function(cx, cy) {
@@ -995,7 +986,6 @@ TermView.prototype = {
           }
         }
         this.appendRows(this.buf.lines.slice(beginIndex, -1));
-        this.findPttWebUrlAndInitFbSharing();
         this.embedPicAndVideo();
         // deep clone lines for selection (getRowText and get ansi color)
         this.buf.pageLines = this.buf.pageLines.concat(JSON.parse(JSON.stringify(this.buf.lines.slice(beginIndex, -1))));
@@ -1018,8 +1008,6 @@ TermView.prototype = {
         this.appendRows(this.buf.lines.slice(0, -1));
         this.lastRowDiv.innerHTML = this.lastRowDivContent;
         this.lastRowDiv.style.display = 'block';
-        this.hideFbSharing = false;
-        this.findPttWebUrlAndInitFbSharing();
         this.embedPicAndVideo();
         // deep clone lines for selection (getRowText and get ansi color)
         this.buf.pageLines = this.buf.pageLines.concat(JSON.parse(JSON.stringify(this.buf.lines.slice(0, -1))));
@@ -1059,52 +1047,10 @@ TermView.prototype = {
   hideEasyReading: function() {
     this.lastRowDiv.style.display = '';
     this.replyRowDiv.style.display = '';
-    this.fbSharingDiv.style.display = '';
-    this.hideFbSharing = true;
     // clear the deep cloned copy of lines
     this.buf.pageLines = [];
     this.clearRows();
     this.appendRows(this.buf.lines);
-  },
-
-  updateFbSharing: function(pttUrl) {
-    if (this.hideFbSharing) 
-      return;
-    var self = this;
-    this.fbSharingDiv.childNodes[0].setAttribute('data-href', pttUrl);
-    FB.XFBML.parse(document.getElementById('fbSharing'), function() {
-      if (self.hideFbSharing) {
-        return;
-      }
-      self.updateFbSharingPos();
-      self.fbSharingDiv.style.display = 'block';
-    });
-  },
-
-  updateFbSharingPos: function() {
-    var firstGridOffset = this.firstGridOffset;
-    var bottomOffset = firstGridOffset.top + (this.chh - 20) /2 -1 + 'px';
-    var marginLeft = this.firstGridOffset.left + 10 + 'px';
-    if (this.scaleX != 1 || this.scaleY != 1) {
-      marginLeft = this.bbsViewMargin + 10 + 'px';
-      bottomOffset  = this.bbsViewMargin + (this.chh * this.scaleY - 20)/2 + 'px';
-    }
-    this.fbSharingDiv.style.bottom = bottomOffset;
-    this.fbSharingDiv.style.marginLeft = marginLeft;
-  },
-
-  findPttWebUrlAndInitFbSharing: function() {
-    if (this.hideFbSharing)
-      return;
-
-    var aNodes = document.querySelectorAll(".main a[href^='http://www.ptt.cc/bbs/']");
-    for (var i = 0; i < aNodes.length; ++i) {
-      var aNode = aNodes[i];
-      if (aNode.previousSibling && aNode.previousSibling.textContent.replace(/\u00a0/g, ' ') == '※ 文章網址: ') {
-        var href = aNode.getAttribute('href');
-        this.updateFbSharing(href);
-      }
-    }
   },
 
   embedPicAndVideo: function() {
@@ -1217,9 +1163,6 @@ TermView.prototype = {
   },
 
   updateEasyReadingPushInitRow: function(row) {
-    this.hideFbSharing = true;
-    this.fbSharingDiv.style.display = '';
-
     var el = document.createElement('span');
     el.style = "background-color:black;";
     this.renderSingleRow(el, row);
