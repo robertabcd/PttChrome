@@ -24,7 +24,7 @@ pttchrome.Event.prototype.dispatchEvent = function(e) {
 
 pttchrome.Event.prototype.removeEventListener = function(type, listener) {
   this._listeners = this._listeners || {};
-  var fns = this._listeners[e.type];
+  var fns = this._listeners[type];
   if (fns) {
     for (var i in fns) {
       if (fns[i] === listener) {
