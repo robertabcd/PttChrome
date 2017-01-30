@@ -226,6 +226,7 @@ class Row extends React.Component {
   render() {
     let colOffset = 0;
     let cols = [];
+    let linkPreviews = [];
     for (let linkSeg of this._segmentHyperLinks(this.props.chars)) {
       let inner = [];
       for (let colorSeg of this._segmentTwoColorDBCS(colOffset, linkSeg.chars)) {
@@ -256,6 +257,11 @@ class Row extends React.Component {
         let key = 'hyperLink-c-' + linkSeg.col;
         cols.push(<HyperLink key={key} href={linkSeg.href} inner={inner}
           data-scol={linkSeg.col} data-srow={this.props.row} />);
+        // TODO: Modularize this.
+        if (this.props.showsLinkPreviews) {
+          linkPreviews.push(
+            <HyperLinkPreview key={key} src={linkSeg.href} />);
+        }
       } else {
         cols = cols.concat(inner);
       }
@@ -266,7 +272,12 @@ class Row extends React.Component {
       classes.push('b2');
     }
     // TODO: Detect userid and apply class "blu_$userid".
-    return <span className={classes.join(' ')}>{cols}</span>;
+    return (
+      <div>
+        <span key="line" className={classes.join(' ')}>{cols}</span>
+        <div key="previews">{linkPreviews}</div>
+      </div>
+    );
   }
 
   setHighlight(shouldHighlight) {
@@ -285,8 +296,10 @@ class Row extends React.Component {
   }
 }
 
-function renderRowHtml(chars, row, forceWidth, cont) {
-  return ReactDOM.render(<Row chars={chars} row={row} forceWidth={forceWidth} />, cont);
+function renderRowHtml(chars, row, forceWidth, showsLinkPreviews, cont) {
+  return ReactDOM.render(
+    <Row chars={chars} row={row} forceWidth={forceWidth}
+      showsLinkPreviews={showsLinkPreviews} />, cont);
 }
 
 $(document).ready(startApp);

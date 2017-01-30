@@ -105,7 +105,7 @@ class ImagePreview extends React.Component {
   }
 }
 
-class AsyncImagePreview extends React.Component {
+class BaseAsyncImagePreview extends React.Component {
   constructor(props) {
     super(props);
     this.state = {resolvedSrc: ''};
@@ -143,7 +143,9 @@ class AsyncImagePreview extends React.Component {
     }
     this.setState({resolvedSrc: src});
   }
+}
 
+class AsyncImagePreview extends BaseAsyncImagePreview {
   render() {
     return <ImagePreview src={this.state.resolvedSrc} />;
   }
@@ -151,4 +153,14 @@ class AsyncImagePreview extends React.Component {
 
 function renderImagePreview(cont, src) {
   return ReactDOM.render(<AsyncImagePreview src={src} />, cont);
+}
+
+class HyperLinkPreview extends BaseAsyncImagePreview {
+  render() {
+    if (this.state.resolvedSrc) {
+      return <img className="easyReadingImg hyperLinkPreview" src={this.state.resolvedSrc} />;
+    } else {
+      return <div />;
+    }
+  }
 }

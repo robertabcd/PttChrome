@@ -75,6 +75,10 @@ function TermView(rowCount) {
   this.scaleX = 1;
   this.scaleY = 1;
 
+  var dynamicStyle = document.createElement('style');
+  document.head.appendChild(dynamicStyle);
+  this.dynamicCss = dynamicStyle.sheet;
+
   // for cpu efficiency
   this.innerBounds = { width: 0, height: 0 };
   this.firstGridOffset = { top: 0, left: 0 };
@@ -299,7 +303,8 @@ TermView.prototype = {
           this.mainContainer.removeChild(this.mainContainer.lastChild);
         for (var i = 0; i < changedRows.length; ++i) {
           var row = changedRows[i];
-          var component = renderRowHtml(changedLineHtmlStrs[i], row, this.chh,
+          var component = renderRowHtml(
+            changedLineHtmlStrs[i], row, this.chh, false,
             this.mainContainer.childNodes[row]);
           component.setHighlight(
             this.buf.highlightCursor && this.buf.currentHighlighted == row);
@@ -640,7 +645,19 @@ TermView.prototype = {
 
     this.firstGridOffset = this.bbscore.getFirstGridOffsets();
 
+    this.updateReverseScaleCss();
     this.updateCursorPos();
+  },
+
+  updateReverseScaleCss: function() {
+    var rule = 'img.hyperLinkPreview { ' +
+      '-webkit-transform: scale(' + Math.floor(1/this.scaleX*100)/100 + ',' +
+      Math.floor(1/this.scaleY*100)/100+');' +
+      ' }';
+    while (this.dynamicCss.cssRules.length > 0) {
+      this.dynamicCss.deleteRule(0);
+    }
+    this.dynamicCss.insertRule(rule, this.dynamicCss.cssRules.length);
   },
 
   convertMN2XYEx: function(cx, cy) {
@@ -985,8 +1002,7 @@ TermView.prototype = {
             this.buf.pageWrappedLines[++this.actualRowIndex] = 1;
           }
         }
-        this.appendRows(this.buf.lines.slice(beginIndex, -1));
-        this.embedPicAndVideo();
+        this.appendRows(this.buf.lines.slice(beginIndex, -1), true);
         // deep clone lines for selection (getRowText and get ansi color)
         this.buf.pageLines = this.buf.pageLines.concat(JSON.parse(JSON.stringify(this.buf.lines.slice(beginIndex, -1))));
       }
@@ -1005,10 +1021,9 @@ TermView.prototype = {
           }
         }
         this.clearRows();
-        this.appendRows(this.buf.lines.slice(0, -1));
+        this.appendRows(this.buf.lines.slice(0, -1), true);
         this.lastRowDiv.innerHTML = this.lastRowDivContent;
         this.lastRowDiv.style.display = 'block';
-        this.embedPicAndVideo();
         // deep clone lines for selection (getRowText and get ansi color)
         this.buf.pageLines = this.buf.pageLines.concat(JSON.parse(JSON.stringify(this.buf.lines.slice(0, -1))));
       } else {
@@ -1023,7 +1038,7 @@ TermView.prototype = {
     this.displayingRows = [];
   },
 
-  appendRows: function(lines) {
+  appendRows: function(lines, showsLinkPreview) {
     for (var i in lines) {
       var line = lines[i];
       var el = document.createElement('span');
@@ -1031,7 +1046,8 @@ TermView.prototype = {
       el.setAttribute('srow', this.mainContainer.childNodes.length);
       this.mainContainer.appendChild(el);
       var component = renderRowHtml(
-        line, this.mainContainer.childNodes.length, this.chh, el);
+        line, this.mainContainer.childNodes.length, this.chh,
+        showsLinkPreview, el);
       this.displayingRows.push(component);
     }
   },
@@ -1041,7 +1057,7 @@ TermView.prototype = {
     el.setAttribute('type', 'bbsrow');
     el.setAttribute('srow', '0');
     target.appendChild(el);
-    return renderRowHtml(row, 0, this.chh, el);
+    return renderRowHtml(row, 0, this.chh, false, el);
   },
 
   hideEasyReading: function() {
@@ -1050,108 +1066,7 @@ TermView.prototype = {
     // clear the deep cloned copy of lines
     this.buf.pageLines = [];
     this.clearRows();
-    this.appendRows(this.buf.lines);
-  },
-
-  embedPicAndVideo: function() {
-    var aNodes = $(".main a[type='p'], .main a[href^='http://imgur.com/'], .main a[href^='https://imgur.com/'], .main a[href^='https://flic.kr/'], .main a[href^='https://www.flickr.com/photos/']");
-    var getPhotoInfoCallback = function(data){
-      if (data.photo) {
-        var p = data.photo;
-        var src = "https://farm"+p.farm+".staticflickr.com/"+p.server+"/"+p.id+"_"+p.secret+".jpg";
-        var theANodes = $('a[data-flickr-photo-id="'+p.id+'"]');
-        var imgNode = document.createElement('img');
-        imgNode.setAttribute('class', 'easyReadingImg');
-        imgNode.setAttribute('src', src);
-        imgNode.setAttribute('data-flickr-photo-id', p.id);
-        imgNode.style.webkitTransform = 'scale('+Math.floor(1/this.scaleX*100)/100+','+Math.floor(1/this.scaleY*100)/100+')';
-        // 因為無法指定 append 的行數，但畫面可能出現重複的 url，加過一次後，把 id 存起來，避免重複 append
-        var hasFlickrPhotoIdSelector = ':has(img[data-flickr-photo-id="'+p.id+'"])';
-        theANodes.parent().not(hasFlickrPhotoIdSelector).append(imgNode);
-        theANodes.attr('view_shown', 'true');
-      }
-    };
-    var getImgurAlbumInfoCallback = function(data){
-      var images = data.data.images;
-      var albumId = data.data.id;
-      images.forEach(function(i){
-        var theANodes = $('a[data-imgur-aubum-id="'+albumId+'"]');
-        var src = i.link;
-        var imgNode = document.createElement('img');
-        imgNode.setAttribute('class', 'easyReadingImg');
-        imgNode.setAttribute('src', src);
-        imgNode.setAttribute('data-imgur-photo-id', i.id);
-        imgNode.style.webkitTransform = 'scale('+Math.floor(1/this.scaleX*100)/100+','+Math.floor(1/this.scaleY*100)/100+')';
-        // 因為無法指定 append 的行數，但畫面可能出現重複的 url，加過一次後，把 id 存起來，避免重複 append
-        var hasImgurImageIdSelector = ':has(img[data-imgur-photo-id="'+i.id+'"])';
-        theANodes.parent().not(hasImgurImageIdSelector).append(imgNode);
-        theANodes.attr('view_shown', 'true');
-      });
-    };
-    var setAuthorizationHeaderForImgurApi = function(xhr) { xhr.setRequestHeader('Authorization', 'Client-ID 66f9b381f0785a5'); };
-
-    for (var i = 0; i < aNodes.length; ++i) {
-      var aNode = aNodes[i];
-      if (aNode.getAttribute('view_shown')) {
-        continue;
-      }
-      var href = aNode.getAttribute('href');
-      var found_flickr = href.match('flic\.kr\/p\/\(\\w\+\)|flickr\.com\/photos\/[\\w@]\+\/\(\\d\+\)');
-      if (found_flickr) {
-        var flickrBase58Id = found_flickr[1];
-        var flickrPhotoId = flickrBase58Id ? base58_decode(flickrBase58Id) : found_flickr[2];
-        var flickrApi = "https://api.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=c8c95356e465b8d7398ff2847152740e&photo_id="+flickrPhotoId+"&format=json&jsoncallback=?";
-        $.getJSON(flickrApi, getPhotoInfoCallback);
-      } else if (href.indexOf('flickr.com/photos/') < 0) {
-        // handle with non-photo flickr urls, such as albums or sets, and straight image links, imgur urls.
-        var isImgurAlbum = href.match('imgur\.com\/\(a|gallery\)\/\(\\w\+\)');
-        if (isImgurAlbum) {
-          var imgurAlbumId = isImgurAlbum[2];
-          var imgurAlbumApi = 'https://api.imgur.com/3/album/'+imgurAlbumId;
-          aNode.setAttribute('data-imgur-aubum-id', imgurAlbumId);
-          $.ajax({
-            url: imgurAlbumApi,
-            type: 'GET',
-            dataType: 'json',
-            success: getImgurAlbumInfoCallback,
-            beforeSend: setAuthorizationHeaderForImgurApi // need to send auth header to access public resources
-          });
-        } else {
-          var type = aNode.getAttribute('type');
-          var src = (type == 'p') ? href : (href.indexOf('imgur.com') > 0) ? href.replace(/(http(s)?):\/\/imgur.com/, "$1://i.imgur.com") + '.jpg' : '';
-          if (src) {
-            var imgNode = document.createElement('img');
-            imgNode.setAttribute('class', 'easyReadingImg');
-            imgNode.setAttribute('src', src);
-            imgNode.style.webkitTransform = 'scale('+Math.floor(1/this.scaleX*100)/100+','+Math.floor(1/this.scaleY*100)/100+')';
-            aNode.parentNode.appendChild(imgNode);
-          }
-
-          aNode.setAttribute('view_shown', 'true');
-        }
-      }
-    }
-
-    var vNodes = document.querySelectorAll(".main a");
-    for (var i = 0; i < vNodes.length; ++i) {
-      var vNode = vNodes[i];
-      if (vNode.getAttribute('view_shown')) {
-        continue;
-      }
-      var href = vNode.getAttribute('href');
-      if (!href)
-        continue;
-      var youtubeShortCode = href.parseYoutubeUrl();
-      if (youtubeShortCode) {
-        var divNode = document.createElement('div');
-        divNode.setAttribute('class', 'easyReadingVideo');
-        divNode.style.webkitTransform = 'scale('+Math.floor(1/this.scaleX*100)/100+','+Math.floor(1/this.scaleY*100)/100+')';
-        divNode.innerHTML = '<iframe width="640" height="385" src="//www.youtube.com/embed/'+youtubeShortCode+'?rel=0" frameborder="0" allowfullscreen></iframe>';
-        vNode.parentNode.appendChild(divNode);
-      }
-
-      vNode.setAttribute('view_shown', 'true');
-    }
+    this.appendRows(this.buf.lines, false);
   },
 
   updateEasyReadingReplyRow: function(row) {
