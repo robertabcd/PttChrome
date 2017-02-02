@@ -117,6 +117,11 @@ function TermView(rowCount) {
   this.mainDisplay.style.border = '0px';
   this.setFontFace('MingLiu,monospace');
 
+  this._keyboard = new pttchrome.TermKeyboard(
+    this.checkLeftDB.bind(this),
+    this.checkCurDB.bind(this),
+    this._send.bind(this));
+
   var self = this;
   this.input.addEventListener('compositionstart', function(e) {
     self.onCompositionStart(e);
@@ -150,7 +155,7 @@ function TermView(rowCount) {
         document.getElementById('connectionAlertExitAll').click();
       return;
     }
-    self.onkeyDown(e);
+    self.onKeyDown(e);
   }, false);
 
   addEventListener('keyup', function(e) {
@@ -378,9 +383,7 @@ TermView.prototype = {
     this._convSend(text);
   },
 
-  onkeyDown: function(e) {
-    // dump('onKeyPress:'+e.charCode + ', '+e.keyCode+'\n');
-    var charCode;
+  onKeyDown: function(e) {
     this.resetCursorBlink();
 
     if (this.useEasyReadingMode && this.buf.startedEasyReading && 
@@ -391,203 +394,48 @@ TermView.prototype = {
         return;
     }
 
-    if (e.charCode) {
-      // Control characters
-      if (e.ctrlKey && !e.altKey && !e.shiftKey) {
-        // Ctrl + @, NUL, is not handled here
-        if ( e.charCode >= 65 && e.charCode <=90 ) { // A-Z
-          this._send( String.fromCharCode(e.charCode - 64) );
-          e.preventDefault();
-          e.stopPropagation();
-          return;
-        } else if ( e.charCode >= 97 && e.charCode <=122 ) { // a-z
-          this._send( String.fromCharCode(e.charCode - 96) );
-          e.preventDefault();
-          e.stopPropagation();
-          return;
-        }
-      }
-    } else if (!e.ctrlKey && !e.altKey && !e.shiftKey) {
-
-      switch (e.keyCode) {
-      case 8:
-        if (this.checkLeftDB())
-          this._send('\b\b');
-        else
-          this._send('\b');
-        break;
-      case 9:
-        this._send('\t');
-        // don't move input focus to next control
-        e.preventDefault();
-        e.stopPropagation();
-        break;
-      case 13:
-        this._send('\r');
-        break;
-      case 27: //ESC
-        this._send('\x1b');
-        break;
-      case 33: //Page Up
-        this._send('\x1b[5~');
-        break;
-      case 34: //Page Down
-        this._send('\x1b[6~');
-        break;
-      case 35: //End
-        if ((this.bbscore.buf.pageState == 2 || this.bbscore.buf.pageState == 3) &&
+    // TODO: Move this. Make a key event mapper.
+    var stop = false;
+    if (!e.ctrlKey && !e.altKey) {
+      switch (e.key) {
+        case 'End': //End
+          if ((this.bbscore.buf.pageState == 2 || this.bbscore.buf.pageState == 3) &&
             this.bbscore.endTurnsOnLiveUpdate) {
-          this.bbscore.onLiveHelperEnableClicked(false);
-        } else {
-          this._send('\x1b[4~');
-        }
-        break;
-      case 36: //Home
-        this._send('\x1b[1~');
-        break;
-      case 37: //Arrow Left
-        if(this.checkLeftDB())
-          this._send('\x1b[D\x1b[D');
-        else
-          this._send('\x1b[D');
-        break;
-      case 38: //Arrow Up
-        this._send('\x1b[A');
-        break;
-      case 39: //Arrow Right
-        if(this.checkCurDB())
-          this._send('\x1b[C\x1b[C');
-        else
-          this._send('\x1b[C');
-        break;
-      case 40: //Arrow Down
-        this._send('\x1b[B');
-        break;
-      case 45: //Insert
-        this._send('\x1b[2~');
-        break;
-      case 46: //DEL
-        if (this.checkCurDB())
-          this._send('\x1b[3~\x1b[3~');
-        else
-          this._send('\x1b[3~');
-        break;
-        /*
-      case 112: //F1
-        this._send('\x1bOP');
-        break;
-      case 113: //F2
-        this._send('\x1bOQ');
-        break;
-      case 114: //F3
-        this._send('\x1bOR');
-        break;
-      case 115: //F4
-        this._send('\x1bOS');
-        break;
-      case 116: //F5
-        this.bbscore.pref.reloadPreference();
-        e.preventDefault();
-        e.stopPropagation();
-        break;
-      case 117: //F6
-        this._send('\x1b[17~');
-        break;
-      case 118: //F7
-        this._send('\x1b[18~');
-        break;
-      case 119: //F8
-        this._send('\x1b[19~');
-        break;
-      case 120: //F9
-        this._send('\x1b[20~');
-        break;
-      case 121: //F10
-        this._send('\x1b[21~');
-        break;
-      case 122: //F11
-        //this._send('\x1b[23~');//Firefox [Full Screen] hotkey
-        break;
-      case 123: //F12
-        this._send('\x1b[24~');
-        break;
-        */
+            this.bbscore.onLiveHelperEnableClicked(false);
+            stop = true;
+          }
+          break;
       }
-      return;
     } else if (e.ctrlKey && !e.altKey && !e.shiftKey) {
-      if ((e.keyCode == 99 || e.keyCode == 67) && !window.getSelection().isCollapsed) { //^C , do copy
-        var selectedText = window.getSelection().toString().replace(/\u00a0/g, " ");
-        this.bbscore.doCopy(selectedText);
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      } else if (e.keyCode == 97 || e.keyCode == 65) {
-        this.bbscore.doSelectAll();
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      } else if (e.keyCode >= 65 && e.keyCode <= 90) { // A-Z key
-        charCode = e.keyCode - 64;
-      } else if (e.keyCode >= 219 && e.keyCode <= 221) // [ \ ]
-        charCode = e.keyCode - 192;
-    } else if (!e.ctrlKey && e.altKey && !e.shiftKey) {
-      if (e.keyCode == 87) {// alt+w
-        this._send('^W'.unescapeStr());
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      } else if (e.keyCode == 82) { // alt+r
-        this.bbscore.onLiveHelperEnableClicked(false);
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      } else if (e.keyCode == 84) { // alt+t
-        this._send('^T'.unescapeStr());
-        e.preventDefault();
-        e.stopPropagation();
-        return;
+      switch (e.key.toLowerCase()) {
+        case 'c':
+          if (!window.getSelection().isCollapsed) { //^C , do copy
+            var selectedText = window.getSelection().toString().replace(/\u00a0/g, " ");
+            this.bbscore.doCopy(selectedText);
+            stop = true
+          }
+          break;
+        case 'a':
+          this.bbscore.doSelectAll();
+          stop = true;
+          break;
       }
     } else if (e.ctrlKey && !e.altKey && e.shiftKey) {
-      switch(e.keyCode) {
-      case 50: // @
-        charCode = 0;
-        break;
-      case 54: // ^
-        charCode = 30;
-        break;
-      case 109: // _
-        charCode = 31;
-        break;
-      case 191: // ?
-        charCode = 127;
-        break;
-      case 86: //ctrl+shift+v
-        this.bbscore.doPaste();
-        e.preventDefault();
-        e.stopPropagation();
-        charCode = 0;
-        break;
+      switch (e.key.toLowerCase()) {
+        case 'V':
+          this.bbscore.doPaste();
+          stop = true;
+          break;
       }
     }
-    if (charCode) {
-      var sendCode = true;
-      var preventDefault = true;
-      if (charCode == 1 && this.hotkeyForSelectAll) { //select all
-        this.bbscore.doSelectAll();
-        sendCode = false;
-        //return;
-      } else if (charCode == 3) { //copy
-        if (!window.getSelection().isCollapsed) //no anything be select
-          return;
-      }
+    if (stop) {
+      e.preventDefault();
+      return;
+    }
 
-      if (sendCode)
-        this._send( String.fromCharCode(charCode) );
-      if (preventDefault) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    }
+    this._keyboard.onKeyDown(e);
+    if (e.defaultPrevented)
+      return;
   },
 
   setTermFontSize: function(cw, ch) {
