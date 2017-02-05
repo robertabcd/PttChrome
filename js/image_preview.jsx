@@ -1,5 +1,10 @@
 'use strict';
 
+// ImagePreview shows a spinner or a image that moves along with cursor.
+// It shows a spinner and hides image when the image is loading. Reverse
+// afterwards.
+//
+// @prop src the URL of image to diaplay; empty string hides components.
 class ImagePreview extends React.Component {
   constructor(props) {
     super(props);
@@ -105,6 +110,15 @@ class ImagePreview extends React.Component {
   }
 }
 
+// BaseAsyncImagePreview is a base class for general async image.
+// When the image URL is determined, the loadable image URL is available via
+// resolvedSrc in state.
+//
+// @prop src the URL for image; it accepts indirect links by using ImageURL
+// module.
+//
+// TODO: This should be a plain class rather than extending from
+// React.Component.
 class BaseAsyncImagePreview extends React.Component {
   constructor(props) {
     super(props);
@@ -145,6 +159,8 @@ class BaseAsyncImagePreview extends React.Component {
   }
 }
 
+// AsyncImagePreview resolves image location using ImageURL and displays as
+// ImagePreview.
 class AsyncImagePreview extends BaseAsyncImagePreview {
   render() {
     return <ImagePreview src={this.state.resolvedSrc} />;
@@ -155,6 +171,8 @@ function renderImagePreview(cont, src) {
   return ReactDOM.render(<AsyncImagePreview src={src} />, cont);
 }
 
+// HyperLinkPreview resolves image location using ImageURL and displays with
+// a img element.
 class HyperLinkPreview extends BaseAsyncImagePreview {
   render() {
     if (this.state.resolvedSrc) {
