@@ -73,6 +73,39 @@ class FlickrImageURL {
 }
 ImageURL.register(FlickrImageURL);
 
+// ImgurAlbumImageURL resolve an imgur album URL with images inside.
+// TODO: What about multiple images?
+class ImgurAlbumImageURL {
+  static create(href) {
+    let re = /^https?:\/\/(?:i\.)?imgur.com\/a\/(\w+)/;
+    if (href.match(re)) {
+      console.log('match success');
+      return new ImgurAlbumImageURL(RegExp.$1);
+    }
+    return null;
+  }
+  constructor(albumID) {
+    this._albumID = albumID;
+  }
+  fetchSrc() {
+    let imgurApi = 'https://api.imgur.com/3/album/' + this._albumID;
+    let apiKey = 'Client-ID 66f9b381f0785a5';
+    return new Promise( (resolve, reject) => {
+      $.ajax({
+        url: imgurApi,
+        method: 'GET',
+        headers: { 'Authorization': apiKey }
+      }).done( (res) => {
+        if (res.data.images_count === 1)
+          resolve(res.data.images[0].link);
+        else
+          reject('resolve URL fail');
+      });
+    });
+  }
+}
+ImageURL.register(ImgurAlbumImageURL);
+
 class ImgurImageURL {
   static create(href) {
     if (href.match('^https?://(i\.)?imgur\.com/')) {
