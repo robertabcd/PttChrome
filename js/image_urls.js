@@ -79,14 +79,15 @@ class ImgurAlbumImageURL {
   static create(href) {
     let re = /^https?:\/\/(?:i\.)?imgur.com\/a\/(\w+)/;
     if (href.match(re)) {
-      console.log('match success');
       return new ImgurAlbumImageURL(RegExp.$1);
     }
     return null;
   }
+
   constructor(albumID) {
     this._albumID = albumID;
   }
+
   fetchSrc() {
     let imgurApi = 'https://api.imgur.com/3/album/' + this._albumID;
     let apiKey = 'Client-ID 66f9b381f0785a5';
