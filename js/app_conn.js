@@ -70,7 +70,7 @@ lib.AppConnection.prototype._connectToApp = function() {
   });
 };
 
-lib.AppConnection.prototype.connect = function(callback) {
+lib.AppConnection.prototype.connect = function() {
   var self = this;
   return this._checkChromeApp().then(function() {
     return self._connectToApp();

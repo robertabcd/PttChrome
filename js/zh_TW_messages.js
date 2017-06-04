@@ -295,6 +295,16 @@
   },
 
   // alerts
+  "alert_developerModeHeader": {
+    "message": "開發者模式"
+  },
+  "alert_developerModeText": {
+    "message": "您正在使用開發者模式。此版本的 PttChrome 並不穩定，無法保證所有功能會正常運作。"
+  },
+  "alert_developerModeDismiss": {
+    "message": "是，我瞭解了"
+  },
+
   "alert_connectionHeader": {
     "message": "你斷線了!"
   },

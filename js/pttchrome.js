@@ -42,8 +42,6 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.CmdHandler.setAttribute('SkipMouseClick','0');
   this.pref = null;
 
-  this.connect(getQueryVariable('site') || pttchrome.Constants.DEFAULT_SITE);
-
   this.view = new TermView(24);
   this.buf = new TermBuf(80, 24);
   this.buf.setView(this.view);
@@ -161,6 +159,7 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.pushthreadAutoUpdateCount = 0;
   this.maxPushthreadAutoUpdateCount = -1;
   this.onWindowResize();
+  this.setupDeveloperModeAlert();
   this.setupConnectionAlert();
   this.setupLiveHelper();
   this.setupOtherSiteInput();
@@ -168,8 +167,24 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.contextMenuShown = false;
 
   this.pref = new PttChromePref(this, onInitializedCallback);
-  // load the settings after the app connection is made
-  this.setupAppConnection().then(function() {
+
+  (new Promise(function(resolve, reject) {
+    if (pttchrome.Constants.DEVELOPER_MODE) {
+      $('#developerModeAlertDismiss').click(function(e) {
+        $('#developerModeAlert').hide();
+        resolve();
+      });
+      $('#developerModeAlert').show();
+    } else {
+      resolve();
+    }
+  })).then(function() {
+    // connect.
+    self.connect(getQueryVariable('site') || pttchrome.Constants.DEFAULT_SITE);
+
+    // load the settings after the app connection is made
+    return self.setupAppConnection();
+  }).then(function() {
     self.appConn.appPort.postMessage({ action: 'getSymFont' });
   }, function() {
     self.onSymFont(null);
@@ -457,6 +472,13 @@ pttchrome.App.prototype.switchToEasyReadingMode = function(doSwitch) {
   }
   // request the full screen
   this.view.conn.send('^L'.unescapeStr());
+};
+
+pttchrome.App.prototype.setupDeveloperModeAlert = function() {
+  $('#developerModeAlertReconnect').empty();
+  $('#developerModeAlertHeader').text(i18n('alert_developerModeHeader'));
+  $('#developerModeAlertText').text(i18n('alert_developerModeText'));
+  $('#developerModeAlertDismiss').text(i18n('alert_developerModeDismiss'));
 };
 
 pttchrome.App.prototype.setupConnectionAlert = function() {
@@ -775,7 +797,7 @@ pttchrome.App.prototype.clientToPos = function(cX, cY) {
 
 pttchrome.App.prototype.onMouse_click = function (e) {
   var cX = e.clientX, cY = e.clientY;
-  if (!this.conn.isConnected)
+  if (!this.conn || !this.conn.isConnected)
     return;
   if (this.inputHelper.clickedOn) {
     this.inputHelper.clickedOn = false;

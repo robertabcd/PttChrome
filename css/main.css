@@ -752,7 +752,7 @@ span {
   margin-bottom:2px;
 }
 
-#connectionAlert {
+#developerModeAlert, #connectionAlert {
   display: none;
   margin-top: 15px;
   position: relative;

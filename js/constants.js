@@ -5,5 +5,7 @@ pttchrome.Constants = {
 
   DEFAULT_SITE: 'telnet://ptt.cc:23',
 
+  DEVELOPER_MODE: true,
+
   _: ''
 };

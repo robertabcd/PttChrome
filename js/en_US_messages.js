@@ -298,6 +298,16 @@ locale.en_US = {
   },
 
   // alerts
+  "alert_developerModeHeader": {
+    "message": "Developer Mode"
+  },
+  "alert_developerModeText": {
+    "message": "You are using developer mode. Things may break in this version of PttChrome. Use this at your own risk."
+  },
+  "alert_developerModeDismiss": {
+    "message": "Yes, I understand."
+  },
+
   "alert_connectionHeader": {
     "message": "You are disconnected!"
   },
