@@ -131,10 +131,11 @@ function TermView(rowCount) {
   this.input.addEventListener('compositionend', function(e) {
     self.onCompositionEnd(e);
     self.bbscore.setInputAreaFocus();
-    if (self.bbscore.chromeVersion >= 53) {
-      // need to call onInput for Chrome 53+ because it doesn't fire input after this
-      self.onInput(e);
-    }
+    // Some browsers fire another input event after composition; some not.
+    // The strategy here is to ignore the inputs during composition.
+    // Instead, we pull all input text at composition end, and clear input text.
+    // So if input event do fire after composition end, we'll get a empty string.
+    self.onInput(e);
   }, false);
 
   this.input.addEventListener('compositionupdate', function(e) {
@@ -146,6 +147,14 @@ function TermView(rowCount) {
     // Char inputs will be handler on input event.
     // We can safely ignore those IME keys here.
     if (e.keyCode == 229)
+      return;
+
+    // iOS sends the keydown that starts composition as key code 0. Ignore it.
+    if (e.keyCode == 0)
+      return;
+
+    // iOS sends backspace when composing. Disallow any non-control keys during it.
+    if (self.isComposition && !e.ctrlKey && !e.altKey)
       return;
 
     // disable auto update pushthread if any command is issued;
