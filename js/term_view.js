@@ -141,6 +141,13 @@ function TermView(rowCount) {
   }, false);
 
   addEventListener('keydown', function(e) {
+    // On both Mac and Windows, control/alt+key will be sent as original key
+    // code even under IME.
+    // Char inputs will be handler on input event.
+    // We can safely ignore those IME keys here.
+    if (e.keyCode == 229)
+      return;
+
     // disable auto update pushthread if any command is issued;
     if (!e.altKey) self.bbscore.disableLiveHelper();
 
@@ -159,6 +166,8 @@ function TermView(rowCount) {
   }, false);
 
   addEventListener('keyup', function(e) {
+    // We don't need to handle code 229 here, as it should be already composing.
+
     if(e.keyCode > 15 && e.keyCode < 19)
       return; // Shift Ctrl Alt (19)
     if (self.bbscore.modalShown || self.bbscore.contextMenuShown)

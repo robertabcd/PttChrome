@@ -30,6 +30,9 @@ for (let i = 97; i <= 122; i++) {
   CtrlShiftMap[String.fromCharCode(i)] = i - 96;
 }
 
+// FIXME: Under Mac, IME inputs will be sent as key of modified char.
+// Need to use key code directly.
+
 pttchrome.TermKeyboard = class {
   // isLeftDB: function() -> bool
   // isCurDB: function() -> bool
