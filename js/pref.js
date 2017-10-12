@@ -595,15 +595,12 @@ PttChromePref.prototype = {
   },
 
   getStorage: function(key) {
+    console.log("getStorage not implemented, returning defaults.");
     var defaults = {
       values: DEFAULT_PREFS,
       logins: {'u':'', 'p':''}
     };
-    if (this.app.appConn.isConnected) {
-      this.app.appConn.appPort.postMessage({ action: 'storage', type: 'get', defaults: defaults });
-    } else {
-      this.onStorageDone({ data: defaults });
-    }
+    this.onStorageDone({ data: defaults });
   },
 
   setBlacklistValue: function() {
@@ -617,26 +614,20 @@ PttChromePref.prototype = {
   },
 
   setBlacklistStorage: function() {
-    if (this.app.appConn.isConnected) {
-      var items = { 
-        values: {
-          blacklistedUserIds: this.values.blacklistedUserIds
-        }
-      };
-      this.app.appConn.appPort.postMessage({ action: 'storage', type: 'set', data: items });
-    }
+    var items = { 
+      values: {
+        blacklistedUserIds: this.values.blacklistedUserIds
+      }
+    };
+    console.log("setBlacklistStorage not implemented, items: " + items);
   },
 
   setStorage: function(items) {
-    if (this.app.appConn.isConnected) {
-      this.app.appConn.appPort.postMessage({ action: 'storage', type: 'set', data: items });
-    }
+    console.log("setStorage not implemented, items: " + items);
   },
 
   clearStorage: function() {
-    if (this.app.appConn.isConnected) {
-      this.app.appConn.appPort.postMessage({ action: 'storage', type: 'clear' });
-    }
+    console.log("clearStorage not implemented");
   }
 
 };

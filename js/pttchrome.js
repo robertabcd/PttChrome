@@ -182,13 +182,8 @@ pttchrome.App = function(onInitializedCallback, options) {
     // connect.
     self.connect(getQueryVariable('site') || pttchrome.Constants.DEFAULT_SITE);
 
-    // load the settings after the app connection is made
-    return self.setupAppConnection();
-  }).then(function() {
-    self.appConn.appPort.postMessage({ action: 'getSymFont' });
-  }, function() {
-    self.onSymFont(null);
-  }).then(function() {
+    // TODO: Call onSymFont for font data when it's implemented.
+
     console.log("load pref from storage");
     // call getStorage to trigger load setting
     self.pref.getStorage();
@@ -200,15 +195,6 @@ pttchrome.App = function(onInitializedCallback, options) {
   }
 };
 
-pttchrome.App.prototype.setupAppConnection = function(callback) {
-  this.appConn = new lib.AppConnection({
-    onPasteDone: this.onPasteDone.bind(this),
-    onStorageDone: this.pref.onStorageDone.bind(this.pref),
-    onSymFont: this.onSymFont.bind(this)
-  });
-  return this.appConn.connect();
-};
-
 pttchrome.App.prototype.isConnected = function() {
   return this.connectState == 1 && !!this.conn;
 };
@@ -218,11 +204,7 @@ pttchrome.App.prototype.connect = function(url) {
   console.log('connect: ' + url);
 
   var parsed = this._parseURLSimple(url);
-  if (parsed.protocol == 'ssh') {
-    this._setupSSHConn(parsed.host, parsed.port);
-  } else if (parsed.protocol == 'telnet') {
-    this._setupTelnetConn(parsed.host, parsed.port);
-  } else if (parsed.protocol == 'wsstelnet') {
+  if (parsed.protocol == 'wsstelnet') {
     this._setupWebsocketConn('wss://' + parsed.hostname + parsed.path);
   } else if (parsed.protocol == 'wstelnet') {
     this._setupWebsocketConn('ws://' + parsed.hostname + parsed.path);
@@ -260,26 +242,6 @@ pttchrome.App.prototype._parseURLSimple = function(url) {
     port: port,
     path: '/' + (hostname.length > 1 ? hostname[1] : '')
   };
-};
-
-pttchrome.App.prototype._setupSSHConn = function(host, port) {
-  var self = this;
-  var tcpSocket = new pttchrome.TcpSocket();
-  tcpSocket.connect(host, port).then(function() {
-    self._attachConn(new SecureShellConnection(tcpSocket, host, port));
-  }, function() {
-    console.log('extension app not installed');
-  });
-};
-
-pttchrome.App.prototype._setupTelnetConn = function(host, port) {
-  var self = this;
-  var tcpSocket = new pttchrome.TcpSocket();
-  tcpSocket.connect(host, port).then(function() {
-    self._attachConn(new TelnetConnection(tcpSocket));
-  }, function() {
-    console.log('extension app not installed');
-  });
 };
 
 pttchrome.App.prototype._setupWebsocketConn = function(url) {
@@ -540,21 +502,12 @@ pttchrome.App.prototype.setupOtherSiteInput = function() {
 };
 
 pttchrome.App.prototype.doCopy = function(str) {
-  var port = this.appConn.appPort;
-  if (!port)
-    return;
-
   if (str.indexOf('\x1b') < 0) {
     str = str.replace(/\r\n/g, '\r');
     str = str.replace(/\n/g, '\r');
     str = str.replace(/ +\r/g, '\r');
   }
-  
-  // Doing copy by having the launch.js read message
-  // and then copy onto clipboard
-  if (this.appConn.isConnected) {
-    port.postMessage({ action: 'copy', data: str });
-  }
+  console.log("doCopy not implemented, data: " + str);
 };
 
 pttchrome.App.prototype.doCopyAnsi = function() {
@@ -591,15 +544,7 @@ pttchrome.App.prototype.doCopyAnsi = function() {
 };
 
 pttchrome.App.prototype.doPaste = function() {
-  var port = this.appConn.appPort;
-  if (!port)
-    return;
-  
-  // Doing paste by having the launch.js read the clipboard data
-  // and then send the content on the onPasteDone
-  if (this.appConn.isConnected) {
-    port.postMessage({ action: 'paste' });
-  }
+  console.log("doPaste not implemented");
 };
 
 pttchrome.App.prototype.onPasteDone = function(content) {
