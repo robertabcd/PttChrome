@@ -1,4 +1,8 @@
-﻿function startApp() {
+﻿import { App } from './pttchrome';
+import { setupI18n } from './i18n';
+import { getQueryVariable } from './util';
+
+function startApp() {
   var site = getQueryVariable('site');
   var from = getQueryVariable('from');
   var keepAlive = getQueryVariable('keepAlive');
@@ -18,58 +22,12 @@
     return;
   }
 
-  pttchrome.app = new pttchrome.App(function(app) {
+  pttchrome.app = new App(function(app) {
     app.setInputAreaFocus();
     $('#BBSWindow').show();
     //$('#sideMenus').show();
     app.onWindowResize();
   }, { from: from, keepAlive: keepAlive });
 }
-//$(document).ready(startApp);
 
-function setTimer(repeat, func, timelimit) {
-  if(repeat) {
-	  return {
-		  timer: setInterval(func, timelimit),
-		  cancel: function() {
-			  clearInterval(this.timer);
-		  }
-	  };
-  } else {
-	  return {
-		  timer: setTimeout(func, timelimit),
-		  cancel: function() {
-			  clearTimeout(this.timer);
-		  }
-	  };
-  }
-}
-
-function openURI(uri, activate, postData) {
-  chrome.tabs.create({
-      url: uri,
-      selected: activate
-  }, function(tab) {
-  });
-}
-function getQueryVariable(variable) {
-  var query = window.location.search.substring(1);
-  var vars = query.split("&");
-  for (var i=0;i<vars.length;i++) {
-    var pair = vars[i].split("=");
-    if (pair[0] == variable) {
-      return decodeURIComponent(pair[1]);
-    }
-  }
-  return null;
-}
-
-function dumpLog(type, string) {
-	switch(type){
-		case DUMP_TYPE_LOG: 	 console.log(string); break;
-		case DUMP_TYPE_WARN: 	 console.warn(string); break;
-		case DUMP_TYPE_ERROR: 	 console.error(string); break;
-		default: console.log(string); break;
-	}
-}
-
+$(document).ready(startApp);

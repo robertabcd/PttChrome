@@ -1,5 +1,16 @@
 ﻿// Main Program
 
+import { AnsiParser } from './ansi_parser';
+import { TermView } from './term_view';
+import { TermBuf } from './term_buf';
+import { TelnetConnection } from './telnet';
+import { Websocket } from './websocket';
+import { EasyReading } from './easy_reading';
+import { InputHelper } from './input_helper';
+import { PttChromePref } from './pref';
+import { TouchController } from './touch_controller';
+import { i18n } from './i18n';
+import { getQueryVariable, setTimer, dumpLog } from './util';
 
 pttchrome = pttchrome || {};
 
@@ -50,8 +61,8 @@ pttchrome.App = function(onInitializedCallback, options) {
   //this.buf.PTTZSTR2=this.getLM('PTTZArea2');
   this.view.setBuf(this.buf);
   this.view.setCore(this);
-  this.parser = new lib.AnsiParser(this.buf);
-  this.easyReading = new pttchrome.EasyReading(this, this.view, this.buf);
+  this.parser = new AnsiParser(this.buf);
+  this.easyReading = new EasyReading(this, this.view, this.buf);
 
   //new pref - start
   this.antiIdleStr = '\x1b\x1b';
@@ -191,7 +202,7 @@ pttchrome.App = function(onInitializedCallback, options) {
 
   // init touch only if chrome is higher than version 36
   if (this.chromeVersion && this.chromeVersion >= 37) {
-    this.touch = new pttchrome.TouchController(this);
+    this.touch = new TouchController(this);
   }
 };
 
@@ -245,7 +256,7 @@ pttchrome.App.prototype._parseURLSimple = function(url) {
 };
 
 pttchrome.App.prototype._setupWebsocketConn = function(url) {
-  var wsConn = new pttchrome.Websocket(url);
+  var wsConn = new Websocket(url);
   this._attachConn(new TelnetConnection(wsConn));
 };
 
@@ -1736,3 +1747,5 @@ pttchrome.App.prototype.setBBSCmd = function(cmd, cmdhandler) {
     cmdhandler.dispatchEvent(evt);
   }
 };
+
+exports.App = pttchrome.App;

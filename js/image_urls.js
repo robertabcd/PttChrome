@@ -1,6 +1,6 @@
 'use struct';
 
-class ImageURL {
+export class ImageURL {
   static register(clazz) {
     if (!this._providers) {
       this._providers = [];

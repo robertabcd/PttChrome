@@ -1,4 +1,4 @@
-pttchrome.EasyReading = function(core, view, termBuf) {
+export function EasyReading(core, view, termBuf) {
   this._core = core;
   this._view = view;
   this._termBuf = termBuf;
@@ -25,7 +25,7 @@ pttchrome.EasyReading = function(core, view, termBuf) {
   this._termBuf.addEventListener('viewUpdate', this._onViewUpdated.bind(this));
 };
 
-pttchrome.EasyReading.prototype._onChanged = function(e) {
+EasyReading.prototype._onChanged = function(e) {
   console.log("page state: " + this._termBuf.prevPageState + "->" + this._termBuf.pageState);
   // make sure to come back to easy reading mode
   if (this._termBuf.prevPageState == 2 &&
@@ -103,7 +103,7 @@ pttchrome.EasyReading.prototype._onChanged = function(e) {
   }
 };
 
-pttchrome.EasyReading.prototype._onViewUpdated = function(e) {
+EasyReading.prototype._onViewUpdated = function(e) {
   console.log('view update');
   if (this.sendCommandAfterUpdate) {
     console.log("send:" + this.sendCommandAfterUpdate);
@@ -114,7 +114,7 @@ pttchrome.EasyReading.prototype._onViewUpdated = function(e) {
   }
 };
 
-pttchrome.EasyReading.prototype.leaveCurrentPost = function() {
+EasyReading.prototype.leaveCurrentPost = function() {
   console.log('leave curent post');
   if (!this.easyReadingReachedPageEnd) {
     this.ignoreOneUpdate = true;
@@ -122,16 +122,16 @@ pttchrome.EasyReading.prototype.leaveCurrentPost = function() {
   this._termBuf.prevPageState = 0;
 };
 
-pttchrome.EasyReading.prototype.stopEasyReading = function() {
+EasyReading.prototype.stopEasyReading = function() {
   console.log('stop easy reading');
   this.sendCommandAfterUpdate = 'skipOne';
 };
 
-pttchrome.EasyReading.prototype._send = function(data) {
+EasyReading.prototype._send = function(data) {
   this._view.conn.send(data);
 };
 
-pttchrome.EasyReading.prototype._onKeyDown = function(e) {
+EasyReading.prototype._onKeyDown = function(e) {
   if (!this._enabled || !this.startedEasyReading)
     return;
 
@@ -164,7 +164,7 @@ pttchrome.EasyReading.prototype._onKeyDown = function(e) {
     e.preventDefault();
 };
 
-pttchrome.EasyReading.prototype._scrollBy = function(lines) {
+EasyReading.prototype._scrollBy = function(lines) {
   var cont = this._view.mainDisplay;
   if (lines < 0 && cont.scrollTop == 0)
     return false;
@@ -176,17 +176,17 @@ pttchrome.EasyReading.prototype._scrollBy = function(lines) {
   return true;
 };
 
-pttchrome.EasyReading.prototype._scrollEnd = function() {
+EasyReading.prototype._scrollEnd = function() {
   this._view.mainDisplay.scrollTop = this._view.mainContainer.clientHeight;
   return true;
 };
 
-pttchrome.EasyReading.prototype._scrollTop = function() {
+EasyReading.prototype._scrollTop = function() {
   this._view.mainDisplay.scrollTop = 0;
   return true;
 };
 
-pttchrome.EasyReading.prototype._onKeyDownProcessUI = function(e) {
+EasyReading.prototype._onKeyDownProcessUI = function(e) {
   var stop = false;
   if (!e.ctrlKey && !e.altKey) {
     switch (e.key) {
@@ -281,7 +281,7 @@ pttchrome.EasyReading.prototype._onKeyDownProcessUI = function(e) {
     e.preventDefault();
 };
 
-pttchrome.EasyReading.prototype._onMouseClick = function(e) {
+EasyReading.prototype._onMouseClick = function(e) {
   if (!this._enabled || !this.startedEasyReading)
     return;
   var stop = false;

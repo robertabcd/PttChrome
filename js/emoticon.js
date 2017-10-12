@@ -1,5 +1,6 @@
-var lib = window.lib || {};
-lib.emoticons = {
+import { i18n } from './i18n';
+
+let emoticons = {
   
   angry: [
     "(ノ ゜Д゜)ノ ︵ ═╩════╩═",
@@ -66,22 +67,22 @@ lib.emoticons = {
 
 };
 
-lib.Emoticons = function(app) {
+export function Emoticons(app) {
   this.app = app;
 
   this.tab = document.getElementById('inputHelperTabContent');
   this.setupUi();
 };
 
-lib.Emoticons.prototype.setupUi = function() {
+Emoticons.prototype.setupUi = function() {
   var htmlStr = '';
   var dropdownHtmlStr = '';
-  for (var i in lib.emoticons) {
+  for (var i in emoticons) {
     var title = i18n('emoTitle_'+i);
     dropdownHtmlStr += '<li><a href="#emo_'+i+'_list" name="'+i+'" data-toggle="tab">'+title+'</a></li>';
-    var emo = lib.emoticons[i];
+    var emo = emoticons[i];
     var height = emo.length * 27; 
-    htmlStr += '<ul id="emo_'+i+'_list" class="tab-pane emoList" style="height:'+height+'px;"><li>' + lib.emoticons[i].join('</li><li>') + '</li></ul>';
+    htmlStr += '<ul id="emo_'+i+'_list" class="tab-pane emoList" style="height:'+height+'px;"><li>' + emoticons[i].join('</li><li>') + '</li></ul>';
   }
 
   // setup tab content
@@ -92,7 +93,7 @@ lib.Emoticons.prototype.setupUi = function() {
   document.querySelector('#emoticonsTabTitle .dropdown-toggle').innerHTML = i18n('emoTitle')+' <span class="caret"></span>';
 };
 
-lib.Emoticons.prototype.registerHandlers = function() {
+Emoticons.prototype.registerHandlers = function() {
   var self = this;
 
   $('#emoticonsTabTitle .dropdown-menu a').click(function (e) {

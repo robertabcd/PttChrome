@@ -1,4 +1,6 @@
-function PttChromePref(app, onInitializedCallback) {
+import { i18n, getLang } from './i18n';
+
+export function PttChromePref(app, onInitializedCallback) {
   this.values = {};
   this.logins = null;
   this.app = app;

@@ -1,5 +1,7 @@
 'use strict';
 
+import { symbolTable } from './symbol_table';
+
 class HyperLink extends React.Component {
   render() {
     return <a scol={this.props.col} srow={this.props.row}
@@ -69,7 +71,7 @@ class TwoColorWord extends React.Component {
   }
 }
 
-class ColorState {
+export class ColorState {
   constructor(fg, bg, blink) {
     this.fg = fg;
     this.bg = bg;
@@ -287,19 +289,17 @@ class Row extends React.Component {
   }
 
   _isBadDBCS(u) {
-    return lib.symbolTable['x' + u.charCodeAt(0).toString(16)] == 3;
+    return symbolTable['x' + u.charCodeAt(0).toString(16)] == 3;
   }
 
   _shouldForceWidth(u) {
-    let code = lib.symbolTable['x' + u.charCodeAt(0).toString(16)];
+    let code = symbolTable['x' + u.charCodeAt(0).toString(16)];
     return code == 1 || code == 2;
   }
 }
 
-function renderRowHtml(chars, row, forceWidth, showsLinkPreviews, cont) {
+export function renderRowHtml(chars, row, forceWidth, showsLinkPreviews, cont) {
   return ReactDOM.render(
     <Row chars={chars} row={row} forceWidth={forceWidth}
       showsLinkPreviews={showsLinkPreviews} />, cont);
 }
-
-$(document).ready(startApp);

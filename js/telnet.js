@@ -1,5 +1,7 @@
 // Handle Telnet Connections according to RFC 854
 
+import { Event } from './event';
+
 // Telnet commands
 const SE = '\xf0';
 const NOP = '\xf1';
@@ -37,7 +39,7 @@ const STATE_DO=4;
 const STATE_DONT=5;
 const STATE_SB=6;
 
-function TelnetConnection(socket) {
+export function TelnetConnection(socket) {
   this.socket = socket;
   this.socket.addEventListener('open', this._onOpen.bind(this));
   this.socket.addEventListener('data', this._onDataAvailable.bind(this));
@@ -49,7 +51,7 @@ function TelnetConnection(socket) {
   this.termType = 'VT100';
 }
 
-pttchrome.Event.mixin(TelnetConnection.prototype);
+Event.mixin(TelnetConnection.prototype);
 
 TelnetConnection.prototype._onOpen = function(e) {
   this.dispatchEvent(new CustomEvent('open'));

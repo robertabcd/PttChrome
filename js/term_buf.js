@@ -1,5 +1,8 @@
 // Terminal Screen Buffer, displayed by TermView
 
+import { Event } from './event';
+import { ColorState } from './term_ui';
+
 const termColors = [
   // dark
   '#000000', // black
@@ -21,7 +24,7 @@ const termColors = [
   '#ffffff'  // white
 ];
 
-const termInvColors= [
+export const termInvColors = [
   // dark
   '#FFFFFF', // black
   '#7FFFFF', // red
@@ -42,7 +45,7 @@ const termInvColors= [
   '#000000'  // white
 ];
 
-var mouseCursorMap = [
+const mouseCursorMap = [
   'auto',                               // 0
   'url(cursor/back.png) 0 6,auto',      // 1
   'url(cursor/pageup.png) 6 0,auto',    // 2
@@ -165,7 +168,7 @@ TermHtml.prototype = {
   }
 };
 
-function TermBuf(cols, rows) {
+export function TermBuf(cols, rows) {
   this.cols = cols;
   this.rows = rows;
   this.view = null;
@@ -879,12 +882,13 @@ TermBuf.prototype = {
 
     text = text.slice(colStart, colEnd);
     var charset = this.view.charset;
+    let that = this;
     return text.map( function(c, col, line) {
       if (!c.isLeadByte) {
         if (col >= 1 && line[col-1].isLeadByte) { // second byte of DBCS char
           var prevC = line[col-1];
           var b5 = prevC.ch + c.ch;
-          if ((this.view && this.view.charset == 'UTF-8') || b5.length == 1)
+          if ((that.view && that.view.charset == 'UTF-8') || b5.length == 1)
             return b5;
           else
             return b5.b2u();
@@ -1232,4 +1236,4 @@ TermBuf.prototype = {
   }
 };
 
-pttchrome.Event.mixin(TermBuf.prototype);
+Event.mixin(TermBuf.prototype);

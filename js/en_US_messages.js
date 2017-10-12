@@ -1,4 +1,4 @@
-locale.en_US = {
+exports.en_US = {
   "appName": {
     "message": "PttChrome",
     "description": "The title of the application, displayed in the web store."

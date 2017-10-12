@@ -1,4 +1,6 @@
-lib.symbols = {
+import { i18n } from './i18n';
+
+let symbols = {
 
   general: [
     '，','、','。','．','？','！','～','＄','％','＠','＆','＃','＊','‧','；','︰','…',
@@ -66,22 +68,22 @@ lib.symbols = {
 
 };
 
-lib.Symbols = function(app) {
+export function Symbols(app) {
   this.app = app;
 
   this.tab = document.getElementById('inputHelperTabContent');
   this.setupUi();
 };
 
-lib.Symbols.prototype.setupUi = function() {
+Symbols.prototype.setupUi = function() {
   var htmlStr = '';
   var dropdownHtmlStr = '';
-  for (var i in lib.symbols) {
+  for (var i in symbols) {
     var title = i18n('symTitle_'+i);
     dropdownHtmlStr += '<li><a href="#sym_'+i+'_list" name="'+i+'" data-toggle="tab">'+title+'</a></li>';
-    var sym = lib.symbols[i];
+    var sym = symbols[i];
     var height = Math.ceil(sym.length / 8) * 37; // find height by having 8 element each row
-    htmlStr += '<ul id="sym_'+i+'_list" class="tab-pane symList" style="height:'+height+'px;"><li>' + lib.symbols[i].join('</li><li>') + '</li></ul>';
+    htmlStr += '<ul id="sym_'+i+'_list" class="tab-pane symList" style="height:'+height+'px;"><li>' + symbols[i].join('</li><li>') + '</li></ul>';
   }
 
   // setup tab content
@@ -92,7 +94,7 @@ lib.Symbols.prototype.setupUi = function() {
   document.querySelector('#symbolsTabTitle .dropdown-toggle').innerHTML = i18n('symTitle')+' <span class="caret"></span>';
 };
 
-lib.Symbols.prototype.registerHandlers = function() {
+Symbols.prototype.registerHandlers = function() {
   var self = this;
 
   $('#symbolsTabTitle .dropdown-menu a').click(function (e) {

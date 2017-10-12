@@ -1,6 +1,13 @@
 // Terminal View
 
-function TermView(rowCount) {
+import { TermKeyboard } from './term_keyboard';
+import { termInvColors } from './term_buf';
+import { renderImagePreview } from './image_preview';
+import { renderRowHtml } from './term_ui';
+import { i18n } from './i18n';
+import { setTimer } from './util';
+
+export function TermView(rowCount) {
   //new pref - start
   this.screenType = 0;
   this.bbsWidth = 0;
@@ -67,7 +74,6 @@ function TermView(rowCount) {
 
   this.selection = null;
   this.input = document.getElementById('t');
-  this.symtable = lib.symbolTable;
   this.bbsCursor = document.getElementById('cursor');
   this.trackKeyWordList = document.getElementById('TrackKeyWordList');
   this.BBSWin = document.getElementById('BBSWindow');
@@ -117,7 +123,7 @@ function TermView(rowCount) {
   this.mainDisplay.style.border = '0px';
   this.setFontFace('MingLiu,monospace');
 
-  this._keyboard = new pttchrome.TermKeyboard(
+  this._keyboard = new TermKeyboard(
     this.checkLeftDB.bind(this),
     this.checkCurDB.bind(this),
     this._send.bind(this));

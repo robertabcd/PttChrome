@@ -33,7 +33,7 @@ for (let i = 97; i <= 122; i++) {
 // FIXME: Under Mac, IME inputs will be sent as key of modified char.
 // Need to use key code directly.
 
-pttchrome.TermKeyboard = class {
+export class TermKeyboard {
   // isLeftDB: function() -> bool
   // isCurDB: function() -> bool
   // send: function(data)
@@ -101,4 +101,4 @@ pttchrome.TermKeyboard = class {
     }
     return false;
   }
-};
+}

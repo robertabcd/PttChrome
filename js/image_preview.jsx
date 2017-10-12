@@ -1,5 +1,7 @@
 'use strict';
 
+import { ImageURL } from './image_urls';
+
 // ImagePreview shows a spinner or a image that moves along with cursor.
 // It shows a spinner and hides image when the image is loading. Reverse
 // afterwards.
@@ -167,7 +169,7 @@ class AsyncImagePreview extends BaseAsyncImagePreview {
   }
 }
 
-function renderImagePreview(cont, src) {
+export function renderImagePreview(cont, src) {
   return ReactDOM.render(<AsyncImagePreview src={src} />, cont);
 }
 

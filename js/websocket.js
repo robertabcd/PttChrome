@@ -1,4 +1,6 @@
-pttchrome.Websocket = function(url) {
+import { Event } from './event';
+
+export function Websocket(url) {
   this._conn = new WebSocket(url);
   this._conn.binaryType = "arraybuffer";
   this._conn.addEventListener('open', this._onOpen.bind(this));
@@ -7,13 +9,13 @@ pttchrome.Websocket = function(url) {
   this._conn.addEventListener('close', this._onClose.bind(this));
 };
 
-pttchrome.Event.mixin(pttchrome.Websocket.prototype);
+Event.mixin(Websocket.prototype);
 
-pttchrome.Websocket.prototype._onOpen = function(e) {
+Websocket.prototype._onOpen = function(e) {
   this.dispatchEvent(new CustomEvent('open'));
 };
 
-pttchrome.Websocket.prototype._onMessage = function(e) {
+Websocket.prototype._onMessage = function(e) {
   var data = new Uint8Array(e.data);
   this.dispatchEvent(new CustomEvent('data', {
     detail: {
@@ -22,15 +24,15 @@ pttchrome.Websocket.prototype._onMessage = function(e) {
   }));
 };
 
-pttchrome.Websocket.prototype._onError = function(e) {
+Websocket.prototype._onError = function(e) {
   this.dispatchEvent(new CustomEvent('error'));
 };
 
-pttchrome.Websocket.prototype._onClose = function(e) {
+Websocket.prototype._onClose = function(e) {
   this.dispatchEvent(new CustomEvent('close'));
 };
 
-pttchrome.Websocket.prototype.send = function(str) {
+Websocket.prototype.send = function(str) {
   // XXX: move this to app.
   // because ptt seems to reponse back slowly after large
   // chunk of text is pasted, so better to split it up.
@@ -42,6 +44,6 @@ pttchrome.Websocket.prototype.send = function(str) {
   }
 };
 
-pttchrome.Websocket.prototype.close = function() {
+Websocket.prototype.close = function() {
   this._conn.close();
 };

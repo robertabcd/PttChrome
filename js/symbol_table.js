@@ -1,6 +1,5 @@
-var lib = window.lib || {};
-lib.symbolTable = {};
-var a = lib.symbolTable;
+exports.symbolTable = {};
+var a = exports.symbolTable;
 a.xa1=1;
 a.xa0=1;
 a.xa1=1;

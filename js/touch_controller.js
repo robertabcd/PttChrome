@@ -1,4 +1,4 @@
-pttchrome.TouchController = function(app) {
+export function TouchController(app) {
   this.app = app;
   this.highlightCopy = false;
   this.touchStarted = false;
@@ -11,7 +11,7 @@ pttchrome.TouchController = function(app) {
   this.setupHandlers();
 };
 
-pttchrome.TouchController.prototype.setupHandlers = function() {
+TouchController.prototype.setupHandlers = function() {
   var self = this;
   var app = this.app;
 

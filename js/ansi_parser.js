@@ -1,17 +1,17 @@
 // Parser for ANSI escape sequence
 
-lib.AnsiParser = function(termbuf) {
+export function AnsiParser(termbuf) {
   this.termbuf = termbuf;
-  this.state = lib.AnsiParser.STATE_TEXT;
+  this.state = AnsiParser.STATE_TEXT;
   this.esc = '';
 };
 
-lib.AnsiParser.STATE_TEXT = 0;
-lib.AnsiParser.STATE_ESC = 1;
-lib.AnsiParser.STATE_CSI = 2;
-lib.AnsiParser.STATE_C1 = 3;
+AnsiParser.STATE_TEXT = 0;
+AnsiParser.STATE_ESC = 1;
+AnsiParser.STATE_CSI = 2;
+AnsiParser.STATE_C1 = 3;
 
-lib.AnsiParser.prototype.feed = function(data) {
+AnsiParser.prototype.feed = function(data) {
   var term = this.termbuf;
   if (!term)
     return;
@@ -20,20 +20,20 @@ lib.AnsiParser.prototype.feed = function(data) {
   for (var i = 0; i < n; ++i) {
     var ch = data[i];
     switch (this.state) {
-    case lib.AnsiParser.STATE_TEXT:
+    case AnsiParser.STATE_TEXT:
       switch (ch) {
       case '\x1b':
         if (s) {
           term.puts(s);
           s = '';
         }
-        this.state = lib.AnsiParser.STATE_ESC;
+        this.state = AnsiParser.STATE_ESC;
         break;
       default:
         s += ch;
       }
       break;
-    case lib.AnsiParser.STATE_CSI:
+    case AnsiParser.STATE_CSI:
       if ( (ch >= '`' && ch <= 'z') || (ch >= '@' && ch <='Z') ) {
         // if(ch != 'm')
         //    dump('CSI: ' + this.esc + ch + '\n');
@@ -47,7 +47,7 @@ lib.AnsiParser.prototype.feed = function(data) {
         }
         if (firstChar && ch != 'h' && ch != 'l') { // unknown CSI
           //dump('unknown CSI: ' + this.esc + ch + '\n');
-          this.state = lib.AnsiParser.STATE_TEXT;
+          this.state = AnsiParser.STATE_TEXT;
           this.esc = '';
           break;
         }
@@ -180,7 +180,7 @@ lib.AnsiParser.prototype.feed = function(data) {
               term.clear(2);
               term.attr.resetAttr();
               if (term.altScreen) {
-                this.state = lib.AnsiParser.STATE_TEXT;
+                this.state = AnsiParser.STATE_TEXT;
                 this.esc = '';
                 this.feed(term.altScreen.replace(/(\r\n)+$/g, '\r\n'));
               }
@@ -260,13 +260,13 @@ lib.AnsiParser.prototype.feed = function(data) {
         default:
           //dump('unknown CSI: ' + this.esc + ch + '\n');
         }
-        this.state = lib.AnsiParser.STATE_TEXT;
+        this.state = AnsiParser.STATE_TEXT;
         this.esc = '';
       } else {
         this.esc += ch;
       }
       break;
-    case lib.AnsiParser.STATE_C1:
+    case AnsiParser.STATE_C1:
       var C1_End = true;
       var C1_Char = [' ', '#', '%', '(', ')', '*', '+', '-', '.', '/'];
       if (this.esc) { // multi-char is not supported now
@@ -276,7 +276,7 @@ lib.AnsiParser.prototype.feed = function(data) {
         else this.esc += ch;
         //dump('UNKNOWN C1 CONTROL CHAR IS FOUND: ' + this.esc + '\n');
         this.esc = '';
-        this.state = lib.AnsiParser.STATE_TEXT;
+        this.state = AnsiParser.STATE_TEXT;
         break;
       }
       switch (ch) {
@@ -313,13 +313,13 @@ lib.AnsiParser.prototype.feed = function(data) {
       }
       if (!C1_End) break;
       this.esc = '';
-      this.state = lib.AnsiParser.STATE_TEXT;
+      this.state = AnsiParser.STATE_TEXT;
       break;
-    case lib.AnsiParser.STATE_ESC:
+    case AnsiParser.STATE_ESC:
       if (ch == '[')
-        this.state=lib.AnsiParser.STATE_CSI;
+        this.state=AnsiParser.STATE_CSI;
       else {
-        this.state=lib.AnsiParser.STATE_C1;
+        this.state=AnsiParser.STATE_C1;
         --i;
       }
       break;

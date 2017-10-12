@@ -1,4 +1,9 @@
-function InputHelper(app) {
+import { Emoticons } from './emoticon';
+import { Symbols } from './symbols';
+import { i18n } from './i18n';
+import { setTimer } from './util';
+
+export function InputHelper(app) {
   this.app = app;
   this.node = document.getElementById('inputHelper');
   this.nodeOffsetTop = 20;
@@ -37,8 +42,8 @@ InputHelper.prototype.setupUi = function() {
   $('#colorHelperSendMenuBack').text(i18n('colorHelperSendMenuBack'));
   $('#colorHelperSendMenuReset').text(i18n('colorHelperSendMenuReset'));
 
-  this.symbols = new lib.Symbols(this.app);
-  this.emoticons = new lib.Emoticons(this.app);
+  this.symbols = new Symbols(this.app);
+  this.emoticons = new Emoticons(this.app);
 };
 
 InputHelper.prototype.onMouseDrag = function(e) {
