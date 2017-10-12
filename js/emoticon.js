@@ -1,3 +1,4 @@
+var lib = window.lib || {};
 lib.emoticons = {
   
   angry: [

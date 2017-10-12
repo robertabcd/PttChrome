@@ -1,3 +1,4 @@
+var lib = window.lib || {};
 lib.u2bTable = {
 x00A1:'\xA0\xDF',
 x00A2:'\xA2\x46',

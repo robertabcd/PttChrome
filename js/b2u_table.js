@@ -1,3 +1,4 @@
+var lib = window.lib || {};
 lib.b2uTable = {
 x8140:'\u4E17',
 x8141:'\u4E22',

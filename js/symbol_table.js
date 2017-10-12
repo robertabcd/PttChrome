@@ -1,3 +1,4 @@
+var lib = window.lib || {};
 lib.symbolTable = {};
 var a = lib.symbolTable;
 a.xa1=1;
