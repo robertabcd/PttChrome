@@ -24,18 +24,8 @@
     //$('#sideMenus').show();
     app.onWindowResize();
   }, { from: from, keepAlive: keepAlive });
-  // calls the gapi onload
-  handleGapiClientLoad();
 }
 //$(document).ready(startApp);
-
-/**
-  * Called when the client library is loaded.
-  */
-function handleGapiClientLoad() {
-  $('#blacklist_driveLoading').css('display', '');
-  window.setTimeout(pttchrome.app.pref.gdrive.checkAuth.bind(pttchrome.app.pref.gdrive), 1);
-}
 
 function setTimer(repeat, func, timelimit) {
   if(repeat) {

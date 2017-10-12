@@ -12,7 +12,6 @@ function PttChromePref(app, onInitializedCallback) {
   //this.loadDefault(onInitializedCallback);
   this.onInitializedCallback = onInitializedCallback;
   this.initCallbackCalled = false;
-  this.gdrive = new GoogleDrive(app);
 }
 
 PttChromePref.prototype = {
@@ -173,94 +172,6 @@ PttChromePref.prototype = {
       $('#modalHeader').text(i18n('options_'+currTab));
       $(this).tab('show');
     });
-
-    $('#blacklist_driveSyncTitle').text(i18n('blacklist_driveSyncTitle'));
-    $('#blacklist_driveAuthorize').text(i18n('blacklist_driveAuthorize'));
-    $('#blacklist_driveLoad').text(i18n('blacklist_driveLoad'));
-    $('#blacklist_driveSave').html(i18n('blacklist_driveSave') + '<span class="caret"></span>');
-    $('#blacklist_driveSaveNew').text(i18n('blacklist_driveSaveNew'));
-    $('#blacklist_driveSaveExisting').text(i18n('blacklist_driveSaveExisting'));
-    $('#blacklist_driveDone').text(i18n('blacklist_driveDone'));
-    $('#blacklist_driveLoading').text(i18n('blacklist_driveLoading'));
-
-    $('#blacklist_driveLoad').click(function(e) {
-      self.gdrive.createPicker(function(data) {
-        if (data.action == google.picker.Action.PICKED) {
-          var fileId = data.docs[0].id;
-          console.log('picked ' + fileId);
-
-          $('#blacklist_driveLoading').css('display', '');
-          $('#blacklist_driveDone').css('display', 'none');
-          // now get the file's content and load onto ui
-          var request = gapi.client.drive.files.get({'fileId': fileId});
-          request.execute(function(result) {
-            if (result.downloadUrl || result.exportLinks) {
-              self.gdrive.downloadFile(result, function(content) {
-                $('#blacklist_driveLoading').css('display', 'none');
-                $('#blacklist_driveDone').css('display', '');
-                if (content) {
-                  var ids = content.split('\n');
-                  console.log('loaded ' + ids.length + ' ids from appfolder');
-                  // load the string blacklist into the dict
-                  self.blacklistedUserIds = {};
-                  for (var i = 0; i < ids.length; ++i) {
-                    self.blacklistedUserIds[ids[i]] = true;
-                  }
-                  self.refreshBlacklistOnUi();
-                } else console.log('no content');
-              });
-            } else {
-              console.log(result);
-            }
-          });
-        }
-      });
-    });
-
-    $('#blacklist_driveSaveExisting').click(function(e) {
-      // make sure the blacklistedUserIds is read
-      self.readBlacklistValues();
-      self.gdrive.createPicker(function(data) {
-        if (data.action == google.picker.Action.PICKED) {
-          var fileId = data.docs[0].id;
-          console.log('picked ' + fileId);
-
-          var listStr = Object.keys(self.blacklistedUserIds).join('\n');
-          $('#blacklist_driveLoading').css('display', '');
-          $('#blacklist_driveDone').css('display', 'none');
-          self.gdrive.updateFile(listStr, fileId, 'PUT', function(result) {
-            $('#blacklist_driveLoading').css('display', 'none');
-            $('#blacklist_driveDone').css('display', '');
-            if (result.id) {
-              document.getElementById('blacklist_driveLoad').style.display = '';
-              self.gdrive.printFile(result.id);
-            } else {
-              console.log(result);
-            }
-          });
-        }
-      });
-    });
-
-    $('#blacklist_driveSaveNew').click(function(e) {
-      // make sure the blacklistedUserIds is read
-      self.readBlacklistValues();
-
-      var listStr = Object.keys(self.blacklistedUserIds).join('\n');
-      $('#blacklist_driveLoading').css('display', '');
-      $('#blacklist_driveDone').css('display', 'none');
-      self.gdrive.updateFile(listStr, '', 'POST', function(result) {
-        $('#blacklist_driveLoading').css('display', 'none');
-        $('#blacklist_driveDone').css('display', '');
-        if (result.id) {
-          document.getElementById('blacklist_driveLoad').style.display = '';
-          self.gdrive.printFile(result.id);
-        } else {
-          console.log(result);
-        }
-      });
-    });
-
   },
 
   populateSettingsToUi: function() {

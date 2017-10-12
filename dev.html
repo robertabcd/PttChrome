@@ -20,9 +20,6 @@
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/hammer.min.js"></script>
 
-    <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
-    <script type="text/javascript" src="https://apis.google.com/js/client.js"></script>
-
     <script type="text/javascript" src="js/constants.js"></script>
     <!-- Local override of constants. -->
     <script type="text/javascript" src="js/constants_local.js"></script>
@@ -33,7 +30,6 @@
     <script type="text/babel" src="js/term_ui.jsx"></script>
     <script type="text/javascript" src="js/event.js"></script>
     <script type="text/javascript" src="js/touch_controller.js"></script>
-    <script type="text/javascript" src="js/google_drive.js"></script>
     <script type="text/javascript" src="js/predefined_config.js"></script>
     <script type="text/javascript" src="js/pref.js"></script>
     <script type="text/javascript" src="js/emoticon.js"></script>
@@ -212,22 +208,6 @@
 
               <div class="tab-pane" id="tabContentBlacklist">
                 <div id="opt_enableBlacklist" class="checkbox">
-                </div>
-
-                <div id="blacklist_driveSync" style="margin-bottom:10px">
-                  <span id="blacklist_driveSyncTitle" style="margin-right:5px">Use Google Drive:</span>
-                  <a id="blacklist_driveAuthorize" style="margin-top:-3px" class="btn btn-default">Authorize PttChrome</a>
-                  <a id="blacklist_driveLoad" style="margin-top:-3px" class="btn btn-default">Load</a>
-                  <div class="btn-group" style="margin-top:-3px">
-                    <button id="blacklist_driveSave" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
-                      <li><a id="blacklist_driveSaveNew" style="padding:3px 20px; cursor:pointer;">New Document</a></li>
-                      <li><a id="blacklist_driveSaveExisting" style="padding:3px 20px; cursor:pointer;">Existing Document</a></li>
-                    </ul>
-                  </div>
-                  <span id="blacklist_driveDone" style="margin-left:5px; display:none;">Done!</span>
-                  <span id="blacklist_driveLoading" style="margin-left:5px; display:none;">Loading ...</span>
                 </div>
 
                 <span id="opt_blacklistInstruction"></span>

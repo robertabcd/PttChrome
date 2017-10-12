@@ -216,32 +216,6 @@ locale.en_US = {
     "message": "Login info is not encrypted, DO NOT use on a public machine"
   },
 
-  // blacklist drive sync
-  "blacklist_driveSyncTitle": {
-    "message": "Connect with Google Drive:"
-  },
-  "blacklist_driveAuthorize": {
-    "message": "Authorize PttChrome"
-  },
-  "blacklist_driveLoad": {
-    "message": "Load from Drive"
-  },
-  "blacklist_driveSave": {
-    "message": "Backup to ... "
-  },
-  "blacklist_driveSaveNew": {
-    "message": "New Document"
-  },
-  "blacklist_driveSaveExisting": {
-    "message": "Existing Document"
-  },
-  "blacklist_driveLoading": {
-    "message": "Working ..."
-  },
-  "blacklist_driveDone": {
-    "message": "Done!"
-  },
-
   // extensions
   "ext_quickSearch": {
     "message": "Quick Search"
