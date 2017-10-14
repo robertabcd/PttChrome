@@ -1,6 +1,7 @@
 'use strict';
 
 import { symbolTable } from './symbol_table';
+import { HyperLinkPreview } from './image_preview';
 
 class HyperLink extends React.Component {
   render() {

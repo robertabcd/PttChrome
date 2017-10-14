@@ -175,7 +175,7 @@ export function renderImagePreview(cont, src) {
 
 // HyperLinkPreview resolves image location using ImageURL and displays with
 // a img element.
-class HyperLinkPreview extends BaseAsyncImagePreview {
+export class HyperLinkPreview extends BaseAsyncImagePreview {
   render() {
     if (this.state.resolvedSrc) {
       return <img className="easyReadingImg hyperLinkPreview" src={this.state.resolvedSrc} />;
