@@ -225,23 +225,20 @@
   },
 
   // about page
-  "about_review": {
-    "message": "給評分"
+  "about_appName_subtitle": {
+    "message": "開放原始碼的 BBS 瀏覽軟體",
   },
-  "about_feedback": {
-    "message": "客服信箱"
-  },
-  "about_fbpage": {
-    "message": "粉絲頁"
-  },
-  "about_promote": {
-    "message": "喜歡這個 APP 的話也請看看鄉民朝聖套件 "
+  "about_description": {
+    "message": "原作者為 #link_github_iamchucky#。此版本是由 #link_github_robertabcd# 修改，使用 Websocket 加密連線，並支援大多數瀏覽器。",
   },
   "about_version_title": {
     "message": "版本"
   },
-  "about_version": {
-    "message": "webapp12 6/2/2015"
+  "about_version_current": {
+    "message": "此版本：#link_robertabcd_PttChrome#, #link_GPL20#."
+  },
+  "about_version_original": {
+    "message": "此版本：webapp12 6/2/2015, #link_iamchucky_PttChrome#, #link_GPL20#."
   },
   "about_new_title": {
     "message": "新功能"

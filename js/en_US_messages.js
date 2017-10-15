@@ -228,23 +228,20 @@ exports.en_US = {
   },
 
   // about page
-  "about_review": {
-    "message": "Review app"
+  "about_appName_subtitle": {
+    "message": "An open source BBS client"
   },
-  "about_feedback": {
-    "message": "Send feedback"
-  },
-  "about_fbpage": {
-    "message": "Facebook"
-  },
-  "about_promote": {
-    "message": "If you like this app, also take a look at "
+  "about_description": {
+    "message": "Originally written by #link_github_iamchucky#. This is a modified version by #link_github_robertabcd#. It supports connecting over Websocket, and works on most browsers.",
   },
   "about_version_title": {
     "message": "Version"
   },
-  "about_version": {
-    "message": "webapp12 6/2/2015"
+  "about_version_current": {
+    "message": "This version: #link_robertabcd_PttChrome#, #link_GPL20#."
+  },
+  "about_version_original": {
+    "message": "Original version: webapp12 6/2/2015, #link_iamchucky_PttChrome#, #link_GPL20#."
   },
   "about_new_title": {
     "message": "What's new"

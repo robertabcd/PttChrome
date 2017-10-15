@@ -1,4 +1,5 @@
 import { i18n, getLang } from './i18n';
+import { AboutPane } from './pref_about';
 
 export function PttChromePref(app, onInitializedCallback) {
   this.values = {};
@@ -334,19 +335,7 @@ PttChromePref.prototype = {
   },
 
   setupAboutPage: function() {
-    var contents = [
-        'review', 'feedback', 'fbpage', 
-        'promote',
-        'version_title', 'version',
-        'new_title'
-      ];
-    for (var i in contents) {
-      var content = contents[i];
-      $('#about_'+content).text(i18n('about_'+content));
-    }
-
-    var whatsNewListHtml = '<li>' + i18n('about_new_content').join('</li><li>') + '</li>';
-    $('#about_new').html(whatsNewListHtml);
+    ReactDOM.render(<AboutPane />, $('#tabContentAbout').get(0));
   },
 
   refreshBlacklistOnUi: function() {
