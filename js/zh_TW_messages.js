@@ -238,7 +238,7 @@
     "message": "此版本：#link_robertabcd_PttChrome#, #link_GPL20#."
   },
   "about_version_original": {
-    "message": "此版本：webapp12 6/2/2015, #link_iamchucky_PttChrome#, #link_GPL20#."
+    "message": "原版本：webapp12 6/2/2015, #link_iamchucky_PttChrome#, #link_GPL20#."
   },
   "about_new_title": {
     "message": "新功能"
