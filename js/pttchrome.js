@@ -533,7 +533,7 @@ pttchrome.App.prototype.doCopyAnsi = function() {
 
   var ansiText = '';
   if (selection.start.row == selection.end.row) {
-    ansiText += this.buf.getText(selection.start.row, selection.start.col, selection.end.col+1, true, true, false, pageLines);
+    ansiText += this.buf.getText(selection.start.row, selection.start.col, selection.end.col, true, true, false, pageLines);
   } else {
     for (var i = selection.start.row; i <= selection.end.row; ++i) {
       var scol = 0;
@@ -543,7 +543,7 @@ pttchrome.App.prototype.doCopyAnsi = function() {
       } else if (i == selection.end.row) {
         ecol = selection.end.col;
       }
-      ansiText += this.buf.getText(i, scol, ecol+1, true, true, false, pageLines);
+      ansiText += this.buf.getText(i, scol, ecol, true, true, false, pageLines);
       if (i != selection.end.row ) {
         ansiText += '\r';
       }

@@ -179,7 +179,7 @@ InputHelper.prototype.sendColorCommand = function(type) {
     } else if (y < sel.end.row) {
       selCmd += '\x1b[B'.repeat(sel.end.row - y);
     }
-    var repeats = this.app.buf.getRowText(sel.end.row, 0, sel.end.col+1).length;
+    var repeats = this.app.buf.getRowText(sel.end.row, 0, sel.end.col).length;
     selCmd += '\x1b[C'.repeat(repeats) + '\x15[m';
 
     // move cursor to start and send color code

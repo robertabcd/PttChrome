@@ -717,62 +717,50 @@ TermView.prototype = {
     }
   },
 
-  countColFromSiblings: function(elem) {
-    var rowCol = { row: 0, col: 0 };
-    var parent = elem.parentNode;
-    var parentType = parent.getAttribute('type');
-    // TODO this was to fix context menu not showing up, but breaks copy ansi
-    /*if (parentType === null) {
-      // if i am outside of bbswin, pick the first elem
-      elem = $('#mainContainer')[0].childNodes[0].childNodes[0];
-      parent = elem.parentNode;
-      parentType = parent.getAttribute('type');
-    }*/
-
-    while (!(parentType == 'bbsrow' || parentType == 'highlight' || parent.tagName == 'A')) {
-      parent = parent.parentNode; 
-      parentType = parent.getAttribute('type');
-    }
-
-    if (parent.tagName == 'A') {
-      rowCol.col += parseInt(parent.getAttribute('scol'));
-    }
-
-    rowCol.row = parseInt(parent.getAttribute('srow'));
-    var children = parent.childNodes;
-    for (var i = 0; i < children.length; ++i) {
-      var child = children[i];
-      if (child == elem.parentNode || child == elem) {
+  countCol: function(node, pos) {
+    let rowNode;
+    for (let r = node; r != r.parentNode; r = r.parentNode) {
+      if (r instanceof Element &&
+        r.getAttribute('data-type') == 'bbsline') {
+        rowNode = r;
         break;
       }
-      var textContent = child.textContent;
-      textContent = textContent.replace(/\u00a0/g, " ");
-      rowCol.col += textContent.u2b().length;
     }
-    return rowCol;
+    if (!rowNode) {
+      return { row: 0, col: 0 };
+    }
+
+    let col = 0;
+    let doCount = function(cur) {
+      if (cur == node) {
+        col += cur.textContent.substring(0, pos).u2b().length;
+        return false;
+      }
+      if (cur.nodeName == '#text') {
+        col += cur.textContent.u2b().length;
+        return true;
+      }
+      for (let e of cur.childNodes) {
+        if (!doCount(e)) {
+          return false;
+        }
+      }
+      return true;
+    };
+    doCount(rowNode);
+
+    return {
+      row: parseInt(rowNode.getAttribute('data-row')),
+      col: col
+    };
   },
 
   getSelectionColRow: function() {
-    var r = window.getSelection().getRangeAt(0);
-    var b = r.startContainer;
-    var e = r.endContainer;
-
-    var selection = { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } };
-
-    selection.start = this.countColFromSiblings(b);
-    if (r.startOffset !== 0) {
-      var substr = b.substringData(0, r.startOffset);
-      substr = substr.replace(/\u00a0/g, " ");
-      selection.start.col += substr.u2b().length;
-    }
-    selection.end = this.countColFromSiblings(e);
-    if (r.endOffset != 1) {
-      var substr = e.substringData(0, r.endOffset);
-      substr = substr.replace(/\u00a0/g, " ");
-      selection.end.col += substr.u2b().length - 1;
-    }
-
-    return selection;
+    let r = window.getSelection().getRangeAt(0);
+    return {
+      start: this.countCol(r.startContainer, r.startOffset),
+      end: this.countCol(r.endContainer, r.endOffset)
+    };
   },
 
   setupPicPreviewOnHover: function() {

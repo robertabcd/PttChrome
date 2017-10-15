@@ -277,7 +277,9 @@ class Row extends React.Component {
     // TODO: Detect userid and apply class "blu_$userid".
     return (
       <div>
-        <span key="line" className={classes.join(' ')}>{cols}</span>
+        <span key="line" className={classes.join(' ')}
+            data-type="bbsline"
+            data-row={this.props.row}>{cols}</span>
         <div key="previews">{linkPreviews}</div>
       </div>
     );
