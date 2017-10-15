@@ -160,6 +160,9 @@ pttchrome.App = function(onInitializedCallback, options) {
   document.addEventListener('copy', function(e) {
     self.onDOMCopy(e);
   });
+  this.inputArea.addEventListener('paste', function(e) {
+    self.onDOMPaste(e);
+  });
 
   this.view.innerBounds = this.getWindowInnerBounds();
   this.view.firstGridOffset = this.getFirstGridOffsets();
@@ -575,6 +578,14 @@ pttchrome.App.prototype.doPaste = function() {
 pttchrome.App.prototype.onPasteDone = function(content) {
   //this.conn.convSend(content);
   this.view.onTextInput(content, true);
+};
+
+pttchrome.App.prototype.onDOMPaste = function(e) {
+  let str = e.clipboardData.getData('text');
+  if (str) {
+    e.preventDefault();
+    this.onPasteDone(str);
+  }
 };
 
 pttchrome.App.prototype.onSymFont = function(content) {
@@ -1650,7 +1661,7 @@ pttchrome.App.prototype.setupContextMenus = function() {
 
   $('#cmenu_copy a').html(i18n('cmenu_copy')+'<span class="cmenuHotkey">Ctrl+C</span>');
   $('#cmenu_copyAnsi a').text(i18n('cmenu_copyAnsi'));
-  $('#cmenu_paste a').html(i18n('cmenu_paste')+'<span class="cmenuHotkey">Ctrl+Shift+V</span>');
+  $('#cmenu_paste a').html(i18n('cmenu_paste')+'<span class="cmenuHotkey">Shift+Insert</span>');
   $('#cmenu_selectAll a').html(i18n('cmenu_selectAll')+'<span class="cmenuHotkey">Ctrl+A</span>');
   $('#cmenu_searchGoogle a').html(i18n('cmenu_searchGoogle')+' <span id="cmenuSearchContent"></span>');
   $('#cmenu_quickSearch a').html(i18n('cmenu_quickSearch')+' <span style="float:right;">&#9658;</span>');

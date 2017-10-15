@@ -71,6 +71,11 @@ export class TermKeyboard {
 
   _onKeyDown(e) {
     if (!e.ctrlKey && !e.altKey) {
+      // Shift-Insert as paste.
+      if (e.shiftKey && e.key == 'Insert') {
+        return false;
+      }
+
       let mapped = KeyMap[e.key];
       if (mapped) {
         if (this._checkDB(e.key)) {
