@@ -295,6 +295,16 @@
     "message": "用443端口連線"
   },
 
+  "alert_pasteShortcutHeader": {
+    "message": "貼上"
+  },
+  "alert_pasteShortcutText": {
+    "message": "請使用 Shift+Insert 快速鍵來貼上。"
+  },
+  "alert_pasteShortcutClose": {
+    "message": "確定"
+  },
+
   // notifications
   "notification_said": {
     "message": "說:"

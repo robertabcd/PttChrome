@@ -686,7 +686,7 @@ span {
   margin-bottom:2px;
 }
 
-#developerModeAlert, #connectionAlert {
+#developerModeAlert, #connectionAlert, #pasteShortcutAlert {
   display: none;
   margin-top: 15px;
   position: relative;

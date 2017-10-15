@@ -180,6 +180,7 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.onWindowResize();
   this.setupDeveloperModeAlert();
   this.setupConnectionAlert();
+  this.setupPasteShortcutAlert();
   this.setupLiveHelper();
   this.setupOtherSiteInput();
   this.setupContextMenus();
@@ -497,6 +498,16 @@ pttchrome.App.prototype.setupConnectionAlert = function() {
   });
 };
 
+pttchrome.App.prototype.setupPasteShortcutAlert = function(){
+  $('#pasteShortcutHeader').text(i18n('alert_pasteShortcutHeader'));
+  $('#pasteShortcutText').text(i18n('alert_pasteShortcutText'));
+  $('#pasteShortcutClose').text(i18n('alert_pasteShortcutClose'));
+  $('#pasteShortcutClose').click(function(e) {
+    $('#pasteShortcutAlert').modal('hide');
+    self.modalShown = false;
+  });
+};
+
 pttchrome.App.prototype.setupOtherSiteInput = function() {
   var self = this;
   $('#siteModal input').attr('placeholder', i18n('input_sitePlaceholder'));
@@ -573,6 +584,8 @@ pttchrome.App.prototype.onDOMCopy = function(e) {
 
 pttchrome.App.prototype.doPaste = function() {
   console.log("doPaste not implemented");
+  $('#pasteShortcutAlert').modal('show');
+  self.modalShown = true;
 };
 
 pttchrome.App.prototype.onPasteDone = function(content) {

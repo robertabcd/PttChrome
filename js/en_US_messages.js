@@ -298,6 +298,16 @@ exports.en_US = {
     "message": "Try with port 443"
   },
 
+  "alert_pasteShortcutHeader": {
+    "message": "Paste"
+  },
+  "alert_pasteShortcutText": {
+    "message": "Please use Shift+Insert to paste"
+  },
+  "alert_pasteShortcutClose": {
+    "message": "OK"
+  },
+
   // notifications
   "notification_said": {
     "message": "says:"
