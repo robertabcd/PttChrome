@@ -70,6 +70,11 @@ export class TermKeyboard {
   }
 
   _onKeyDown(e) {
+    // Windows/Command key.
+    if (e.getModifierState('Meta')) {
+      return false;
+    }
+
     if (!e.ctrlKey && !e.altKey) {
       // Shift-Insert as paste.
       if (e.shiftKey && e.key == 'Insert') {
