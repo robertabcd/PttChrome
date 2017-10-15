@@ -156,6 +156,11 @@ pttchrome.App = function(onInitializedCallback, options) {
     self.appFocused = false;
   }, false);
 
+  this.strToCopy = null;
+  document.addEventListener('copy', function(e) {
+    self.onDOMCopy(e);
+  });
+
   this.view.innerBounds = this.getWindowInnerBounds();
   this.view.firstGridOffset = this.getFirstGridOffsets();
   window.onresize = function() {
@@ -518,7 +523,8 @@ pttchrome.App.prototype.doCopy = function(str) {
     str = str.replace(/\n/g, '\r');
     str = str.replace(/ +\r/g, '\r');
   }
-  console.log("doCopy not implemented, data: " + str);
+  this.strToCopy = str;
+  document.execCommand('copy');
 };
 
 pttchrome.App.prototype.doCopyAnsi = function() {
@@ -550,8 +556,16 @@ pttchrome.App.prototype.doCopyAnsi = function() {
     }
   }
 
-  //console.log(ansiText);
   this.doCopy(ansiText);
+};
+
+pttchrome.App.prototype.onDOMCopy = function(e) {
+  if (this.strToCopy) {
+    e.clipboardData.setData('text', this.strToCopy);
+    e.preventDefault();
+    console.log('copied: ', this.strToCopy);
+    this.strToCopy = null;
+  }
 };
 
 pttchrome.App.prototype.doPaste = function() {
