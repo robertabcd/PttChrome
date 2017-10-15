@@ -521,11 +521,6 @@ PttChromePref.prototype = {
     this.values.blacklistedUserIds = blacklist;
   },
 
-  syncBlacklistWithDriveApi: function() {
-    // use the Drive API to sync the blacklist data
-
-  },
-
   setBlacklistStorage: function() {
     var items = { 
       values: {
