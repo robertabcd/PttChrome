@@ -62,7 +62,7 @@ class ImagePreview extends React.Component {
     }
 
     return {
-      'display': this.state.spinning ? 'none' : 'block',
+      'display': 'block',
       'position': 'absolute',
       'left': (curX + 20) + 'px',
       'top': imgTop + 'px',
@@ -102,7 +102,7 @@ class ImagePreview extends React.Component {
             ref={(img) => { this._preview = img; }}
             src={this.props.src}
             style={this._imageStyle()}
-            onLoad={this._onImageLoaded.bind(this)}></img>
+            onLoad={() => this._onImageLoaded()}></img>
         <i 
             key="spinner"
             className="glyphicon glyphicon-refresh glyphicon-refresh-animate"
