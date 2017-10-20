@@ -81,9 +81,6 @@
   },
 
   // options
-  "options_openInPackagedApp": {
-    "message": "'批' 圖示會在獨立視窗開啟 PttChrome"
-  },
   "options_enablePicPreview": {
     "message": "當滑鼠在圖片連結上時顯示圖片預覽"
   },

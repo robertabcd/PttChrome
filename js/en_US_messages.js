@@ -81,9 +81,6 @@ exports.en_US = {
   },
 
   // options
-  "options_openInPackagedApp": {
-    "message": "Launch PttChrome in packaged app."
-  },
   "options_enablePicPreview": {
     "message": "Enable preview when hover on image URLs."
   },

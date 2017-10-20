@@ -4,7 +4,6 @@ var DEFAULT_PREFS = {
 
   // general
   //dbcsDetect    : false,
-  openInPackagedApp     : false,
   enablePicPreview      : true,
   enableNotifications   : true,
   enableEasyReading     : false,
