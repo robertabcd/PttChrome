@@ -1494,10 +1494,8 @@ pttchrome.App.prototype.setupContextMenus = function() {
 
     // for getting push thread user id
     if (self.pref.enableBlacklist) {
-      var srow = target.attr('srow');
-      if (srow === undefined || srow === null)
-        srow = target.parent().attr('srow');
-      srow = parseInt(srow);
+      let rowNode = self.view.getRowLineElement(target.get(0));
+      let srow = rowNode ? parseInt(rowNode.getAttribute('data-row')) : NaN;
       if (!isNaN(srow)) {
         var rowText = '';
         if (self.view.useEasyReadingMode && self.buf.pageState == 3) {

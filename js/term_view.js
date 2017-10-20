@@ -717,15 +717,18 @@ TermView.prototype = {
     }
   },
 
-  countCol: function(node, pos) {
-    let rowNode;
+  getRowLineElement: function(node) {
     for (let r = node; r != r.parentNode; r = r.parentNode) {
       if (r instanceof Element &&
         r.getAttribute('data-type') == 'bbsline') {
-        rowNode = r;
-        break;
+        return r;
       }
     }
+    return null;
+  },
+
+  countCol: function(node, pos) {
+    let rowNode = this.getRowLineElement(node);
     if (!rowNode) {
       return { row: 0, col: 0 };
     }
