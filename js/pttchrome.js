@@ -332,7 +332,6 @@ pttchrome.App.prototype.onClose = function() {
   this.conn.isConnected = false;
 
   this.cancelMbTimer();
-  this.unregExitAlert();
 
   this.connectState = 2;
   this.idleTime = 0;
