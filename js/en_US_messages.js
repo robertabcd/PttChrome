@@ -82,9 +82,6 @@ exports.en_US = {
   "options_general": {
     "message": "General"
   },
-  "options_autologin": {
-    "message": "Auto login"
-  },
   "options_blacklist": {
     "message": "Blacklist"
   },
@@ -203,17 +200,6 @@ exports.en_US = {
   },
   "options_blacklistInstruction": {
     "message": "Type in the usernames in the textarea below, one per line"
-  },
-
-  // auto logins
-  "autologin_username": {
-    "message": "Username"
-  },
-  "autologin_password": {
-    "message": "Password"
-  },
-  "autologin_warning": {
-    "message": "Login info is not encrypted, DO NOT use on a public machine"
   },
 
   // extensions

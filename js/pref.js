@@ -3,7 +3,6 @@ import { AboutPane } from './pref_about';
 
 export function PttChromePref(app, onInitializedCallback) {
   this.values = {};
-  this.logins = null;
   this.app = app;
   this.shouldResetToDefault = false;
 
@@ -117,14 +116,6 @@ PttChromePref.prototype = {
         $('#opt_'+i+' input').popover();
       }
     }
-
-    // autologin
-    $('#login_username').html(
-      '<label style="font-weight:normal;">'+i18n('autologin_username')+'</label>'+
-      '<input type="text" class="form-control" value="'+this.logins[0]+'">');
-    $('#login_password').html(
-      '<label style="font-weight:normal;">'+i18n('autologin_password')+'</label>'+
-      '<input type="password" class="form-control" value="'+this.logins[1]+'">');
   },
 
   setupSettingsUi: function() {
@@ -158,8 +149,6 @@ PttChromePref.prototype = {
     $('#opt_tabs a:first').tab('show');
     var currTab = 'general';
     $('#modalHeader').text(i18n('options_'+currTab));
-
-    $('#opt_autologinWarning').text(i18n('autologin_warning'));
 
     // blacklist
     $('#opt_blacklistInstruction').text(i18n('options_blacklistInstruction'));
@@ -205,7 +194,6 @@ PttChromePref.prototype = {
         self.values = JSON.parse(JSON.stringify(DEFAULT_PREFS));
         self.blacklistedUserIds = {};
         self.quickSearches = JSON.parse(DEFAULT_PREFS.quickSearchList);
-        self.logins = ['',''];
         self.updateSettingsToUi();
         self.app.view.redraw(true);
 
@@ -364,7 +352,6 @@ PttChromePref.prototype = {
     var self = this;
     var data = {
       values: self.values,
-      logins: {'u':self.logins[0], 'p':self.logins[1]}
     };
     this.setStorage(data);
     this.updateToApp();
@@ -381,12 +368,6 @@ PttChromePref.prototype = {
       }
       if (i === 'quickSearchList') {
         this.values[i] = JSON.stringify(this.quickSearches);
-        continue;
-      }
-
-      if (i === 'deleteDupLogin') {
-        var yesNode = $('#opt_deleteDupLoginYes');
-        this.values[i] = yesNode.prop('checked');
         continue;
       }
 
@@ -418,17 +399,10 @@ PttChromePref.prototype = {
           break;
       }
     }
-    var user = $('#login_username input').val();
-    var pswd = $('#login_password input').val();
-    if (user === '') {
-      pswd = '';
-    }
-    this.logins = [user, pswd];
   },
 
   loadDefault: function(callback) {
     this.values = JSON.parse(JSON.stringify(DEFAULT_PREFS));
-    this.logins = {'u':'', 'p':''};
     this.updateToApp();
     this.populateSettingsToUi();
     callback();
@@ -437,12 +411,6 @@ PttChromePref.prototype = {
   updateToApp: function() {
     for (var i in this.values) {
       this.app.onPrefChange(this, i);
-    }
-    if (this.logins[0]) {
-      this.app.conn.loginStr[1] = this.logins[0];
-    }
-    if (this.logins[1]) {
-      this.app.conn.loginStr[2] = this.logins[1];
     }
   },
 
@@ -482,14 +450,10 @@ PttChromePref.prototype = {
         }
       }
     }
-    if (msg.data && msg.data.logins) {
-      var data = msg.data.logins;
-      this.logins = [data.u, data.p];
-    }
     this.updateToApp();
     this.populateSettingsToUi();
     if (!this.initCallbackCalled) {
-      if (this.values !== null && this.logins !== null) {
+      if (this.values !== null) {
         this.initCallbackCalled = true;
         this.onInitializedCallback(this.app);
       }
@@ -500,7 +464,6 @@ PttChromePref.prototype = {
     console.log("getStorage not implemented, returning defaults.");
     var defaults = {
       values: DEFAULT_PREFS,
-      logins: {'u':'', 'p':''}
     };
     this.onStorageDone({ data: defaults });
   },

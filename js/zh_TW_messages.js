@@ -82,9 +82,6 @@
   "options_general": {
     "message": "一般"
   },
-  "options_autologin": {
-    "message": "自動登入"
-  },
   "options_blacklist": {
     "message": "黑名單"
   },
@@ -200,17 +197,6 @@
   },
   "options_blacklistInstruction": {
     "message": "請在下面輸入所有欲加入黑名單的使用者ID, 每行一個"
-  },
-
-  // auto logins
-  "autologin_username": {
-    "message": "帳號"
-  },
-  "autologin_password": {
-    "message": "密碼"
-  },
-  "autologin_warning": {
-    "message": "帳號密碼沒有加密儲存, 千萬不要在公用電腦上使用"
   },
 
   // extensions
