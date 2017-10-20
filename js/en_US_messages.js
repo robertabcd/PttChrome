@@ -88,7 +88,7 @@ exports.en_US = {
     "message": "Enable notifications when a message is received."
   },
   "options_enableEasyReading": {
-    "message": "Enable easy reading article view."
+    "message": "Enable easy reading article view. (experimental)"
   },
   "options_endTurnsOnLiveUpdate": {
     "message": "Press END turns on pushthread live update."

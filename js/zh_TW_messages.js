@@ -88,7 +88,7 @@
     "message": "啟用水球通知"
   },
   "options_enableEasyReading": {
-    "message": "啟用文章好讀模式"
+    "message": "啟用文章好讀模式 (實驗性)"
   },
   "options_endTurnsOnLiveUpdate": {
     "message": "END 啟用推文即時更新 (如 Alt + r)"
