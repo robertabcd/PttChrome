@@ -271,15 +271,38 @@ PttChromePref.prototype = {
   },
 
   getStorage: function(key) {
-    console.log("getStorage not implemented, returning defaults.");
-    var defaults = {
-      values: DEFAULT_PREFS,
-    };
-    this.onStorageDone({ data: defaults });
+    let items = {};
+    let storage = window.localStorage;
+    if (storage) {
+      try {
+        items = JSON.parse(storage.getItem(PREF_STORAGE_KEY));
+      } catch (e) {
+        console.log('getStorage: parse error:', e);
+      }
+      if (items === null || typeof items !== 'object') {
+        items = {};
+      }
+      if (items === null || typeof items.values !== 'object') {
+        items.values = {};
+      }
+      for (let key in DEFAULT_PREFS) {
+        if (!(key in items.values)) {
+          items.values[key] = DEFAULT_PREFS[key];
+        }
+      }
+    }
+    console.log(items);
+    this.onStorageDone({ data: items });
   },
 
   setStorage: function(items) {
-    console.log("setStorage not implemented, items: " + items);
+    console.log("setStorage: items:", items);
+    let storage = window.localStorage;
+    if (!storage) {
+      console.log("setStorage: no localStorage support");
+      return;
+    }
+    storage.setItem(PREF_STORAGE_KEY, JSON.stringify(items));
   },
 
   clearStorage: function() {
