@@ -475,33 +475,11 @@ pttchrome.App.prototype.setupConnectionAlert = function() {
   $('#connectionAlertHeader').text(i18n('alert_connectionHeader'));
   $('#connectionAlertText').text(i18n('alert_connectionText'));
   $('#connectionAlertReconnect').text(i18n('alert_connectionReconnect'));
-  $('#connectionAlertPortOption1').text(i18n('alert_connectionPortOption1'));
-  $('#connectionAlertPortOption2').text(i18n('alert_connectionPortOption2'));
 
   var self = this;
   $('#connectionAlertReconnect').click(function(e) {
     self.connect(self.connectedUrl.url);
     $('#connectionAlert').hide();
-  });
-  $('#connectionAlertPortOption2').click(function(e) {
-    var port = 443;
-    var site = 'ptt.cc';
-    if (self.connectedUrl.site) {
-      site = self.connectedUrl.site;
-    }
-
-    if (self.isFromApp) {
-      /*
-       * fixing a problem url won't open tab in packaged app mode:
-       * - this used to happen only when user click on "try 443 port" after a
-       * disconnection.
-       * - it seems to related with the window.location.replace method
-       */
-
-      self.connect(site + ':' + port);
-    } else {
-      window.location.replace('?site=' + site + ':'+ port);
-    }
   });
 };
 

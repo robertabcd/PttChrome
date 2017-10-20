@@ -288,12 +288,6 @@ exports.en_US = {
   "alert_connectionReconnect": {
     "message": "Reconnect (ENTER)"
   },
-  "alert_connectionPortOption1": {
-    "message": "or"
-  },
-  "alert_connectionPortOption2": {
-    "message": "Try with port 443"
-  },
 
   "alert_pasteShortcutHeader": {
     "message": "Paste"

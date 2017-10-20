@@ -285,12 +285,6 @@
   "alert_connectionReconnect": {
     "message": "重新連線 (ENTER)"
   },
-  "alert_connectionPortOption1": {
-    "message": "或"
-  },
-  "alert_connectionPortOption2": {
-    "message": "用443端口連線"
-  },
 
   "alert_pasteShortcutHeader": {
     "message": "貼上"
