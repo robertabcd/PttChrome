@@ -1,9 +1,9 @@
 window.pttchrome = window.pttchrome || {};
 
 pttchrome.Constants = {
-  EXTENSION_ID: '',
+  DEFAULT_SITE: 'wsstelnet://ws.ptt.cc/bbs',
 
-  DEFAULT_SITE: 'telnet://ptt.cc:23',
+  ENABLE_GOTO_OTHER_SITE: false,
 
   DEVELOPER_MODE: true,
 
