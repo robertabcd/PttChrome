@@ -30,14 +30,6 @@ PttChromePref.prototype = {
       $('#opt_'+i).empty();
       var val = this.values[i];
 
-      if (i === 'deleteDupLogin') {
-        var yesNode = $('#opt_deleteDupLoginYes');
-        if (val) {
-          yesNode.click();
-        }
-        continue;
-      }
-      
       // for the color selection box
       if (i === 'mouseBrowsingHighlightColor') {
         var qName = '#opt_'+i;

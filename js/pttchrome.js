@@ -1131,12 +1131,6 @@ pttchrome.App.prototype.onPrefChange = function(pref, name) {
       this.view.bbsViewMargin = margin;
       this.onWindowResize();
       break;
-    case 'enableDeleteDupLogin':
-      this.buf.enableDeleteDupLogin = pref.get(name);
-      break;
-    case 'deleteDupLogin':
-      this.buf.deleteDupLogin = pref.get(name);
-      break;
     default:
       break;
     }

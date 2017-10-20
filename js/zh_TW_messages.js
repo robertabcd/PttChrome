@@ -99,9 +99,6 @@
   "options_copyOnSelect": {
     "message": "選取文字時自動複製文字"
   },
-  "options_enableDeleteDupLogin": {
-    "message": "當被問到是否刪除其他重複登入的連線，回答:"
-  },
   "options_preferences": {
     "message": "設定"
   },

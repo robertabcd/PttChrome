@@ -99,9 +99,6 @@ exports.en_US = {
   "options_copyOnSelect": {
     "message": "Copy text when selected."
   },
-  "options_enableDeleteDupLogin": {
-    "message": "When asked to disconnect other logged-in connections, answer:"
-  },
   "options_preferences": {
     "message": "Preferences"
   },

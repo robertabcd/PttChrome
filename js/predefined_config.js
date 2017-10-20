@@ -12,8 +12,6 @@ var DEFAULT_PREFS = {
   copyOnSelect          : false,
   antiIdleTime          : 0,
   lineWrap              : 78,
-  enableDeleteDupLogin  : false,
-  deleteDupLogin        : false,
 
   // mouse browsing
   useMouseBrowsing            : false,
