@@ -1,5 +1,5 @@
 ﻿var PREFS_CATEGORIES = ['mouseBrowsing', 'appearance'];
-var PREFS_NAV = ['general', 'extensions', 'about'];
+var PREFS_NAV = ['general', 'about'];
 var DEFAULT_PREFS = {
 
   // general
@@ -28,10 +28,7 @@ var DEFAULT_PREFS = {
   // displays
   fontFitWindowWidth: false,
   fontFace          : 'MingLiu,SymMingLiU,monospace',
-  bbsMargin         : 0,
-
-  // quickSearch
-  quickSearchList: '[{"name":"goo.gl","url":"http://goo.gl/%s"}]'
+  bbsMargin         : 0
 };
 
 var PREF_OPTIONS = {
@@ -40,6 +37,15 @@ var PREF_OPTIONS = {
   mouseWheelFunction1 : [ 'options_none', 'options_upDown' , 'options_pageUpDown', 'options_threadLastNext' ],
   mouseWheelFunction2 : [ 'options_none', 'options_upDown' , 'options_pageUpDown', 'options_threadLastNext' ],
   mouseWheelFunction3 : [ 'options_none', 'options_upDown' , 'options_pageUpDown', 'options_threadLastNext' ],
+};
+
+var QUICK_SEARCH = {
+  providers: [
+    {
+      name: 'goo.gl',
+      url: 'https://goo.gl/%s'
+    }
+  ]
 };
 
 // DUMP_TYPE

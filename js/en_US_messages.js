@@ -76,9 +76,6 @@ exports.en_US = {
   "options_general": {
     "message": "General"
   },
-  "options_extensions": {
-    "message": "Extensions"
-  },
   "options_about": {
     "message": "About"
   },
@@ -182,17 +179,6 @@ exports.en_US = {
   },
   "options_threadLastNext": {
     "message": "Controls thread previous / next"
-  },
-
-  // extensions
-  "ext_quickSearch": {
-    "message": "Quick Search"
-  },
-  "ext_addQuickSearchNamePlaceholder": {
-    "message": "Add search engine"
-  },
-  "ext_addQuickSearchQueryPlaceholder": {
-    "message": "URL with %s in place of query"
   },
 
   // about page

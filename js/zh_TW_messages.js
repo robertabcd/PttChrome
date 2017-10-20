@@ -76,9 +76,6 @@
   "options_general": {
     "message": "一般"
   },
-  "options_extensions": {
-    "message": "額外功能"
-  },
   "options_about": {
     "message": "關於"
   },
@@ -179,17 +176,6 @@
   },
   "options_threadLastNext": {
     "message": "控制文章前篇 / 下篇"
-  },
-
-  // extensions
-  "ext_quickSearch": {
-    "message": "快速搜尋"
-  },
-  "ext_addQuickSearchNamePlaceholder": {
-    "message": "新增搜尋引擎"
-  },
-  "ext_addQuickSearchQueryPlaceholder": {
-    "message": "網址以 %s 取代網址中的搜尋字詞"
   },
 
   // about page
