@@ -271,10 +271,6 @@
   position: absolute;
 }
 
-#opt_blacklistedUsers {
-  margin-top: 5px;
-}
-
 #prefModal > .modal-dialog {
   width: 70%;
   min-width: 730px;

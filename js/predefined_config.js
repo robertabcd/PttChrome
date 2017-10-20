@@ -1,5 +1,5 @@
 ﻿var PREFS_CATEGORIES = ['mouseBrowsing', 'appearance'];
-var PREFS_NAV = ['general', 'blacklist', 'extensions', 'about'];
+var PREFS_NAV = ['general', 'extensions', 'about'];
 var DEFAULT_PREFS = {
 
   // general
@@ -30,10 +30,6 @@ var DEFAULT_PREFS = {
   fontFitWindowWidth: false,
   fontFace          : 'MingLiu,SymMingLiU,monospace',
   bbsMargin         : 0,
-
-  // blacklist
-  enableBlacklist : false,
-  blacklistedUserIds  : '{}',
 
   // quickSearch
   quickSearchList: '[{"name":"goo.gl","url":"http://goo.gl/%s"}]'

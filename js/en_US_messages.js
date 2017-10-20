@@ -65,12 +65,6 @@ exports.en_US = {
   "cmenu_showLiveArticleHelper": {
     "message": "Live article helper ..."
   },
-  "cmenu_addBlacklistUserId": {
-    "message": "Add blacklist user"
-  },
-  "cmenu_removeBlacklistUserId": {
-    "message": "Remove blacklist user"
-  },
   "cmenu_settings": {
     "message": "Settings"
   },
@@ -81,9 +75,6 @@ exports.en_US = {
   // options nav
   "options_general": {
     "message": "General"
-  },
-  "options_blacklist": {
-    "message": "Blacklist"
   },
   "options_extensions": {
     "message": "Extensions"
@@ -194,12 +185,6 @@ exports.en_US = {
   },
   "options_threadLastNext": {
     "message": "Controls thread previous / next"
-  },
-  "options_enableBlacklist": {
-    "message": "Enable user blacklist feature"
-  },
-  "options_blacklistInstruction": {
-    "message": "Type in the usernames in the textarea below, one per line"
   },
 
   // extensions

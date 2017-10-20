@@ -632,22 +632,6 @@ pttchrome.App.prototype.setAutoPushthreadUpdate = function(seconds) {
   this.maxPushthreadAutoUpdateCount = seconds;
 };
 
-pttchrome.App.prototype.doAddBlacklistUserId = function(userid) {
-  this.pref.blacklistedUserIds[userid] = true;
-  this.pref.setBlacklistValue();
-  this.pref.setBlacklistStorage();
-  // XXX This should be changed to use a stylesheet to manage.
-  $('.blu_'+userid).css('opacity', '0.2');
-};
-
-pttchrome.App.prototype.doRemoveBlacklistUserId = function(userid) {
-  delete this.pref.blacklistedUserIds[userid];
-  this.pref.setBlacklistValue();
-  this.pref.setBlacklistStorage();
-  // XXX This should be changed to use a stylesheet to manage.
-  $('.blu_'+userid).css('opacity', '');
-};
-
 pttchrome.App.prototype.doSettings = function() {
   $('#prefModal').modal('show');
 };
@@ -665,7 +649,6 @@ pttchrome.App.prototype.onWindowResize = function() {
     height -= 76;
     $('#prefModal .modal-body').css('height', height + 'px');
     $('#prefModal .modal-body').css('width', width + 'px');
-    $('#opt_blacklistedUsers').css('height', height-150 + 'px');
   }
 };
 
@@ -1153,10 +1136,6 @@ pttchrome.App.prototype.onPrefChange = function(pref, name) {
       this.view.bbsViewMargin = margin;
       this.onWindowResize();
       break;
-    case 'enableBlacklist':
-      this.pref.enableBlacklist = pref.get(name);
-      this.view.redraw(true);
-      break;
     case 'enableDeleteDupLogin':
       this.buf.enableDeleteDupLogin = pref.get(name);
       break;
@@ -1492,25 +1471,6 @@ pttchrome.App.prototype.setupContextMenus = function() {
       aElement = target[0].parentNode;
     }
 
-    // for getting push thread user id
-    if (self.pref.enableBlacklist) {
-      let rowNode = self.view.getRowLineElement(target.get(0));
-      let srow = rowNode ? parseInt(rowNode.getAttribute('data-row')) : NaN;
-      if (!isNaN(srow)) {
-        var rowText = '';
-        if (self.view.useEasyReadingMode && self.buf.pageState == 3) {
-          rowText = self.buf.getRowText(srow, 0, self.buf.cols, self.buf.pageLines);
-        } else {
-          rowText = self.buf.getRowText(srow, 0, self.buf.cols);
-        }
-        if (self.buf.pageState == 3) {
-          contextOnUserId = rowText.parsePushthreadForUserId();
-        } else if (self.buf.pageState == 2) {
-          contextOnUserId = rowText.parseThreadForUserId();
-        }
-      }
-    }
-
     // replace the &nbsp;
     selectedText = window.getSelection().toString().replace(/\u00a0/g, " ");
 
@@ -1544,22 +1504,6 @@ pttchrome.App.prototype.setupContextMenus = function() {
           $('.contextQuickSearch').hide();
         }
       }
-    }
-
-    if (contextOnUserId) {
-      if (contextOnUserId in self.pref.blacklistedUserIds) {
-        $('#cmenuRemoveBlacklistUserIdContent').text("'"+contextOnUserId+"'");
-        $('#cmenu_addBlacklistUserId').hide();
-        $('#cmenu_removeBlacklistUserId').show();
-      } else {
-        $('#cmenuAddBlacklistUserIdContent').text("'"+contextOnUserId+"'");
-        $('#cmenu_addBlacklistUserId').show();
-        $('#cmenu_removeBlacklistUserId').hide();
-      }
-      $('#cmenu_divider3').show();
-    } else {
-      $('#cmenu_addBlacklistUserId').hide();
-      $('#cmenu_removeBlacklistUserId').hide();
     }
 
     // check if mouse browsing is on
@@ -1667,8 +1611,6 @@ pttchrome.App.prototype.setupContextMenus = function() {
   $('#cmenu_goToOtherSite a').text(i18n('cmenu_goToOtherSite'));
   $('#cmenu_showInputHelper a').text(i18n('cmenu_showInputHelper'));
   $('#cmenu_showLiveArticleHelper a').text(i18n('cmenu_showLiveArticleHelper'));
-  $('#cmenu_addBlacklistUserId a').html(i18n('cmenu_addBlacklistUserId')+' <span id="cmenuAddBlacklistUserIdContent"></span>');
-  $('#cmenu_removeBlacklistUserId a').html(i18n('cmenu_removeBlacklistUserId')+' <span id="cmenuRemoveBlacklistUserIdContent"></span>');
   $('#cmenu_settings a').text(i18n('cmenu_settings'));
 
   var contextMenuItemOnClickHandler = {
@@ -1704,12 +1646,6 @@ pttchrome.App.prototype.setupContextMenus = function() {
     },
     'cmenu_showLiveArticleHelper': function() { 
       $('#liveHelper').show(); 
-    },
-    'cmenu_addBlacklistUserId': function() { 
-      self.doAddBlacklistUserId(contextOnUserId); 
-    },
-    'cmenu_removeBlacklistUserId': function() { 
-      self.doRemoveBlacklistUserId(contextOnUserId); 
     },
     'cmenu_settings': function() { 
       self.doSettings(); 

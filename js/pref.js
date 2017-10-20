@@ -6,9 +6,6 @@ export function PttChromePref(app, onInitializedCallback) {
   this.app = app;
   this.shouldResetToDefault = false;
 
-  this.enableBlacklist = false;
-  this.blacklistedUserIds = {};
-
   this.quickSearches = [];
 
   //this.loadDefault(onInitializedCallback);
@@ -19,8 +16,6 @@ export function PttChromePref(app, onInitializedCallback) {
 PttChromePref.prototype = {
 
   updateSettingsToUi: function() {
-    this.refreshBlacklistOnUi();
-
     var self = this;
     var htmlStr = '';
     var n = 0;
@@ -35,10 +30,6 @@ PttChromePref.prototype = {
       $('#opt_'+i).empty();
       var val = this.values[i];
 
-      // for blacklisted userids 
-      if (i === 'blacklistedUserIds') {
-        continue;
-      }
       if (i === 'quickSearchList') {
         this.setupQuickSearchUiList();
         this.setupQuickSearchUiHandlers();
@@ -150,9 +141,6 @@ PttChromePref.prototype = {
     var currTab = 'general';
     $('#modalHeader').text(i18n('options_'+currTab));
 
-    // blacklist
-    $('#opt_blacklistInstruction').text(i18n('options_blacklistInstruction'));
-
     this.setupExtensionsPage();
 
     this.setupAboutPage();
@@ -181,8 +169,6 @@ PttChromePref.prototype = {
       height -= 76;
       $('#prefModal .modal-body').css('height', height + 'px');
       $('#prefModal .modal-body').css('width', width + 'px');
-      $('#opt_blacklistedUsers').css('height', height-150 + 'px');
-      self.refreshBlacklistOnUi();
     });
     $('#prefModal').on('shown.bs.modal', function(e) {
       self.app.disableLiveHelper();
@@ -192,7 +178,6 @@ PttChromePref.prototype = {
       if (self.shouldResetToDefault) {
         self.clearStorage();
         self.values = JSON.parse(JSON.stringify(DEFAULT_PREFS));
-        self.blacklistedUserIds = {};
         self.quickSearches = JSON.parse(DEFAULT_PREFS.quickSearchList);
         self.updateSettingsToUi();
         self.app.view.redraw(true);
@@ -326,28 +311,6 @@ PttChromePref.prototype = {
     ReactDOM.render(<AboutPane />, $('#tabContentAbout').get(0));
   },
 
-  refreshBlacklistOnUi: function() {
-    var listNode = $('#opt_blacklistedUsers');
-    var listStr = Object.keys(this.blacklistedUserIds).join('\n');
-    listNode.val(listStr);
-  },
-
-  readBlacklistValues: function() {
-    var listNode = $('#opt_blacklistedUsers');
-    var listStr = listNode.val();
-    var blacklistArray = listStr.split('\n');
-
-    this.blacklistedUserIds = {};
-
-    for (var i in blacklistArray) {
-      var b = blacklistArray[i];
-      if (!b) continue;
-      this.blacklistedUserIds[b.replace(' ','').toLowerCase()] = true;
-    }
-    this.setBlacklistValue();
-    this.app.view.redraw(true);
-  },
-
   saveAndDoneWithIt: function() {
     var self = this;
     var data = {
@@ -360,12 +323,8 @@ PttChromePref.prototype = {
   },
 
   readValueFromUi: function() {
-    this.readBlacklistValues();
     var selectedVal;
     for (var i in this.values) {
-      if (i === 'blacklistedUserIds') {
-        continue;
-      }
       if (i === 'quickSearchList') {
         this.values[i] = JSON.stringify(this.quickSearches);
         continue;
@@ -438,9 +397,7 @@ PttChromePref.prototype = {
             this.quickSearches = JSON.parse(this.values[i]);
           }
         } else {
-          if (i === 'blacklistedUserIds') {
-            this.blacklistedUserIds = JSON.parse(msg.data.values[i]);
-          } else if (i === 'quickSearchList') {
+          if (i === 'quickSearchList') {
             var val = msg.data.values[i];
             this.quickSearches = JSON.parse(val);
             this.values[i] = val;
@@ -466,20 +423,6 @@ PttChromePref.prototype = {
       values: DEFAULT_PREFS,
     };
     this.onStorageDone({ data: defaults });
-  },
-
-  setBlacklistValue: function() {
-    var blacklist = JSON.stringify(this.blacklistedUserIds);
-    this.values.blacklistedUserIds = blacklist;
-  },
-
-  setBlacklistStorage: function() {
-    var items = { 
-      values: {
-        blacklistedUserIds: this.values.blacklistedUserIds
-      }
-    };
-    console.log("setBlacklistStorage not implemented, items: " + items);
   },
 
   setStorage: function(items) {

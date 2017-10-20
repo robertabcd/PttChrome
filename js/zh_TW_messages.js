@@ -65,12 +65,6 @@
   "cmenu_showLiveArticleHelper": {
     "message": "Live 文小幫手 ..."
   },
-  "cmenu_addBlacklistUserId": {
-    "message": "在黑名單裡加入使用者"
-  },
-  "cmenu_removeBlacklistUserId": {
-    "message": "在黑名單裡移除使用者"
-  },
   "cmenu_settings": {
     "message": "設定"
   },
@@ -81,9 +75,6 @@
   // options nav
   "options_general": {
     "message": "一般"
-  },
-  "options_blacklist": {
-    "message": "黑名單"
   },
   "options_extensions": {
     "message": "額外功能"
@@ -191,12 +182,6 @@
   },
   "options_threadLastNext": {
     "message": "控制文章前篇 / 下篇"
-  },
-  "options_enableBlacklist": {
-    "message": "啟用使用者黑名單功能"
-  },
-  "options_blacklistInstruction": {
-    "message": "請在下面輸入所有欲加入黑名單的使用者ID, 每行一個"
   },
 
   // extensions
