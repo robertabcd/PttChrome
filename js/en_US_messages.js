@@ -87,9 +87,6 @@ exports.en_US = {
   "options_openInPackagedApp": {
     "message": "Launch PttChrome in packaged app."
   },
-  "options_closeQuery": {
-    "message": "Ask before closing tab."
-  },
   "options_enablePicPreview": {
     "message": "Enable preview when hover on image URLs."
   },

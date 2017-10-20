@@ -85,7 +85,6 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.mouseRightButtonDown = false;
 
   this.inputAreaFocusTimer = null;
-  this.alertBeforeUnload = false;
   this.modalShown = false;
 
   this.inputHelper = new InputHelper(this);
@@ -301,7 +300,6 @@ pttchrome.App.prototype.onConnect = function() {
     self.incrementCountToUpdatePushthread();
   }, 1000);
   this.view.resetCursorBlink();
-  if (this.alertBeforeUnload)   this.regExitAlert();
 };
 
 pttchrome.App.prototype.onData = function(data) {
@@ -1087,9 +1085,6 @@ pttchrome.App.prototype.onPrefChange = function(pref, name) {
     case 'copyOnSelect':
       this.copyOnSelect = pref.get(name);
       break;
-    case 'closeQuery':
-      this.alertBeforeUnload = pref.get(name);
-      break;
     case 'endTurnsOnLiveUpdate':
       this.endTurnsOnLiveUpdate = pref.get(name);
       break;
@@ -1676,19 +1671,6 @@ pttchrome.App.prototype.context_menu = function(e) {
     cmdhandler.setAttribute('doDOMMouseScroll','0');
     return;
   }
-};
-
-pttchrome.App.prototype.regExitAlert = function() {
-  if (!window.onbeforeunload && window.location.origin.indexOf('http://localhost') !== 0) {
-    window.onbeforeunload = function() {
-      return 'Connected to '+document.title;
-    };
-  }
-};
-
-pttchrome.App.prototype.unregExitAlert = function() {
-  // clear alert for closing tab
-  window.onbeforeunload = null;
 };
 
 pttchrome.App.prototype.setBBSCmd = function(cmd, cmdhandler) {

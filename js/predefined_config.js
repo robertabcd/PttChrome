@@ -3,7 +3,6 @@ var PREFS_NAV = ['general', 'extensions', 'about'];
 var DEFAULT_PREFS = {
 
   // general
-  closeQuery            : false,
   //dbcsDetect    : false,
   openInPackagedApp     : false,
   enablePicPreview      : true,
