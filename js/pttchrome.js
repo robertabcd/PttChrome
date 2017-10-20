@@ -170,6 +170,13 @@ pttchrome.App = function(onInitializedCallback, options) {
     self.onWindowResize();
   };
 
+  window.addEventListener('beforeunload', (e) => {
+    if (this.buf.pageState != 0) {
+      e.returnValue = 'You are currently connected. Are you sure?';
+      return e.returnValue;
+    }
+  });
+
   this.isFromApp = (options.from === 'app');
 
   this.dblclickTimer=null;
