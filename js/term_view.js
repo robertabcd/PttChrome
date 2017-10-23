@@ -147,20 +147,36 @@ export function TermView(rowCount) {
   this.input.addEventListener('compositionupdate', function(e) {
   }, false);
 
-  addEventListener('keydown', function(e) {
+  let keyEventFilter = (e) => {
     // On both Mac and Windows, control/alt+key will be sent as original key
     // code even under IME.
     // Char inputs will be handler on input event.
     // We can safely ignore those IME keys here.
     if (e.keyCode == 229)
-      return;
+      return false;
+
+    // TODO: Since the app is almost useless on mobile devices, we might want
+    // to revisit if we want this code.
 
     // iOS sends the keydown that starts composition as key code 0. Ignore it.
     if (e.keyCode == 0)
-      return;
+      return false;
 
     // iOS sends backspace when composing. Disallow any non-control keys during it.
     if (self.isComposition && !e.ctrlKey && !e.altKey)
+      return false;
+
+    return true;
+  };
+
+  addEventListener('keypress', (e) => {
+    if (!keyEventFilter(e))
+      return;
+    this._keyboard.onKeyPress(e);
+  });
+
+  addEventListener('keydown', function(e) {
+    if (!keyEventFilter(e))
       return;
 
     // disable auto update pushthread if any command is issued;

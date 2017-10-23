@@ -88,8 +88,9 @@ export class TermKeyboard {
         } else {
           return this._send(mapped);
         }
-      } else if (e.key.length == 1) { // Normal char
-        return this._send(e.key);
+      } else if (e.key.length == 1) {
+        // Normal char is handled in keypress. See comment in onKeyPress.
+        return false;
       }
     } else if (e.ctrlKey && !e.altKey && !e.shiftKey) {
       // Use lowercase no even capslock's on.
@@ -108,6 +109,18 @@ export class TermKeyboard {
           // Ctrl+key
           return this._sendCharCode(e.key.toUpperCase().charCodeAt(0) - 64);
       }
+    }
+    return false;
+  }
+
+  onKeyPress(e) {
+    // Firefox on Mac issues keyCode for the key that starts composition (while
+    // other browsers send 229), so a normal char is handled using keypress. We
+    // can't move all key handling here since ctrl- and alt-compounds are
+    // handled by browsers before keypress.
+    if (!e.ctrlKey && !e.altKey && e.key.length == 1) {
+      e.preventDefault();
+      return this._send(e.key)
     }
     return false;
   }
