@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -54,6 +55,13 @@ module.exports = {
     new UglifyJSPlugin({
       sourceMap: true,
       parallel: true
+    }),
+    new webpack.DefinePlugin({
+      'COMPILE_CONSTANTS': JSON.stringify({
+        DEFAULT_SITE: 'wsstelnet://ws.ptt.cc/bbs',
+        ENABLE_GOTO_OTHER_SITE: false,
+        DEVELOPER_MODE: true,
+      })
     }),
     new ExtractTextPlugin({
       filename: '[name].[chunkhash].css'

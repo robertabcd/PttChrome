@@ -25,9 +25,6 @@
     <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
     <script src="<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
     <% } %>
-
-    <!-- Local override of constants. -->
-    <script type="text/javascript" src="js/constants_local.js"></script>
   </head>
 
   <body>
