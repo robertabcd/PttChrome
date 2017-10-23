@@ -14,7 +14,12 @@ const KeyMap = {
   'ArrowUp': '\x1b[A',
   'ArrowDown': '\x1b[B',
   'ArrowRight': '\x1b[C',
-  'ArrowLeft': '\x1b[D'
+  'ArrowLeft': '\x1b[D',
+  // Edge.
+  'Up': '\x1b[A',
+  'Down': '\x1b[B',
+  'Right': '\x1b[C',
+  'Left': '\x1b[D'
 };
 let CtrlShiftMap = {
   '@': 50,
