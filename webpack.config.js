@@ -1,4 +1,5 @@
 const path = require('path');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -49,6 +50,7 @@ module.exports = {
   },
   devtool: 'source-map',
   plugins: [
+    new CleanWebpackPlugin(['dist', 'index.html']),
     new UglifyJSPlugin({
       sourceMap: true,
       parallel: true
