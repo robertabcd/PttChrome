@@ -170,7 +170,7 @@ pttchrome.App = function(onInitializedCallback, options) {
   };
 
   window.addEventListener('beforeunload', (e) => {
-    if (this.buf.pageState != 0) {
+    if (this.conn && this.conn.isConnected && this.buf.pageState != 0) {
       e.returnValue = 'You are currently connected. Are you sure?';
       return e.returnValue;
     }
