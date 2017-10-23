@@ -1,5 +1,9 @@
 import { i18n, getLang } from './i18n';
 import { AboutPane } from './pref_about';
+import {
+  PREFS_CATEGORIES, PREFS_NAV, DEFAULT_PREFS, PREF_OPTIONS, QUICK_SEARCH,
+  PREF_STORAGE_KEY
+} from './predefined_config';
 
 export function PttChromePref(app, onInitializedCallback) {
   this.values = {};

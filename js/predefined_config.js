@@ -1,6 +1,6 @@
-﻿var PREFS_CATEGORIES = ['mouseBrowsing', 'appearance'];
-var PREFS_NAV = ['general', 'about'];
-var DEFAULT_PREFS = {
+﻿export const PREFS_CATEGORIES = ['mouseBrowsing', 'appearance'];
+export const PREFS_NAV = ['general', 'about'];
+export const DEFAULT_PREFS = {
 
   // general
   //dbcsDetect    : false,
@@ -28,7 +28,7 @@ var DEFAULT_PREFS = {
   bbsMargin         : 0
 };
 
-var PREF_OPTIONS = {
+export const PREF_OPTIONS = {
   mouseLeftFunction : [ 'options_none', 'options_enterKey', 'options_rightKey' ],
   mouseMiddleFunction : [ 'options_none', 'options_enterKey', 'options_leftKey', 'options_doPaste' ],
   mouseWheelFunction1 : [ 'options_none', 'options_upDown' , 'options_pageUpDown', 'options_threadLastNext' ],
@@ -36,7 +36,7 @@ var PREF_OPTIONS = {
   mouseWheelFunction3 : [ 'options_none', 'options_upDown' , 'options_pageUpDown', 'options_threadLastNext' ],
 };
 
-var QUICK_SEARCH = {
+export const QUICK_SEARCH = {
   providers: [
     {
       name: 'goo.gl',
@@ -45,4 +45,4 @@ var QUICK_SEARCH = {
   ]
 };
 
-var PREF_STORAGE_KEY = 'pttchrome.pref.v1';
+export const PREF_STORAGE_KEY = 'pttchrome.pref.v1';
