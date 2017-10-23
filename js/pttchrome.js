@@ -10,7 +10,7 @@ import { InputHelper } from './input_helper';
 import { PttChromePref } from './pref';
 import { TouchController } from './touch_controller';
 import { i18n } from './i18n';
-import { getQueryVariable, setTimer, dumpLog } from './util';
+import { getQueryVariable, setTimer } from './util';
 
 pttchrome = pttchrome || {};
 
@@ -289,7 +289,7 @@ pttchrome.App.prototype.onConnect = function() {
   this.conn.isConnected = true;
   this.view.setConn(this.conn);
   $('#connectionAlert').hide();
-  dumpLog(DUMP_TYPE_LOG, "pttchrome onConnect");
+  console.info("pttchrome onConnect");
   this.connectState = 1;
   this.updateTabIcon('connect');
   this.idleTime = 0;
@@ -303,7 +303,6 @@ pttchrome.App.prototype.onConnect = function() {
 };
 
 pttchrome.App.prototype.onData = function(data) {
-//dumpLog(DUMP_TYPE_LOG, "pttchrome onData");
   this.parser.feed(data);
 
   if (!this.appFocused && this.view.enableNotifications) {
@@ -322,7 +321,7 @@ pttchrome.App.prototype.onData = function(data) {
 };
 
 pttchrome.App.prototype.onClose = function() {
-  dumpLog(DUMP_TYPE_LOG, "pttchrome onClose");
+  console.info("pttchrome onClose");
   if (this.timerEverySec) {
     this.timerEverySec.cancel();
   }
@@ -849,7 +848,6 @@ pttchrome.App.prototype.onMouse_click = function (e) {
 pttchrome.App.prototype.overlayCommandListener = function (e) {
   var elm = e.target;
   var cmd = elm.getAttribute("pttChromeCommand");
-  //dumpLog(DUMP_TYPE_LOG, cmd);
   if (elm) {
     if (elm.id == 'cmdHandler') {
       switch (cmd) {
@@ -1033,8 +1031,6 @@ pttchrome.App.prototype.resetMouseCursor = function(cX, cY) {
 
 pttchrome.App.prototype.onPrefChange = function(pref, name) {
   try {
-    //var CiStr = Components.interfaces.nsISupportsString;
-    //dumpLog(DUMP_TYPE_LOG, "onPrefChange " + name + ":" + pref.get(name));
     switch (name) {
     case 'useMouseBrowsing':
       var useMouseBrowsing = pref.get(name);

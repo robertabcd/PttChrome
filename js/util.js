@@ -27,13 +27,3 @@ export function getQueryVariable(variable) {
   }
   return null;
 }
-
-export function dumpLog(type, string) {
-	switch(type){
-		case DUMP_TYPE_LOG: 	 console.log(string); break;
-		case DUMP_TYPE_WARN: 	 console.warn(string); break;
-		case DUMP_TYPE_ERROR: 	 console.error(string); break;
-		default: console.log(string); break;
-	}
-}
-

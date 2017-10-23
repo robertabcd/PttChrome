@@ -46,9 +46,3 @@ var QUICK_SEARCH = {
 };
 
 var PREF_STORAGE_KEY = 'pttchrome.pref.v1';
-
-// DUMP_TYPE
-var DUMP_TYPE_LOG 	= 0;
-var DUMP_TYPE_WARN 	= 1;
-var DUMP_TYPE_ERROR = 2;
-
