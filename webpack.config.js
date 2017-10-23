@@ -60,7 +60,7 @@ module.exports = {
       'COMPILE_CONSTANTS': JSON.stringify({
         DEFAULT_SITE: 'wsstelnet://ws.ptt.cc/bbs',
         ENABLE_GOTO_OTHER_SITE: false,
-        DEVELOPER_MODE: true,
+        DEVELOPER_MODE: process.env.NODE_ENV !== 'production',
       })
     }),
     new ExtractTextPlugin({
