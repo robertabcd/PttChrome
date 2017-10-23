@@ -111,8 +111,7 @@ PttChromePref.prototype = {
       $('#prefModal').modal('hide');
     });
     // adjust the size alittle according to the locale
-    var lang = getLang();
-    if (lang == 'en_US') {
+    if (getLang() == 'en_us') {
       $('#opt_reset').css('fontSize', '12px');
       $('#opt_reset').css('marginLeft', '-10px');
     }
