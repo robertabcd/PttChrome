@@ -1,3 +1,5 @@
+module.exports = {};
+
 window.pttchrome = window.pttchrome || {};
 
 pttchrome.Constants = {
