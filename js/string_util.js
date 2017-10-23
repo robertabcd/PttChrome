@@ -1,3 +1,5 @@
+module.exports = {};
+
 // Only support caret notations (^C, ^H, ^U, ^[, ^?, ...)
 // If you want to show \ and ^, use \\ and \^ respectively
 String.prototype.unescapeStr = function() {
