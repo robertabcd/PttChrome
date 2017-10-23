@@ -11,7 +11,9 @@
     <link rel="prefetch" href="conv/u2b_table.bin">
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="dist/pttchrome.min.css" />
+    <% for (var css in htmlWebpackPlugin.files.css) { %>
+    <link href="<%= htmlWebpackPlugin.files.css[css] %>" rel="stylesheet">
+    <% } %>
 
     <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
@@ -20,7 +22,9 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.js"></script>
 
-    <script type="text/javascript" src="dist/pttchrome.min.js"></script>
+    <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
+    <script src="<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
+    <% } %>
 
     <!-- Local override of constants. -->
     <script type="text/javascript" src="js/constants_local.js"></script>
@@ -161,7 +165,7 @@
       <h4 id="developerModeAlertHeader"></h4>
       <p id="developerModeAlertText"></p>
       <p>
-        <button id="developerModeAlertDismiss" type"button" class="btn btn-danger"></button>
+        <button id="developerModeAlertDismiss" type="button" class="btn btn-danger"></button>
       </p>
     </div>
     <div id="connectionAlert" class="alert alert-danger alert-dismissable fade in">
@@ -169,14 +173,14 @@
       <h4 id="connectionAlertHeader"></h4>
       <p id="connectionAlertText"></p>
       <p>
-        <button id="connectionAlertReconnect" type"button" class="btn btn-danger"></button>
+        <button id="connectionAlertReconnect" type="button" class="btn btn-danger"></button>
       </p>
     </div>
     <div id="pasteShortcutAlert" class="alert alert-info alert-dismissible fade in" role="alert">
       <h4 id="pasteShortcutHeader"></h4>
       <p id="pasteShortcutText"></p>
       <p>
-        <button id="pasteShortcutClose" type"button" class="btn btn-primary"></button>
+        <button id="pasteShortcutClose" type="button" class="btn btn-primary"></button>
       </p>
     </div>
     <div id="imagePreviewContainer"></div>

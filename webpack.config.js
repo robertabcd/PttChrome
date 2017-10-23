@@ -1,6 +1,7 @@
 const path = require('path');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -12,7 +13,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: '[name].min.js'
+    filename: '[name].[chunkhash].js'
   },
   resolve: {
     extensions: ['.js', '.jsx']
@@ -53,7 +54,16 @@ module.exports = {
       parallel: true
     }),
     new ExtractTextPlugin({
-      filename: '[name].min.css'
+      filename: '[name].[chunkhash].css'
+    }),
+    new HtmlWebpackPlugin({
+      minify: {
+        collapseWhitespace: true,
+        removeComments: true
+      },
+      inject: false,
+      template: 'dev.html',
+      filename: '../index.html'
     })
   ]
 };
