@@ -21,6 +21,13 @@ export function setupI18n(callback) {
 }
 
 export function getLang() {
-  let lang = navigator.language || navigator.userLanguage || 'en_us';
-  return lang.toLowerCase().replace('-', '_');
+  let langs = navigator.languages ||
+    [navigator.language || navigator.userLanguage || ''];
+  for (let lang of langs) {
+    lang = lang.toLowerCase().replace('-', '_');
+    if (lang in locale) {
+      return lang;
+    }
+  }
+  return 'en_us';
 }
