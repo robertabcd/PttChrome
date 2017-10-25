@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -59,7 +58,6 @@ module.exports = {
   },
   devtool: 'source-map',
   plugins: [
-    new CleanWebpackPlugin(['dist', 'index.html']),
     new webpack.DefinePlugin({
       'COMPILE_CONSTANTS': JSON.stringify({
         DEFAULT_SITE,
