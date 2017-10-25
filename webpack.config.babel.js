@@ -4,6 +4,7 @@ import UglifyJSPlugin from 'uglifyjs-webpack-plugin';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import HtmlWebpackHarddiskPlugin from 'html-webpack-harddisk-plugin';
+import PreloadWebpackPlugin from 'preload-webpack-plugin';
 
 const DEVELOPER_MODE = process.env.NODE_ENV === 'development'
 const PRODUCTION_MODE = process.env.NODE_ENV === 'production'
@@ -76,7 +77,7 @@ export default {
         collapseWhitespace: PRODUCTION_MODE,
         removeComments: PRODUCTION_MODE
       },
-      inject: false,
+      inject: 'head',
       template: 'dev.html',
       filename: '../index.html'
     })
@@ -85,8 +86,9 @@ export default {
       sourceMap: true,
       parallel: true
     }),
+    new PreloadWebpackPlugin(),
   ] : [
-    new HtmlWebpackHarddiskPlugin()
+    new HtmlWebpackHarddiskPlugin(),
   ]),
   devServer: {
     proxy: {
