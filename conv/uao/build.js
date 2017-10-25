@@ -19,7 +19,7 @@ function build(table, fn) {
     fs.writeFileSync(fn, Buffer.from(t), { mode: 0o644 });
 }
 
-function readTable(fn) {
+function readTable(fn, reversed) {
     let m = {};
     let s = fs.readFileSync(fn).toString();
     for (let line of s.split(/\r?\n/)) {
@@ -28,13 +28,14 @@ function readTable(fn) {
         let p = line.match(/^0x([0-9a-f]+)\s+0x([0-9a-f]+)$/i);
         if (!p)
             throw 'Invalid line format: ' + line;
-        m[parseInt(p[1], 16)] = parseInt(p[2], 16);
+        let i = reversed ? 1 : 2;
+        m[parseInt(p[i], 16)] = parseInt(p[3 - i], 16);
     }
     return m;
 }
 
 child_process.execFileSync('tar', ['-C', __dirname, '-xjf', __dirname + '/big5data.tar.bz2']);
-build(readTable(__dirname + '/uao250-b2u.big5.txt'), __dirname + '/../b2u_table.bin');
+build(readTable(__dirname + '/uao250-b2u.big5.txt', true), __dirname + '/../b2u_table.bin');
 build(readTable(__dirname + '/uao250-u2b.big5.txt'), __dirname + '/../u2b_table.bin');
 child_process.execFileSync('rm', [
     '-f',
