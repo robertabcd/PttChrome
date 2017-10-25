@@ -48,6 +48,10 @@ export default {
         })
       },
       {
+        test: /\.bin$/,
+        loader: "base64-loader"
+      },
+      {
         test: /\.(bmp|png|woff)$/,
         loader: "file-loader"
       }
