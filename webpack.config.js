@@ -4,6 +4,12 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
+
+const DEVELOPER_MODE = process.env.NODE_ENV === 'development'
+const PRODUCTION_MODE = process.env.NODE_ENV === 'production'
+
+const DEFAULT_SITE = PRODUCTION_MODE ? 'wsstelnet://ws.ptt.cc/bbs' : 'wstelnet://localhost:8080/bbs'
 
 module.exports = {
   entry: {
@@ -14,8 +20,10 @@ module.exports = {
     ]
   },
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: '[name].[chunkhash].js'
+    path: path.join(__dirname, 'dist/'),
+    publicPath: '/dist/',
+    pathinfo: DEVELOPER_MODE,
+    filename: `[name]${ PRODUCTION_MODE ? '.[chunkhash]' : '' }.js`
   },
   resolve: {
     extensions: ['.js', '.jsx']
@@ -37,7 +45,7 @@ module.exports = {
           use: {
             loader: "css-loader",
             options: {
-              minimize: true,
+              minimize: PRODUCTION_MODE,
               sourceMap: true
             }
           }
@@ -52,28 +60,47 @@ module.exports = {
   devtool: 'source-map',
   plugins: [
     new CleanWebpackPlugin(['dist', 'index.html']),
-    new UglifyJSPlugin({
-      sourceMap: true,
-      parallel: true
-    }),
     new webpack.DefinePlugin({
       'COMPILE_CONSTANTS': JSON.stringify({
-        DEFAULT_SITE: 'wsstelnet://ws.ptt.cc/bbs',
+        DEFAULT_SITE,
         ENABLE_GOTO_OTHER_SITE: false,
-        DEVELOPER_MODE: process.env.NODE_ENV !== 'production',
+        DEVELOPER_MODE,
       })
     }),
     new ExtractTextPlugin({
+      disable: DEVELOPER_MODE,
       filename: '[name].[chunkhash].css'
     }),
     new HtmlWebpackPlugin({
+      alwaysWriteToDisk: DEVELOPER_MODE,
       minify: {
-        collapseWhitespace: true,
-        removeComments: true
+        collapseWhitespace: PRODUCTION_MODE,
+        removeComments: PRODUCTION_MODE
       },
       inject: false,
       template: 'dev.html',
       filename: '../index.html'
     })
-  ]
+  ].concat(PRODUCTION_MODE ? [
+    new UglifyJSPlugin({
+      sourceMap: true,
+      parallel: true
+    }),
+  ] : [
+    new HtmlWebpackHarddiskPlugin()
+  ]),
+  devServer: {
+    proxy: {
+      '/bbs': {
+        target: 'https://ws.ptt.cc',
+        secure: true,
+        ws: true,
+        changeOrigin: true,
+        onProxyReqWs(proxyReq) {
+          // Whitelist does not accept ws.ptt.cc
+          proxyReq.setHeader('origin', 'https://term.ptt.cc');
+        }
+      }
+    }
+  }
 };

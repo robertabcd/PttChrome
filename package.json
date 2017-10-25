@@ -19,6 +19,7 @@
     "webpack-dev-server": "^2.9.3"
   },
   "scripts": {
-    "build": "cross-env NODE_ENV=production webpack"    
+    "build": "cross-env NODE_ENV=production webpack",
+    "start": "cross-env NODE_ENV=development webpack-dev-server"
   }
 }
