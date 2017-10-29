@@ -107,14 +107,6 @@ String.prototype.b2u = function() {
     return str;
 };
 
-String.prototype.parseDuplicatedLoginText = function() {
-  return (this.indexOf('注意: 您有其它連線已登入此帳號。') === 0);
-};
-
-String.prototype.parseDuplicatedLoginTextLastRow = function() {
-  return (this.indexOf('您想刪除其他重複登入的連線嗎？[Y/n] ') === 0);
-};
-
 String.prototype.parseReplyText = function() {
   return (this.indexOf('▲ 回應至 (F)看板 (M)作者信箱 (B)二者皆是 (Q)取消？[F] ') === 0 ||
       this.indexOf('▲ 無法回應至看板。 改回應至 (M)作者信箱 (Q)取消？[Q]') === 0 ||
@@ -178,39 +170,6 @@ String.prototype.parseWaterball = function() {
   return null;
 };
 
-String.prototype.parseThreadForUserId = function() {
-  var str = this;
-  var regex = new RegExp(/(?:(?:\d+)|(?:  \u2605 )) [\u002bmMsSD*!=~ ](?:(?:[X\d ]{2})|(?:\u7206))[\d ]\d\/\d{2} (\w+) +[\u25a1\u8f49R]:?/g);
-  var result = regex.exec(str);
-  if (result && result.length == 2) {
-    return result[1].toLowerCase();
-  }
-
-  return null;
-};
-
-String.prototype.parsePushthreadForUserId = function() {
-  var str = this;
-  var regex = new RegExp(/[\u2192\u63a8\u5653] (\w+) *:.+ \d{2}\/\d{2} \d{2}:\d{2}/g);
-  var result = regex.exec(str);
-  if (result && result.length == 2) {
-    return result[1].toLowerCase();
-  }
-
-  return null;
-};
-
-String.prototype.parseYoutubeUrl = function() {
-  var str = this;
-  var regex = new RegExp(/https?:\/\/(?:(?:youtu\.be\/)|(?:www.youtube.com\/watch\?v=))([\w-]+)/g);
-  var result = regex.exec(str);
-  if (result && result.length == 2) {
-    return result[1];
-  }
-
-  return null;
-};
-
 String.prototype.ansiHalfColorConv = function() {
   var str = '';
   var regex = new RegExp('\x15\\[(([0-9]+)?;)+50m', 'g');
@@ -233,34 +192,4 @@ String.prototype.ansiHalfColorConv = function() {
   }
   str += this.substring(curInd);
   return str;
-};
-
-String.prototype.trimLeft = function() {
-  var i;
-  for (i = 0; i < this.length; ++i) {
-    if(this.charAt(i) != " " && this.charAt(i) != " ") 
-      break;
-  }
-  return this.substring(i, this.length);
-};
-
-String.prototype.trimRight = function() {
-  var i;
-  for (i = this.length-1; i >= 0; i--) {
-    if (this.charAt(i) != " " && this.charAt(i) != " ")
-      break;
-  }
-  return this.substring(0, i+1);
-};
-
-String.prototype.trimBoth = function() {
-  return this.trimLeft(this.trimRight());
-};
-
-String.prototype.repeat = function( num ) {
-  return new Array( num + 1 ).join( this );
-};
-
-String.prototype.endsWith = function(suffix) {
-  return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
