@@ -10,6 +10,7 @@ import { InputHelper } from './input_helper';
 import { PttChromePref } from './pref';
 import { TouchController } from './touch_controller';
 import { i18n } from './i18n';
+import { unescapeStr, b2u, parseWaterball } from './string_util';
 import { getQueryVariable, setTimer } from './util';
 
 pttchrome = pttchrome || {};
@@ -307,7 +308,7 @@ pttchrome.App.prototype.onData = function(data) {
 
   if (!this.appFocused && this.view.enableNotifications) {
     // parse received data for waterball
-    var wb = data.b2u().parseWaterball();
+    var wb = parseWaterball(b2u(data));
     if (wb) {
       if ('userId' in wb) {
         this.waterball.userId = wb.userId;
@@ -456,7 +457,7 @@ pttchrome.App.prototype.switchToEasyReadingMode = function(doSwitch) {
     this.buf.pageLines = [];
   }
   // request the full screen
-  this.view.conn.send('^L'.unescapeStr());
+  this.view.conn.send(unescapeStr('^L'));
 };
 
 pttchrome.App.prototype.setupDeveloperModeAlert = function() {

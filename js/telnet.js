@@ -1,6 +1,7 @@
 // Handle Telnet Connections according to RFC 854
 
 import { Event } from './event';
+import { u2b, ansiHalfColorConv } from './string_util';
 
 // Telnet commands
 const SE = '\xf0';
@@ -182,10 +183,10 @@ TelnetConnection.prototype.convSend = function(unicode_str) {
   // supports UAO
   // when converting unicode to big5, use UAO.
 
-  var s = unicode_str.u2b();
+  var s = u2b(unicode_str);
   // detect ;50m (half color) and then convert accordingly
   if (s) {
-    s = s.ansiHalfColorConv();
+    s = ansiHalfColorConv(s);
     this._sendRaw(s);
   }
 };

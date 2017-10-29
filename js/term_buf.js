@@ -2,6 +2,7 @@
 
 import { Event } from './event';
 import { ColorState } from './term_ui';
+import { u2b, b2u, parseStatusRow, parseListRow } from './string_util';
 
 const termColors = [
   // dark
@@ -810,7 +811,7 @@ TermBuf.prototype = {
           output += text[col].ch + this.ansiCmp(text[col], text[col+1]);
       }
       output += text[colEnd-1].ch + this.ansiCmp(text[colEnd-1], this.newChar);
-      return (isutf8 && charset != 'UTF-8' ? output.b2u() : output);
+      return (isutf8 && charset != 'UTF-8' ? b2u(output) : output);
     }
 
     text = text.slice(colStart, colEnd);
@@ -822,7 +823,7 @@ TermBuf.prototype = {
           if ((this.view && this.view.charset == 'UTF-8') || b5.length == 1)
             return b5;
           else
-            return b5.b2u();
+            return b2u(b5);
         } else
           return c.ch;
       }
@@ -874,7 +875,7 @@ TermBuf.prototype = {
           if ((that.view && that.view.charset == 'UTF-8') || b5.length == 1)
             return b5;
           else
-            return b5.b2u();
+            return b2u(b5);
         } else
           return c.ch;
       }
@@ -948,7 +949,7 @@ TermBuf.prototype = {
     var rowText = this.getRowText(row, 0, this.cols);
     var slashIndex = rowText.lastIndexOf('\\');
     if (slashIndex > 0 ) {
-      var col = rowText.substr(0, slashIndex).u2b().length;
+      var col = u2b(rowText.substr(0, slashIndex)).length;
       if (col != 77 && col != 78) return false;
       // check the color
       var ch = this.lines[row][col];
@@ -971,7 +972,7 @@ TermBuf.prototype = {
       this.pageState = 6;
       return;
     }
-    if (lastRowText.parseStatusRow()) {
+    if (parseStatusRow(lastRowText)) {
       this.pageState = 3; // READING
       return;
     }
@@ -983,7 +984,7 @@ TermBuf.prototype = {
       var classList = firstRowText.indexOf('【分類看板】');
       var archiveList = firstRowText.indexOf('【精華文章】');
       if (main === 0 || classList === 0 || archiveList === 0 ||
-          lastRowText.parseListRow()) {
+        parseListRow(lastRowText)) {
         //console.log('pageState = 1 (MENU)');
         this.pageState = 1; // MENU
       } else if (this.isUnicolor(2, 0, 70) && !this.isLineEmpty(1) && (this.cur_x < 19 || this.cur_y == 23)) {

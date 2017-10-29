@@ -2,6 +2,7 @@
 
 import { symbolTable } from './symbol_table';
 import { HyperLinkPreview } from './image_preview';
+import { b2u } from './string_util';
 
 class HyperLink extends React.Component {
   render() {
@@ -202,7 +203,7 @@ class Row extends React.Component {
         continue;
       }
       if (lead) {
-        let u = (lead.ch + ch.ch).b2u();
+        let u = b2u(lead.ch + ch.ch);
         if (u.length == 1) {
           if (this._isBadDBCS(u)) {
             builder.appendNormalChar('?', lead.getColor());
