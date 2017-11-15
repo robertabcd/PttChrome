@@ -1,5 +1,4 @@
 ﻿import './constants.js';
-import './string_util';
 import { App } from './pttchrome';
 import { setupI18n } from './i18n';
 import { getQueryVariable } from './util';

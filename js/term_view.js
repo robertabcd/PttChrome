@@ -6,6 +6,7 @@ import { renderImagePreview } from './image_preview';
 import { renderRowHtml } from './term_ui';
 import { i18n } from './i18n';
 import { setTimer } from './util';
+import { wrapText, u2b, parseStatusRow } from './string_util';
 
 export function TermView(rowCount) {
   //new pref - start
@@ -414,7 +415,7 @@ TermView.prototype = {
       text = text.replace(/\r/g, this.EnterChar);
 
       if(text.indexOf('\x1b') < 0 && this.lineWrap > 0) {
-        text = text.wrapText(this.lineWrap, this.EnterChar);
+        text = wrapText(text, this.lineWrap, this.EnterChar);
       }
 
       //FIXME: stop user from pasting DBCS words with 2-color
@@ -663,7 +664,7 @@ TermView.prototype = {
 
   updateInputBufferWidth: function() {
     // change width according to input
-    var wordCounts = this.input.value.u2b().length;
+    var wordCounts = u2b(this.input.value).length;
     // chh / 2 - 2 because border of 1
     var oneWordWidth = (this.chh/2-2);
     var width = oneWordWidth*wordCounts;
@@ -752,11 +753,11 @@ TermView.prototype = {
     let col = 0;
     let doCount = function(cur) {
       if (cur == node) {
-        col += cur.textContent.substring(0, pos).u2b().length;
+        col += u2b(cur.textContent.substring(0, pos)).length;
         return false;
       }
       if (cur.nodeName == '#text') {
-        col += cur.textContent.u2b().length;
+        col += u2b(cur.textContent).length;
         return true;
       }
       for (let e of cur.childNodes) {
@@ -846,7 +847,7 @@ TermView.prototype = {
     if (this.buf.pageState == 3 && this.buf.prevPageState == 3) {
       this.mainContainer.style.paddingBottom = '1em';
       var lastRowText = this.buf.getRowText(23, 0, this.buf.cols);
-      var result = lastRowText.parseStatusRow();
+      var result = parseStatusRow(lastRowText);
       if (result) {
         // row index start with 4 or below will cause duplicated first row of next page
         // 2015-07-04: better way is to view the row 3 and row 4 as one wrapped line

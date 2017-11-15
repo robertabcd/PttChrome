@@ -1,15 +1,17 @@
-module.exports = {};
 
-// Only support caret notations (^C, ^H, ^U, ^[, ^?, ...)
-// If you want to show \ and ^, use \\ and \^ respectively
-String.prototype.unescapeStr = function() {
+
+/**
+ * Only support caret notations (^C, ^H, ^U, ^[, ^?, ...)
+ * If you want to show \ and ^, use \\ and \^ respectively
+ */ 
+export function unescapeStr(it) {
   var result = '';
 
-  for (var i = 0; i < this.length; ++i) {
-    var curChar = this.charAt(i);
-    var nextChar = this.charAt(i+1);
+  for (var i = 0; i < it.length; ++i) {
+    var curChar = it.charAt(i);
+    var nextChar = it.charAt(i+1);
     
-    if (i == this.length - 1) {
+    if (i == it.length - 1) {
       result += curChar;
       break;
     }
@@ -18,7 +20,7 @@ String.prototype.unescapeStr = function() {
       result += nextChar;
     } else if (curChar == '^') {
       if ('@' <= nextChar && nextChar <= '_') {
-        var code = this.charCodeAt(i+1) - 64;
+        var code = it.charCodeAt(i+1) - 64;
         result += String.fromCharCode(code);
         i++;
       } else if (nextChar == '?') {
@@ -31,14 +33,12 @@ String.prototype.unescapeStr = function() {
       result += curChar;
     }
   }
-
   return result;
 };
 
-
 // Wrap text within maxLen without hyphenating English words,
 // where the maxLen is generally the screen width.
-String.prototype.wrapText = function(maxLen, enterChar) {
+export function wrapText(it, maxLen, enterChar) {
   // Divide string into non-hyphenated groups
   // classified as \r, \n, single full-width character, an English word,
   // and space characters in the beginning of original line. (indent)
@@ -46,7 +46,7 @@ String.prototype.wrapText = function(maxLen, enterChar) {
   // to ensure the start of each wrapped line is a word.
   // FIXME: full-width punctuation marks aren't recognized
   var pattern = /\r|\n|([^\x00-\x7f][,.?!:;]?[\t ]*)|([\x00-\x08\x0b\x0c\x0e-\x1f\x21-\x7f]+[\t ]*)|[\t ]+/g;
-  var splited = this.match(pattern);
+  var splited = it.match(pattern);
 
   var result = '';
   var len = 0;
@@ -70,14 +70,14 @@ String.prototype.wrapText = function(maxLen, enterChar) {
   return result;
 };
 
-String.prototype.u2b = function() {
+export function u2b(it) {
   var data = '';
-  for (var i = 0; i < this.length; ++i) {
-    if (this.charAt(i) < '\x80') {
-      data += this.charAt(i);
+  for (var i = 0; i < it.length; ++i) {
+    if (it.charAt(i) < '\x80') {
+      data += it.charAt(i);
       continue;
     }
-    var pos = this.charCodeAt(i);
+    var pos = it.charCodeAt(i);
     var hi = lib.u2bArray[2*pos], lo = lib.u2bArray[2*pos+1];
     if (hi || lo)
       data += String.fromCharCode(hi) + String.fromCharCode(lo);
@@ -87,59 +87,48 @@ String.prototype.u2b = function() {
   return data;
 };
 
-String.prototype.b2u = function() {
-    var str = '';
-    for (var i = 0; i < this.length; ++i) {
-      if (this.charAt(i) < '\x80' || i == this.length-1) {
-        str += this.charAt(i);
-        continue;
-      }
-
-      var pos = this.charCodeAt(i) << 8 | this.charCodeAt(i+1);
-      var code = lib.b2uArray[2*pos] << 8 | lib.b2uArray[2*pos+1];
-      if (code) {
-        str += String.fromCharCode(code);
-        ++i;
-      } else { // Not a big5 char
-        str += this.charAt(i);
-      }
+export function b2u(it) {
+  var str = '';
+  for (var i = 0; i < it.length; ++i) {
+    if (it.charAt(i) < '\x80' || i == it.length-1) {
+      str += it.charAt(i);
+      continue;
     }
-    return str;
+
+    var pos = it.charCodeAt(i) << 8 | it.charCodeAt(i+1);
+    var code = lib.b2uArray[2*pos] << 8 | lib.b2uArray[2*pos+1];
+    if (code) {
+      str += String.fromCharCode(code);
+      ++i;
+    } else { // Not a big5 char
+      str += it.charAt(i);
+    }
+  }
+  return str;
 };
 
-String.prototype.parseDuplicatedLoginText = function() {
-  return (this.indexOf('注意: 您有其它連線已登入此帳號。') === 0);
+export function parseReplyText(it) {
+  return (it.indexOf('▲ 回應至 (F)看板 (M)作者信箱 (B)二者皆是 (Q)取消？[F] ') === 0 ||
+      it.indexOf('▲ 無法回應至看板。 改回應至 (M)作者信箱 (Q)取消？[Q]') === 0 ||
+      it.indexOf('把這篇文章收入到暫存檔？[y/N]') === 0 ||
+      it.indexOf('請選擇暫存檔 (0-9)[0]:') === 0);
 };
 
-String.prototype.parseDuplicatedLoginTextLastRow = function() {
-  return (this.indexOf('您想刪除其他重複登入的連線嗎？[Y/n] ') === 0);
+export function parsePushInitText(it) {
+  return (it.indexOf('您覺得這篇文章 ') === 0 || 
+      it.search(/→ \w+ *: +/) === 0 ||
+      it.indexOf('很抱歉, 本板不開放回覆文章，要改回信給作者嗎？ [y/N]:') === 0);
 };
 
-String.prototype.parseReplyText = function() {
-  return (this.indexOf('▲ 回應至 (F)看板 (M)作者信箱 (B)二者皆是 (Q)取消？[F] ') === 0 ||
-      this.indexOf('▲ 無法回應至看板。 改回應至 (M)作者信箱 (Q)取消？[Q]') === 0 ||
-      this.indexOf('把這篇文章收入到暫存檔？[y/N]') === 0 ||
-      this.indexOf('請選擇暫存檔 (0-9)[0]:') === 0);
+export function parseReqNotMetText(it) {
+  return (it.indexOf(' ◆ 未達看板發文限制:') === 0);
 };
 
-String.prototype.parsePushInitText = function() {
-  return (this.indexOf('您覺得這篇文章 ') === 0 || 
-      this.search(/→ \w+ *: +/) === 0 ||
-      this.indexOf('很抱歉, 本板不開放回覆文章，要改回信給作者嗎？ [y/N]:') === 0);
-};
-
-String.prototype.parseReqNotMetText = function() {
-  return (this.indexOf(' ◆ 未達看板發文限制:') === 0);
-};
-
-String.prototype.parseStatusRow = function() {
-  var str = this;
+export function parseStatusRow(str) {
   var regex = new RegExp(/  瀏覽 第 (\d{1,3})(?:\/(\d{1,3}))? 頁 *\( *(\d{1,3})%\)  目前顯示: 第 0*(\d+)~0*(\d+) 行 *(?:\(y\)回應)?(?:\(X\/?%\)推文)?(?:\(h\)說明)? *\(←\/?q?\)離開 /g);
   var result = regex.exec(str);
-  if (!result)
-    return null;
 
-  if (result.length == 6) {
+  if (result && result.length === 6) {
     return {
       pageIndex:     parseInt(result[1]),
       pageTotal:     parseInt(result[2]),
@@ -152,17 +141,12 @@ String.prototype.parseStatusRow = function() {
   return null;
 };
 
-String.prototype.parseListRow = function() {
-  var str = this;
+export function parseListRow(str) {
   var regex = new RegExp(/\[\d{1,2}\/\d{1,2} +星期. +\d{1,2}:\d{1,2}\] \[ .{3} \] +線上\d+人, 我是\w+ +\[呼叫器\](?:關閉|打開) /g);
-  var result = regex.exec(str);
-  if (!result)
-    return false;
-  return true;
+  return regex.test(str);
 };
 
-String.prototype.parseWaterball = function() {
-  var str = this;
+export function parseWaterball(str) {
   var regex = new RegExp(/\x1b\[1;33;46m\u2605(\w+)\x1b\[0;1;37;45m (.+) \x1b\[m\x1b\[K/g);
   var result = regex.exec(str);
   if (result && result.length == 3) {
@@ -178,89 +162,26 @@ String.prototype.parseWaterball = function() {
   return null;
 };
 
-String.prototype.parseThreadForUserId = function() {
-  var str = this;
-  var regex = new RegExp(/(?:(?:\d+)|(?:  \u2605 )) [\u002bmMsSD*!=~ ](?:(?:[X\d ]{2})|(?:\u7206))[\d ]\d\/\d{2} (\w+) +[\u25a1\u8f49R]:?/g);
-  var result = regex.exec(str);
-  if (result && result.length == 2) {
-    return result[1].toLowerCase();
-  }
-
-  return null;
-};
-
-String.prototype.parsePushthreadForUserId = function() {
-  var str = this;
-  var regex = new RegExp(/[\u2192\u63a8\u5653] (\w+) *:.+ \d{2}\/\d{2} \d{2}:\d{2}/g);
-  var result = regex.exec(str);
-  if (result && result.length == 2) {
-    return result[1].toLowerCase();
-  }
-
-  return null;
-};
-
-String.prototype.parseYoutubeUrl = function() {
-  var str = this;
-  var regex = new RegExp(/https?:\/\/(?:(?:youtu\.be\/)|(?:www.youtube.com\/watch\?v=))([\w-]+)/g);
-  var result = regex.exec(str);
-  if (result && result.length == 2) {
-    return result[1];
-  }
-
-  return null;
-};
-
-String.prototype.ansiHalfColorConv = function() {
+export function ansiHalfColorConv(it) {
   var str = '';
   var regex = new RegExp('\x15\\[(([0-9]+)?;)+50m', 'g');
   var result = null;
   var indices = [];
-  while ((result = regex.exec(this))) {
+  while ((result = regex.exec(it))) {
     indices.push(result.index + result[0].length - 4);
   }
 
   if (indices.length === 0) {
-    return this;
+    return it;
   }
 
   var curInd = 0;
   for (var i = 0; i < indices.length; ++i) {
     var ind = indices[i];
-    var preEscInd = this.substring(curInd, ind).lastIndexOf('\x15') + curInd;
-    str += this.substring(curInd, preEscInd) + '\x00' + this.substring(ind+4, ind+5) + this.substring(preEscInd, ind) + 'm';
+    var preEscInd = it.substring(curInd, ind).lastIndexOf('\x15') + curInd;
+    str += it.substring(curInd, preEscInd) + '\x00' + it.substring(ind+4, ind+5) + it.substring(preEscInd, ind) + 'm';
     curInd = ind+5;
   }
-  str += this.substring(curInd);
+  str += it.substring(curInd);
   return str;
-};
-
-String.prototype.trimLeft = function() {
-  var i;
-  for (i = 0; i < this.length; ++i) {
-    if(this.charAt(i) != " " && this.charAt(i) != " ") 
-      break;
-  }
-  return this.substring(i, this.length);
-};
-
-String.prototype.trimRight = function() {
-  var i;
-  for (i = this.length-1; i >= 0; i--) {
-    if (this.charAt(i) != " " && this.charAt(i) != " ")
-      break;
-  }
-  return this.substring(0, i+1);
-};
-
-String.prototype.trimBoth = function() {
-  return this.trimLeft(this.trimRight());
-};
-
-String.prototype.repeat = function( num ) {
-  return new Array( num + 1 ).join( this );
-};
-
-String.prototype.endsWith = function(suffix) {
-  return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };

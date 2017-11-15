@@ -1,3 +1,10 @@
+import {
+  parseReplyText,
+  parsePushInitText,
+  parseReqNotMetText,
+  parseStatusRow
+} from './string_util';
+
 export function EasyReading(core, view, termBuf) {
   this._core = core;
   this._view = view;
@@ -46,7 +53,7 @@ EasyReading.prototype._onChanged = function(e) {
   // dealing with page state jump to 0 because last row wasn't updated fully 
   if (this._termBuf.pageState == 3) {
     this.startedEasyReading = true;
-  } else if (this.startedEasyReading && lastRowText.parseReqNotMetText()) {
+  } else if (this.startedEasyReading && parseReqNotMetText(lastRowText)) {
     this.easyReadingShowPushInitText = true;
   } else {
     this.easyReadingShowReplyText = false;
@@ -60,7 +67,7 @@ EasyReading.prototype._onChanged = function(e) {
         this.ignoreOneUpdate = false;
         return;
       }
-      var result = lastRowText.parseStatusRow();
+      var result = parseStatusRow(lastRowText);
       if (result) {
         var lastRowFirstCh = this._termBuf.lines[23][0];
         if (lastRowFirstCh.getBg() == 4 && lastRowFirstCh.getFg() == 7) {
@@ -79,7 +86,7 @@ EasyReading.prototype._onChanged = function(e) {
     } else if (this._termBuf.cur_y == 23) {
       if (!this.easyReadingShowPushInitText) {
         var lastRowText = this._termBuf.getRowText(23, 0, this._termBuf.cols);
-        var result = lastRowText.parsePushInitText();
+        var result = parsePushInitText(lastRowText);
         if (result) {
           this.easyReadingShowPushInitText = true;
         } else {
@@ -89,7 +96,7 @@ EasyReading.prototype._onChanged = function(e) {
       }
     } else if (this._termBuf.cur_y == 22) {
       var secondToLastRowText = this._termBuf.getRowText(22, 0, this._termBuf.cols);
-      var result = secondToLastRowText.parseReplyText();
+      var result = parseReplyText(secondToLastRowText);
       if (result) {
         this.easyReadingShowReplyText = true;
       } else {
