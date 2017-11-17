@@ -48,8 +48,15 @@ export default {
         })
       },
       {
-        test: /\.(bmp|png|woff)$/,
-        loader: "file-loader"
+        test: /\.(bin|bmp|png|woff)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[hash].[ext]'
+            }  
+          }
+        ]
       }
     ]
   },
