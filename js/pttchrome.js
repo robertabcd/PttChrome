@@ -674,8 +674,10 @@ pttchrome.App.prototype.switchMouseBrowsing = function() {
 
 pttchrome.App.prototype.antiIdle = function() {
   if (this.antiIdleTime && this.idleTime > this.antiIdleTime) {
-    if (this.antiIdleStr !== '' && this.connectState == 1)
+    if (this.antiIdleStr !== '' && this.connectState == 1) {
       this.conn.send(this.antiIdleStr);
+      this.idleTime = 0;
+    }
   } else {
     if (this.connectState == 1)
       this.idleTime += 1000;
