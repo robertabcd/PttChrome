@@ -79,7 +79,7 @@ export default {
         collapseWhitespace: PRODUCTION_MODE,
         removeComments: PRODUCTION_MODE
       },
-      inject: false,
+      inject: 'head',
       template: 'dev.html',
       filename: '../index.html'
     })
