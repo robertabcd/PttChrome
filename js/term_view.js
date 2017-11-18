@@ -833,7 +833,7 @@ TermView.prototype = {
       }
     }, 1500);
     var options = {
-      icon: 'icon_128.png',
+      icon: require('../icon_128.png'),
       body: app.waterball.message,
       tag: app.waterball.userId
     };
