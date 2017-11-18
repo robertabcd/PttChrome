@@ -327,7 +327,7 @@
 #logo {
   width: 85px;
   height: 90px;
-  background: url('../icon_128.png') 0 0/85px 85px no-repeat;
+  background: url('../icon/icon_128.png') 0 0/85px 85px no-repeat;
 }
 
 .font_btn {
