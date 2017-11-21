@@ -20,7 +20,7 @@ export default {
   },
   output: {
     path: path.join(__dirname, 'dist/assets/'),
-    publicPath: '/assets/',
+    publicPath: 'assets/',
     pathinfo: DEVELOPER_MODE,
     filename: `[name]${ PRODUCTION_MODE ? '.[chunkhash]' : '' }.js`
   },
