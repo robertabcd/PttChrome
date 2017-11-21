@@ -134,9 +134,15 @@ pttchrome.App = function(onInitializedCallback, options) {
     self.mouse_over(e);
   }, false);
 
-  window.addEventListener('mousewheel', function(e) {
-    self.mouse_scroll(e);
-  }, true);
+  if ('onwheel' in window) {
+    window.addEventListener('wheel', function(e) {
+      self.mouse_scroll(e);
+    }, true);
+  } else {
+    window.addEventListener('mousewheel', function(e) {
+      self.mouse_scroll(e);
+    }, true);
+  }
 
   window.addEventListener('contextmenu', function(e) {
     self.context_menu(e);
@@ -1333,7 +1339,7 @@ pttchrome.App.prototype.mouse_scroll = function(e) {
   var mouseWheelActionsUp = [ 'none', 'doArrowUp', 'doPageUp', 'previousThread' ];
   var mouseWheelActionsDown = [ 'none', 'doArrowDown', 'doPageDown', 'nextThread' ];
 
-  if (e.wheelDelta > 0) { // scrolling up
+  if (e.deltaY < 0 || e.wheelDelta > 0) { // scrolling up
     if (this.mouseRightButtonDown) {
       var action = mouseWheelActionsUp[this.view.mouseWheelFunction2];
       if (action !== 'none') {
