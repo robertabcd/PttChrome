@@ -36,8 +36,8 @@ function loadTable(url) {
 
 function loadResources() {
   Promise.all([
-    loadTable('conv/b2u_table.bin'),
-    loadTable('conv/u2b_table.bin')
+    loadTable(require('../conv/b2u_table.bin')),
+    loadTable(require('../conv/u2b_table.bin'))
   ]).then(function(binData) {
     window.lib = window.lib || {};
     window.lib.b2uArray = new Uint8Array(binData[0]);

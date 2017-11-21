@@ -689,14 +689,14 @@ pttchrome.App.prototype.antiIdle = function() {
 };
 
 pttchrome.App.prototype.updateTabIcon = function(aStatus) {
-  var icon = 'icon/logo.png';
+  var icon = require('../icon/logo.png');
   switch (aStatus) {
     case 'connect':
-      icon =  'icon/logo_connect.png';
+      icon = require('../icon/logo_connect.png');
       this.setInputAreaFocus();
       break;
     case 'disconnect':
-      icon =  'icon/logo_disconnect.png';
+      icon = require('../icon/logo_disconnect.png');
       break;
     default:
       break;

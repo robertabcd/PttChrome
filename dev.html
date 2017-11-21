@@ -2,18 +2,15 @@
 <html>
   <head>
 	<title>PttChrome</title>
-	  <link rel="icon" type="image/png" href="icon/logo.png" />
+	  <link rel="icon" type="image/png" href="<%= require('./icon/logo.png') %>">
 
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-    <link rel="prefetch" href="conv/b2u_table.bin">
-    <link rel="prefetch" href="conv/u2b_table.bin">
+    <link rel="prefetch" href="<%= require('./conv/b2u_table.bin') %>">
+    <link rel="prefetch" href="<%= require('./conv/u2b_table.bin') %>">
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <% for (var css in htmlWebpackPlugin.files.css) { %>
-    <link href="<%= htmlWebpackPlugin.files.css[css] %>" rel="stylesheet">
-    <% } %>
 
     <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
@@ -21,10 +18,6 @@
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
-
-    <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
-    <script src="<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
-    <% } %>
   </head>
 
   <body>
