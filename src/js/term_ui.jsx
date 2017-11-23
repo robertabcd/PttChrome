@@ -4,18 +4,7 @@ import { b2u } from './string_util';
 import HyperLink from '../components/HyperLink';
 import ColorSpan from '../components/ColorSpan';
 import NormalText from '../components/NormalText';
-
-class ForceWidthWord extends React.Component {
-  render() {
-    let styles = {
-      display: 'inline-block'
-    };
-    if (this.props.forceWidth) {
-      styles['width'] = this.props.forceWidth.toString() + 'px';
-    }
-    return <span className="wpadding" style={styles}>{this.props.inner}</span>;
-  }
-}
+import ForceWidthWord from '../components/ForceWidthWord';
 
 class TwoColorWord extends React.Component {
   render() {
