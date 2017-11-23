@@ -10,11 +10,7 @@ const PRODUCTION_MODE = process.env.NODE_ENV === 'production'
 
 module.exports = {
   entry: {
-    'pttchrome': [
-      './src/js/main.js',
-      './src/css/main.css',
-      './src/css/color.css'
-    ]
+    'pttchrome': './src/entry.js',
   },
   output: {
     path: path.join(__dirname, 'dist/assets/'),
