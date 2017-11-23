@@ -1,6 +1,9 @@
 {
   "name": "pttchrome",
   "version": "1.2.0",
+  "dependencies": {
+    "classnames": "^2.2.5"
+  },
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
