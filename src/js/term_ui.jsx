@@ -3,12 +3,7 @@ import { HyperLinkPreview } from './image_preview';
 import { b2u } from './string_util';
 import HyperLink from '../components/HyperLink';
 import ColorSpan from '../components/ColorSpan';
-
-class NormalText extends React.Component {
-  render() {
-    return <span>{this.props.text}</span>;
-  }
-}
+import NormalText from '../components/NormalText';
 
 class ForceWidthWord extends React.Component {
   render() {
