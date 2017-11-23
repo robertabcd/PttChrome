@@ -202,7 +202,7 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.pref = new PttChromePref(this, onInitializedCallback);
 
   (new Promise(function(resolve, reject) {
-    if (pttchrome.Constants.DEVELOPER_MODE) {
+    if (process.env.DEVELOPER_MODE) {
       $('#developerModeAlertDismiss').click(function(e) {
         $('#developerModeAlert').hide();
         resolve();
@@ -213,7 +213,7 @@ pttchrome.App = function(onInitializedCallback, options) {
     }
   })).then(function() {
     // connect.
-    self.connect(getQueryVariable('site') || pttchrome.Constants.DEFAULT_SITE);
+    self.connect(getQueryVariable('site') || process.env.DEFAULT_SITE);
 
     // TODO: Call onSymFont for font data when it's implemented.
 
@@ -1602,7 +1602,7 @@ pttchrome.App.prototype.setupContextMenus = function() {
   $('#cmenu_copyLinkUrl a').text(i18n('cmenu_copyLinkUrl'));
   $('#cmenu_mouseBrowsing a').text(i18n('cmenu_mouseBrowsing'));
   $('#cmenu_goToOtherSite a').text(i18n('cmenu_goToOtherSite'));
-  if (!pttchrome.Constants.ENABLE_GOTO_OTHER_SITE)
+  if (!process.env.ENABLE_GOTO_OTHER_SITE)
     $('#cmenu_goToOtherSite a').hide();
   $('#cmenu_showInputHelper a').text(i18n('cmenu_showInputHelper'));
   $('#cmenu_showLiveArticleHelper a').text(i18n('cmenu_showLiveArticleHelper'));
