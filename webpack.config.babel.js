@@ -8,6 +8,7 @@ import HtmlWebpackHarddiskPlugin from 'html-webpack-harddisk-plugin';
 const DEVELOPER_MODE = process.env.NODE_ENV === 'development'
 const PRODUCTION_MODE = process.env.NODE_ENV === 'production'
 
+const PAGE_TITLE = process.env.PTTCHROME_PAGE_TITLE || 'PttChrome';
 const DEFAULT_SITE = PRODUCTION_MODE ? 'wsstelnet://ws.ptt.cc/bbs' : 'wstelnet://localhost:8080/bbs'
 
 export default {
@@ -64,6 +65,7 @@ export default {
   plugins: [
     new webpack.DefinePlugin({
       'COMPILE_CONSTANTS': JSON.stringify({
+        PAGE_TITLE,
         DEFAULT_SITE,
         ENABLE_GOTO_OTHER_SITE: false,
         DEVELOPER_MODE,
