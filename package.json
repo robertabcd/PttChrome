@@ -30,7 +30,7 @@
     }
   },
   "scripts": {
-    "clean": "rimraf dist index.html",
+    "clean": "rimraf dist/assets dist/index.html",
     "prebuild": "npm run clean",
     "build": "cross-env NODE_ENV=production webpack",
     "prestart": "npm run clean",

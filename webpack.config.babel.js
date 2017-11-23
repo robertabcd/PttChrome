@@ -13,14 +13,14 @@ const DEFAULT_SITE = PRODUCTION_MODE ? 'wsstelnet://ws.ptt.cc/bbs' : 'wstelnet:/
 export default {
   entry: {
     'pttchrome': [
-      './js/main.js',
-      './css/main.css',
-      './css/color.css'
+      './src/js/main.js',
+      './src/css/main.css',
+      './src/css/color.css'
     ]
   },
   output: {
-    path: path.join(__dirname, 'dist/'),
-    publicPath: '/dist/',
+    path: path.join(__dirname, 'dist/assets/'),
+    publicPath: 'assets/',
     pathinfo: DEVELOPER_MODE,
     filename: `[name]${ PRODUCTION_MODE ? '.[chunkhash]' : '' }.js`
   },
@@ -80,7 +80,7 @@ export default {
         removeComments: PRODUCTION_MODE
       },
       inject: 'head',
-      template: 'dev.html',
+      template: './src/dev.html',
       filename: '../index.html'
     })
   ].concat(PRODUCTION_MODE ? [
@@ -92,6 +92,7 @@ export default {
     new HtmlWebpackHarddiskPlugin()
   ]),
   devServer: {
+    contentBase: path.join(__dirname, './dist'),
     proxy: {
       '/bbs': {
         target: 'https://ws.ptt.cc',
