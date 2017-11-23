@@ -1,5 +1,4 @@
 ﻿// Main Program
-
 import { AnsiParser } from './ansi_parser';
 import { TermView } from './term_view';
 import { TermBuf } from './term_buf';
@@ -13,9 +12,7 @@ import { i18n } from './i18n';
 import { unescapeStr, b2u, parseWaterball } from './string_util';
 import { getQueryVariable, setTimer } from './util';
 
-pttchrome = pttchrome || {};
-
-pttchrome.App = function(onInitializedCallback, options) {
+export const App = function(onInitializedCallback, options) {
 
   this.CmdHandler = document.getElementById('cmdHandler');
   this.CmdHandler.setAttribute('useMouseBrowsing', '1');
@@ -228,11 +225,11 @@ pttchrome.App = function(onInitializedCallback, options) {
   }
 };
 
-pttchrome.App.prototype.isConnected = function() {
+App.prototype.isConnected = function() {
   return this.connectState == 1 && !!this.conn;
 };
 
-pttchrome.App.prototype.connect = function(url) {
+App.prototype.connect = function(url) {
   this.connectState = 0;
   console.log('connect: ' + url);
 
@@ -254,7 +251,7 @@ pttchrome.App.prototype.connect = function(url) {
   };
 };
 
-pttchrome.App.prototype._parseURLSimple = function(url) {
+App.prototype._parseURLSimple = function(url) {
   var protocol = url.split(/:\/\//, 2);
   if (protocol.length != 2)
     return null;
@@ -277,12 +274,12 @@ pttchrome.App.prototype._parseURLSimple = function(url) {
   };
 };
 
-pttchrome.App.prototype._setupWebsocketConn = function(url) {
+App.prototype._setupWebsocketConn = function(url) {
   var wsConn = new Websocket(url);
   this._attachConn(new TelnetConnection(wsConn));
 };
 
-pttchrome.App.prototype._attachConn = function(conn) {
+App.prototype._attachConn = function(conn) {
   var self = this;
   this.conn = conn;
   this.conn.addEventListener('open', this.onConnect.bind(this));
@@ -292,7 +289,7 @@ pttchrome.App.prototype._attachConn = function(conn) {
   });
 };
 
-pttchrome.App.prototype.onConnect = function() {
+App.prototype.onConnect = function() {
   this.conn.isConnected = true;
   this.view.setConn(this.conn);
   $('#connectionAlert').hide();
@@ -309,7 +306,7 @@ pttchrome.App.prototype.onConnect = function() {
   this.view.resetCursorBlink();
 };
 
-pttchrome.App.prototype.onData = function(data) {
+App.prototype.onData = function(data) {
   this.parser.feed(data);
 
   if (!this.appFocused && this.view.enableNotifications) {
@@ -327,7 +324,7 @@ pttchrome.App.prototype.onData = function(data) {
   }
 };
 
-pttchrome.App.prototype.onClose = function() {
+App.prototype.onClose = function() {
   console.info("pttchrome onClose");
   if (this.timerEverySec) {
     this.timerEverySec.cancel();
@@ -346,24 +343,24 @@ pttchrome.App.prototype.onClose = function() {
   this.updateTabIcon('disconnect');
 };
 
-pttchrome.App.prototype.sendData = function(str) {
+App.prototype.sendData = function(str) {
   if (this.connectState == 1)
     this.conn.convSend(str);
 };
 
-pttchrome.App.prototype.sendCmdData = function(str) {
+App.prototype.sendCmdData = function(str) {
   if (this.connectState == 1)
     this.conn.send(str);
 };
 
-pttchrome.App.prototype.cancelMbTimer = function() {
+App.prototype.cancelMbTimer = function() {
   if (this.mbTimer) {
     this.mbTimer.cancel();
     this.mbTimer = null;
   }
 };
 
-pttchrome.App.prototype.setMbTimer = function() {
+App.prototype.setMbTimer = function() {
   this.cancelMbTimer();
   var _this = this;
   this.mbTimer = setTimer(false, function() {
@@ -373,14 +370,14 @@ pttchrome.App.prototype.setMbTimer = function() {
   }, 100);
 };
 
-pttchrome.App.prototype.cancelDblclickTimer = function() {
+App.prototype.cancelDblclickTimer = function() {
   if (this.dblclickTimer) {
     this.dblclickTimer.cancel();
     this.dblclickTimer = null;
   }
 };
 
-pttchrome.App.prototype.setDblclickTimer = function() {
+App.prototype.setDblclickTimer = function() {
   this.cancelDblclickTimer();
   var _this = this;
   this.dblclickTimer = setTimer(false, function() {
@@ -389,14 +386,14 @@ pttchrome.App.prototype.setDblclickTimer = function() {
   }, 350);
 };
 
-pttchrome.App.prototype.setInputAreaFocus = function() {
+App.prototype.setInputAreaFocus = function() {
   if (this.modalShown || (this.touch && this.touch.touchStarted))
     return;
   //this.DocInputArea.disabled="";
   this.inputArea.focus();
 };
 
-pttchrome.App.prototype.setupLiveHelper = function() {
+App.prototype.setupLiveHelper = function() {
   $('#liveHelperEnable').text(i18n('liveHelperEnable'));
   $('#liveHelperSpan').text(i18n('liveHelperSpan'));
   $('#liveHelperSpanSec').text(i18n('liveHelperSpanSec'));
@@ -424,7 +421,7 @@ pttchrome.App.prototype.setupLiveHelper = function() {
   });
 };
 
-pttchrome.App.prototype.onLiveHelperEnableClicked = function(fromUi) {
+App.prototype.onLiveHelperEnableClicked = function(fromUi) {
   var enableThis = !$('#liveHelperEnable').hasClass('active');
   if (enableThis) {
     // cancel easy reading mode first
@@ -440,14 +437,14 @@ pttchrome.App.prototype.onLiveHelperEnableClicked = function(fromUi) {
   }
 };
 
-pttchrome.App.prototype.disableLiveHelper = function(fromUi) {
+App.prototype.disableLiveHelper = function(fromUi) {
   this.setAutoPushthreadUpdate(-1);
   if (!fromUi) {
     $('#liveHelperEnable').removeClass('active');
   }
 };
 
-pttchrome.App.prototype.switchToEasyReadingMode = function(doSwitch) {
+App.prototype.switchToEasyReadingMode = function(doSwitch) {
   this.easyReading.leaveCurrentPost();
   if (doSwitch) {
     this.disableLiveHelper();
@@ -466,14 +463,14 @@ pttchrome.App.prototype.switchToEasyReadingMode = function(doSwitch) {
   this.view.conn.send(unescapeStr('^L'));
 };
 
-pttchrome.App.prototype.setupDeveloperModeAlert = function() {
+App.prototype.setupDeveloperModeAlert = function() {
   $('#developerModeAlertReconnect').empty();
   $('#developerModeAlertHeader').text(i18n('alert_developerModeHeader'));
   $('#developerModeAlertText').text(i18n('alert_developerModeText'));
   $('#developerModeAlertDismiss').text(i18n('alert_developerModeDismiss'));
 };
 
-pttchrome.App.prototype.setupConnectionAlert = function() {
+App.prototype.setupConnectionAlert = function() {
   $('#connectionAlertReconnect').empty();
   $('#connectionAlertHeader').text(i18n('alert_connectionHeader'));
   $('#connectionAlertText').text(i18n('alert_connectionText'));
@@ -486,7 +483,7 @@ pttchrome.App.prototype.setupConnectionAlert = function() {
   });
 };
 
-pttchrome.App.prototype.setupPasteShortcutAlert = function(){
+App.prototype.setupPasteShortcutAlert = function(){
   $('#pasteShortcutHeader').text(i18n('alert_pasteShortcutHeader'));
   $('#pasteShortcutText').text(i18n('alert_pasteShortcutText'));
   $('#pasteShortcutClose').text(i18n('alert_pasteShortcutClose'));
@@ -496,7 +493,7 @@ pttchrome.App.prototype.setupPasteShortcutAlert = function(){
   });
 };
 
-pttchrome.App.prototype.setupOtherSiteInput = function() {
+App.prototype.setupOtherSiteInput = function() {
   var self = this;
   $('#siteModal input').attr('placeholder', i18n('input_sitePlaceholder'));
   $('#siteModal input').keyup(function(e) {
@@ -519,7 +516,7 @@ pttchrome.App.prototype.setupOtherSiteInput = function() {
 
 };
 
-pttchrome.App.prototype.doCopy = function(str) {
+App.prototype.doCopy = function(str) {
   if (str.indexOf('\x1b') < 0) {
     str = str.replace(/\r\n/g, '\r');
     str = str.replace(/\n/g, '\r');
@@ -529,7 +526,7 @@ pttchrome.App.prototype.doCopy = function(str) {
   document.execCommand('copy');
 };
 
-pttchrome.App.prototype.doCopyAnsi = function() {
+App.prototype.doCopyAnsi = function() {
   if (!this.lastSelection)
     return;
 
@@ -561,7 +558,7 @@ pttchrome.App.prototype.doCopyAnsi = function() {
   this.doCopy(ansiText);
 };
 
-pttchrome.App.prototype.onDOMCopy = function(e) {
+App.prototype.onDOMCopy = function(e) {
   if (this.strToCopy) {
     e.clipboardData.setData('text', this.strToCopy);
     e.preventDefault();
@@ -570,18 +567,18 @@ pttchrome.App.prototype.onDOMCopy = function(e) {
   }
 };
 
-pttchrome.App.prototype.doPaste = function() {
+App.prototype.doPaste = function() {
   console.log("doPaste not implemented");
   $('#pasteShortcutAlert').modal('show');
   self.modalShown = true;
 };
 
-pttchrome.App.prototype.onPasteDone = function(content) {
+App.prototype.onPasteDone = function(content) {
   //this.conn.convSend(content);
   this.view.onTextInput(content, true);
 };
 
-pttchrome.App.prototype.onDOMPaste = function(e) {
+App.prototype.onDOMPaste = function(e) {
   let str = e.clipboardData.getData('text');
   if (str) {
     e.preventDefault();
@@ -589,7 +586,7 @@ pttchrome.App.prototype.onDOMPaste = function(e) {
   }
 };
 
-pttchrome.App.prototype.onSymFont = function(content) {
+App.prototype.onSymFont = function(content) {
   console.log("using " + (content ? "extension" : "system") + " font");
   var font_src = content ? 'src: url('+content.data+');' : '';
   var css = '@font-face { font-family: MingLiUNoGlyph; '+font_src+' }';
@@ -599,25 +596,25 @@ pttchrome.App.prototype.onSymFont = function(content) {
   document.getElementsByTagName('head')[0].appendChild(style);
 };
 
-pttchrome.App.prototype.doSelectAll = function() {
+App.prototype.doSelectAll = function() {
   window.getSelection().selectAllChildren(this.view.mainDisplay);
 };
 
-pttchrome.App.prototype.doSearchGoogle = function(searchTerm) {
+App.prototype.doSearchGoogle = function(searchTerm) {
   window.open('http://google.com/search?q='+searchTerm);
 };
 
-pttchrome.App.prototype.doOpenUrlNewTab = function(a) {
+App.prototype.doOpenUrlNewTab = function(a) {
   var e = document.createEvent('MouseEvents');
   e.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, true, false, false, false, 0, null);
   a.dispatchEvent(e);
 };
 
-pttchrome.App.prototype.doGoToOtherSite = function() {
+App.prototype.doGoToOtherSite = function() {
   $('#siteModal').modal('show');
 };
 
-pttchrome.App.prototype.incrementCountToUpdatePushthread = function(interval) {
+App.prototype.incrementCountToUpdatePushthread = function(interval) {
   if (this.maxPushthreadAutoUpdateCount == -1) {
     this.pushthreadAutoUpdateCount = 0;
     return;
@@ -631,15 +628,15 @@ pttchrome.App.prototype.incrementCountToUpdatePushthread = function(interval) {
     }
   }
 };
-pttchrome.App.prototype.setAutoPushthreadUpdate = function(seconds) {
+App.prototype.setAutoPushthreadUpdate = function(seconds) {
   this.maxPushthreadAutoUpdateCount = seconds;
 };
 
-pttchrome.App.prototype.doSettings = function() {
+App.prototype.doSettings = function() {
   $('#prefModal').modal('show');
 };
 
-pttchrome.App.prototype.onWindowResize = function() {
+App.prototype.onWindowResize = function() {
   this.view.innerBounds = this.getWindowInnerBounds();
   this.view.fontResize();
 
@@ -655,7 +652,7 @@ pttchrome.App.prototype.onWindowResize = function() {
   }
 };
 
-pttchrome.App.prototype.switchMouseBrowsing = function() {
+App.prototype.switchMouseBrowsing = function() {
   if (this.CmdHandler.getAttribute('useMouseBrowsing')=='1') {
     this.CmdHandler.setAttribute('useMouseBrowsing', '0');
     this.buf.useMouseBrowsing=false;
@@ -678,7 +675,7 @@ pttchrome.App.prototype.switchMouseBrowsing = function() {
   }
 };
 
-pttchrome.App.prototype.antiIdle = function() {
+App.prototype.antiIdle = function() {
   if (this.antiIdleTime && this.idleTime > this.antiIdleTime) {
     if (this.antiIdleStr !== '' && this.connectState == 1) {
       this.conn.send(this.antiIdleStr);
@@ -690,7 +687,7 @@ pttchrome.App.prototype.antiIdle = function() {
   }
 };
 
-pttchrome.App.prototype.updateTabIcon = function(aStatus) {
+App.prototype.updateTabIcon = function(aStatus) {
   var icon = require('../icon/logo.png');
   switch (aStatus) {
     case 'connect':
@@ -716,7 +713,7 @@ pttchrome.App.prototype.updateTabIcon = function(aStatus) {
 };
 
 // use this method to get better window size in case of page zoom != 100%
-pttchrome.App.prototype.getWindowInnerBounds = function() {
+App.prototype.getWindowInnerBounds = function() {
   var width = document.documentElement.clientWidth - this.view.bbsViewMargin * 2;
   var height = document.documentElement.clientHeight - this.view.bbsViewMargin * 2;
   var bounds = {
@@ -726,7 +723,7 @@ pttchrome.App.prototype.getWindowInnerBounds = function() {
   return bounds;
 };
 
-pttchrome.App.prototype.getFirstGridOffsets = function() {
+App.prototype.getFirstGridOffsets = function() {
   var container = $("#mainContainer")[0];
   return {
     top: container.offsetTop,
@@ -734,7 +731,7 @@ pttchrome.App.prototype.getFirstGridOffsets = function() {
   };
 };
 
-pttchrome.App.prototype.clientToPos = function(cX, cY) {
+App.prototype.clientToPos = function(cX, cY) {
   var x;
   var y;
   var w = this.view.innerBounds.width;
@@ -762,7 +759,7 @@ pttchrome.App.prototype.clientToPos = function(cX, cY) {
   return {col: col, row: row};
 };
 
-pttchrome.App.prototype.onMouse_click = function (e) {
+App.prototype.onMouse_click = function (e) {
   var cX = e.clientX, cY = e.clientY;
   if (!this.conn || !this.conn.isConnected)
     return;
@@ -854,7 +851,7 @@ pttchrome.App.prototype.onMouse_click = function (e) {
   }
 };
 
-pttchrome.App.prototype.overlayCommandListener = function (e) {
+App.prototype.overlayCommandListener = function (e) {
   var elm = e.target;
   var cmd = elm.getAttribute("pttChromeCommand");
   if (elm) {
@@ -1028,17 +1025,17 @@ pttchrome.App.prototype.overlayCommandListener = function (e) {
   }
 };
 
-pttchrome.App.prototype.onMouse_move = function(cX, cY) {
+App.prototype.onMouse_move = function(cX, cY) {
   var pos = this.clientToPos(cX, cY);
   this.buf.onMouse_move(pos.col, pos.row, false);
 };
 
-pttchrome.App.prototype.resetMouseCursor = function(cX, cY) {
+App.prototype.resetMouseCursor = function(cX, cY) {
   this.buf.BBSWin.style.cursor = 'auto';
   this.buf.mouseCursor = 11;
 };
 
-pttchrome.App.prototype.onPrefChange = function(pref, name) {
+App.prototype.onPrefChange = function(pref, name) {
   try {
     switch (name) {
     case 'useMouseBrowsing':
@@ -1144,7 +1141,7 @@ pttchrome.App.prototype.onPrefChange = function(pref, name) {
   }
 };
 
-pttchrome.App.prototype.checkClass = function(cn) {
+App.prototype.checkClass = function(cn) {
   return (  cn.indexOf("closeSI") >= 0  || cn.indexOf("EPbtn") >= 0 || 
       cn.indexOf("closePP") >= 0 || cn.indexOf("picturePreview") >= 0 || 
       cn.indexOf("drag") >= 0    || cn.indexOf("floatWindowClientArea") >= 0 || 
@@ -1152,7 +1149,7 @@ pttchrome.App.prototype.checkClass = function(cn) {
       cn.indexOf("nonspan") >= 0 || cn.indexOf("nomouse_command") >= 0);
 };
 
-pttchrome.App.prototype.mouse_click = function(e) {
+App.prototype.mouse_click = function(e) {
   if (this.modalShown)
     return;
 
@@ -1201,7 +1198,7 @@ pttchrome.App.prototype.mouse_click = function(e) {
   }
 };
 
-pttchrome.App.prototype.middleMouse_down = function(e) {
+App.prototype.middleMouse_down = function(e) {
   // moved to here because middle click works better with jquery
   if (e.button == 1) {
     if ($(e.target).is('a') || $(e.target).parent().is('a')) {
@@ -1220,7 +1217,7 @@ pttchrome.App.prototype.middleMouse_down = function(e) {
   }
 };
 
-pttchrome.App.prototype.mouse_down = function(e) {
+App.prototype.mouse_down = function(e) {
   if (this.modalShown)
     return;
   //0=left button, 1=middle button, 2=right button
@@ -1250,7 +1247,7 @@ pttchrome.App.prototype.mouse_down = function(e) {
   }
 };
 
-pttchrome.App.prototype.mouse_up = function(e) {
+App.prototype.mouse_up = function(e) {
   if (this.modalShown)
     return;
   //0=left button, 1=middle button, 2=right button
@@ -1298,7 +1295,7 @@ pttchrome.App.prototype.mouse_up = function(e) {
   }, 10);
 };
 
-pttchrome.App.prototype.mouse_move = function(e) {
+App.prototype.mouse_move = function(e) {
   if (this.inputHelper.mouseDown) {
     this.inputHelper.onMouseDrag(e);
     return;
@@ -1314,7 +1311,7 @@ pttchrome.App.prototype.mouse_move = function(e) {
 
 };
 
-pttchrome.App.prototype.mouse_over = function(e) {
+App.prototype.mouse_over = function(e) {
   if (this.modalShown)
     return;
 
@@ -1325,7 +1322,7 @@ pttchrome.App.prototype.mouse_over = function(e) {
     this.setInputAreaFocus();
 };
 
-pttchrome.App.prototype.mouse_scroll = function(e) {
+App.prototype.mouse_scroll = function(e) {
   if (this.modalShown) 
     return;
   // if in easyreading, use it like webpage
@@ -1390,7 +1387,7 @@ pttchrome.App.prototype.mouse_scroll = function(e) {
   }
 };
 
-pttchrome.App.prototype.showQuickSearchMenus = function(e, selectedText, hideContextMenu) {
+App.prototype.showQuickSearchMenus = function(e, selectedText, hideContextMenu) {
   var self = this;
   if (this.pref.quickSearches.length === 0) return;
 
@@ -1425,7 +1422,7 @@ pttchrome.App.prototype.showQuickSearchMenus = function(e, selectedText, hideCon
   }
 };
 
-pttchrome.App.prototype.setupContextMenus = function() {
+App.prototype.setupContextMenus = function() {
   var self = this;
   var menuSelector = '#contextMenus';
   var selectedText = '';
@@ -1662,7 +1659,7 @@ pttchrome.App.prototype.setupContextMenus = function() {
   });
 };
 
-pttchrome.App.prototype.context_menu = function(e) {
+App.prototype.context_menu = function(e) {
   var cmdhandler = this.CmdHandler;
   var doDOMMouseScroll = (cmdhandler.getAttribute('doDOMMouseScroll')=='1');
   if (doDOMMouseScroll) {
@@ -1673,7 +1670,7 @@ pttchrome.App.prototype.context_menu = function(e) {
   }
 };
 
-pttchrome.App.prototype.setBBSCmd = function(cmd, cmdhandler) {
+App.prototype.setBBSCmd = function(cmd, cmdhandler) {
   //var doc = gBrowser.contentDocument;
   var doc = document;
   if (!cmdhandler)
@@ -1686,5 +1683,3 @@ pttchrome.App.prototype.setBBSCmd = function(cmd, cmdhandler) {
     cmdhandler.dispatchEvent(evt);
   }
 };
-
-export const App = pttchrome.App;

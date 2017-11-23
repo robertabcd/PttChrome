@@ -1,5 +1,4 @@
-﻿import './constants.js';
-import { App } from './pttchrome';
+﻿import { App } from './pttchrome';
 import { setupI18n } from './i18n';
 import { getQueryVariable } from './util';
 
@@ -9,7 +8,7 @@ function startApp() {
   var keepAlive = getQueryVariable('keepAlive');
   setupI18n();
 
-  pttchrome.app = new App(function(app) {
+  const app = new App((app) => {
     app.setInputAreaFocus();
     $('#BBSWindow').show();
     //$('#sideMenus').show();
