@@ -3,7 +3,6 @@ import { HyperLinkPreview } from './image_preview';
 import { b2u } from './string_util';
 import HyperLink from '../components/HyperLink';
 import ColorSpan from '../components/ColorSpan';
-import NormalText from '../components/NormalText';
 import ForceWidthWord from '../components/ForceWidthWord';
 import TwoColorWord from '../components/TwoColorWord';
 
@@ -23,51 +22,37 @@ export class ColorState {
 }
 
 class ColorSegmentBuilder {
-  constructor(currCol) {
+  constructor(currCol, forceWidth) {
     this.segs = [];
-    this.curr = null;
+    this.props = null;
     this.currCol = currCol;
+    this.forceWidth = forceWidth;
   }
 
   _isLastSegmentSameColor(color) {
-    return this.curr && this.curr.colorState.equals(color);
+    return this.props && this.props.colorState.equals(color);
   }
 
-  _addSegment(color) {
-    this.curr = {
-      col: this.currCol,
+  _beginSegment(color) {
+    if (this.props) {
+      this.segs.push(
+        <ColorSpan {...this.props} />
+      )
+    }
+    this.props = {
+      key: `colorSpan-c-${this.currCol}`,
       colorState: color,
-      texts: []
-    };
-    this.segs.push(this.curr);
-  }
-
-  _append(type, text, color) {
-    if (!this._isLastSegmentSameColor(color))
-      this._addSegment(color);
-    this.curr.texts.push({
-      col: this.currCol,
-      type: type,
-      text: text
-    });
-  }
-
-  _reuseChars(type, color) {
-    if (!this._isLastSegmentSameColor(color))
-      return null;
-    let len = this.curr.texts.length;
-    if (len == 0)
-      return null;
-    let last = this.curr.texts[len - 1];
-    return last.type == type ? last : null;
+      inner: []
+    }
   }
 
   _appendNormalText(width, text, color) {
-    let reuse = this._reuseChars('normalText', color);
-    if (reuse)
-      reuse.text += text;
-    else
-      this._append('normalText', text, color);
+    if (!this._isLastSegmentSameColor(color))
+      this._beginSegment(color);
+
+    this.props.inner.push(
+      text
+    );
     this.currCol += width;
   }
 
@@ -77,7 +62,13 @@ class ColorSegmentBuilder {
 
   appendNormalWord(text, color, forceWidth) {
     if (forceWidth) {
-      this._append('forceWidthWord', text, color);
+      if (!this._isLastSegmentSameColor(color))
+        this._beginSegment(color);
+      this.props.inner.push(
+        <ForceWidthWord key={`text-c-${this.currCol}`} inner={text}
+        forceWidth={this.forceWidth} />
+      );
+
       this.currCol += 2;
     } else {
       this._appendNormalText(2, text, color);
@@ -85,19 +76,17 @@ class ColorSegmentBuilder {
   }
 
   appendTwoColorWord(text, color, color2) {
-    this._addSegment(color);
-    this.curr.texts.push({
-      col: this.currCol,
-      type: 'twoColorWord',
-      text: text,
-      color: color,
-      color2: color2
-    });
+    this._beginSegment(color);
+    this.props.inner.push(
+      <TwoColorWord key={`text-c-${this.currCol}`} text={text}
+      colorLead={color} colorTail={color2}
+      forceWidth={this.forceWidth} />
+    );
     this.currCol += 2;
-    this.curr = null;
   }
 
   build() {
+    this._beginSegment()
     return this.segs;
   }
 }
@@ -129,7 +118,7 @@ class Row extends React.Component {
   }
 
   _segmentTwoColorDBCS(colOffset, chars) {
-    let builder = new ColorSegmentBuilder(colOffset);
+    let builder = new ColorSegmentBuilder(colOffset, this.props.forceWidth);
     let lead = null;
     for (let ch of chars) {
       if (ch.isLeadByte) {
@@ -166,31 +155,8 @@ class Row extends React.Component {
     let cols = [];
     let linkPreviews = [];
     for (let linkSeg of this._segmentHyperLinks(this.props.chars)) {
-      let inner = [];
-      for (let colorSeg of this._segmentTwoColorDBCS(colOffset, linkSeg.chars)) {
-        let texts = [];
-        for (let ch of colorSeg.texts) {
-          let key = 'text-c-' + ch.col;
-          let forceWidth = this.props.forceWidth ? this.props.forceWidth : 0;
-          switch (ch.type) {
-            case 'normalText':
-              texts.push(<NormalText key={key} text={ch.text} />);
-              break;
-            case 'forceWidthWord':
-              texts.push(<ForceWidthWord key={key} inner={ch.text}
-                forceWidth={forceWidth} />);
-              break;
-            case 'twoColorWord':
-              texts.push(<TwoColorWord key={key} text={ch.text}
-                colorLead={ch.color} colorTail={ch.color2}
-                forceWidth={forceWidth} />);
-              break;
-          }
-        }
-        let key = 'colorSpan-c-' + colorSeg.col;
-        inner.push(<ColorSpan key={key} colorState={colorSeg.colorState}
-          inner={texts} />);
-      }
+      let inner = this._segmentTwoColorDBCS(colOffset, linkSeg.chars)
+
       if (linkSeg.href) {
         let key = 'hyperLink-c-' + linkSeg.col;
         cols.push(<HyperLink key={key} href={linkSeg.href} inner={inner}
