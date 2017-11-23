@@ -1,17 +1,7 @@
-'use strict';
-
 import { symbolTable } from './symbol_table';
 import { HyperLinkPreview } from './image_preview';
 import { b2u } from './string_util';
-
-class HyperLink extends React.Component {
-  render() {
-    return <a scol={this.props.col} srow={this.props.row}
-        className="y" href={this.props.href} rel="noreferrer" target="_blank">
-        {this.props.inner}
-        </a>;
-  }
-}
+import HyperLink from '../components/HyperLink';
 
 class ColorSpan extends React.Component {
   render() {
