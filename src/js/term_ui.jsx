@@ -5,34 +5,7 @@ import HyperLink from '../components/HyperLink';
 import ColorSpan from '../components/ColorSpan';
 import NormalText from '../components/NormalText';
 import ForceWidthWord from '../components/ForceWidthWord';
-
-class TwoColorWord extends React.Component {
-  render() {
-    let c1 = this.props.colorLead, c2 = this.props.colorTail;
-    let classes = [];
-    if (c1.fg == c2.fg) {
-      classes.push('q' + c1.fg);
-    } else {
-      classes.push('w' + c1.fg);
-      classes.push('q' + c2.fg);
-      classes.push('o');
-    }
-    if (c1.bg == c2.bg) {
-      classes.push('b' + c1.bg);
-    } else {
-      classes.push('b' + c1.bg + 'b' + c2.bg);
-    }
-    // TODO: add blinking.
-    let styles = {};
-    if (this.props.forceWidth) {
-      classes.push('wpadding');
-      styles['display'] = 'inline-block';
-      styles['width'] = this.props.forceWidth.toString() + 'px';
-    }
-    return <span className={classes.join(' ')} style={styles}
-      data-text={this.props.text}>{this.props.text}</span>;
-  }
-}
+import TwoColorWord from '../components/TwoColorWord';
 
 export class ColorState {
   constructor(fg, bg, blink) {
