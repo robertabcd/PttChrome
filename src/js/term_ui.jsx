@@ -2,20 +2,7 @@ import { symbolTable } from './symbol_table';
 import { HyperLinkPreview } from './image_preview';
 import { b2u } from './string_util';
 import HyperLink from '../components/HyperLink';
-
-class ColorSpan extends React.Component {
-  render() {
-    let classes = [
-      'q' + this.props.colorState.fg,
-      'b' + this.props.colorState.bg
-    ].join(' ');
-    let blinkNode = '';
-    if (this.props.colorState.blink) {
-      blinkNode = <x s={classes} h={'qq' + this.props.colorState.bg}></x>;
-    }
-    return <span className={classes}>{blinkNode}{this.props.inner}</span>;
-  }
-}
+import ColorSpan from '../components/ColorSpan';
 
 class NormalText extends React.Component {
   render() {
