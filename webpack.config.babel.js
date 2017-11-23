@@ -38,6 +38,7 @@ export default {
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
+          publicPath: './',      
           fallback: "style-loader",
           use: {
             loader: "css-loader",
