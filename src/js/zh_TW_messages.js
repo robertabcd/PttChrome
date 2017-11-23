@@ -1,4 +1,4 @@
-﻿exports.zh_TW = {
+﻿export const zh_TW = {
   "appName": {
     "message": "PttChrome",
     "description": "The title of the application, displayed in the web store."
