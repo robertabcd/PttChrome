@@ -12,12 +12,19 @@
     "file-loader": "^1.1.5",
     "html-webpack-harddisk-plugin": "^0.1.0",
     "html-webpack-plugin": "^2.30.1",
+    "husky": "^0.14.3",
+    "lint-staged": "^5.0.0",
+    "prettier": "^1.8.2",
     "rimraf": "^2.6.2",
     "style-loader": "^0.19.0",
     "uglifyjs-webpack-plugin": "^0.4.6",
     "url-loader": "^0.6.2",
     "webpack": "^3.7.1",
     "webpack-dev-server": "^2.9.3"
+  },
+  "lint-staged": {
+    "*.json": ["prettier --write", "git add"],
+    "src/components/**/*.{js,jsx,json,css}": ["prettier --write", "git add"]
   },
   "babel": {
     "env": {
@@ -50,6 +57,7 @@
     }
   },
   "scripts": {
+    "precommit": "lint-staged",
     "clean": "rimraf dist/assets dist/index.html",
     "prebuild": "npm run clean",
     "build": "cross-env NODE_ENV=production webpack",
