@@ -111,7 +111,7 @@ AnsiParser.prototype.feed = function(data) {
             case 1047:
               mainobj.selAll(true); // skipRedraw
               term.altScreen=mainobj.ansiCopy(true); // external buffer
-              term.altScreen+=term.ansiCmp(term.newChar, term.attr);
+              term.altScreen+=term.ansiCmp(TermChar.newChar, term.attr);
               term.clear(2);
               term.attr.resetAttr();
               break;
