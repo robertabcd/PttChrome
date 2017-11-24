@@ -863,22 +863,6 @@ TermBuf.prototype = {
     }).join('');
   },
 
-  findText: function(text, searchrow) {
-    var result = {col: -1, row: -1};
-    var searchStart = 0;
-    var searchEnd = this.cols - 1;
-    if (searchrow >= 0) searchStart = searchEnd = searchrow;
-    for (var row = searchStart; row <= searchEnd; ++row) {
-      var line = this.getText(row, 0, this.cols, false, true);
-      result.col = line.indexOf(text);
-      if (result.col >= 0) {
-        result.row = row;
-        break;
-      }
-    }
-    return result;
-  },
-
   getRowText: function(row, colStart, colEnd, lines) {
 
     var text = '';
@@ -914,20 +898,6 @@ TermBuf.prototype = {
       }
     }).join('');
 
-  },
-
-  parseText: function(text) {
-    var strs = text.split('^');
-    var returnStr = strs[0];
-    for (var i = 1; i < strs.length; ++i) {
-      if (strs[i].length > 0) {
-        returnStr += String.fromCharCode(strs[i].charCodeAt(0) - 64);
-        returnStr += strs[i].substr(1);
-      } else if (i < strs.length-1) {
-        returnStr += '^' + strs[++i];
-      } else returnStr += '^';
-    }
-    return returnStr;
   },
 
   ansiCmp: function(preChar, thisChar, forceReset) {
@@ -1032,41 +1002,6 @@ TermBuf.prototype = {
       //console.log('pageState = 0 (NORMAL)');
       this.pageState = 0;
     }
-  },
-
-  isPttZArea: function() {
-    var rows = 24;
-    var lines = this.lines;
-    if (this.view.charset != 'UTF-8') {
-      var line = lines[0];
-      var PTTstr1 = '\xa1\x69\xba\xeb\xb5\xd8\xa4\xe5\xb3\xb9\xa1\x6a';
-      for (var i = 0; i <= 11; ++i) {
-        if (line[i].ch != PTTstr1.charAt(i))
-          return false;
-      }
-      line = lines[rows-1];
-      var PTTstr2 = '\xa1\x69\xa5\x5c\xaf\xe0\xc1\xe4\xa1\x6a';
-      for (var i = 1; i <= 10; ++i) {
-        if (line[i].ch != PTTstr2.charAt(i-1))
-          return false;
-      }
-    } else {
-      var line = lines[0];
-      var PTTstr = '';
-      for (var i = 0; i <= 11; i+=2) {
-        PTTstr += line[i].ch;
-      }
-      if (PTTstr != this.PTTZSTR1)
-        return false;
-      line = lines[rows-1];
-      PTTstr = '';
-      for (var i = 1; i <= 10; i+=2) {
-        PTTstr+=line[i].ch;
-      }
-      if (PTTstr != this.PTTZSTR2)
-        return false;
-    }
-    return true;
   },
 
   isUnicolor: function(lineindex, start, end){
