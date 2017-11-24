@@ -3,7 +3,7 @@
 import { TermKeyboard } from './term_keyboard';
 import { termInvColors } from './term_buf';
 import { renderImagePreview } from './image_preview';
-import { renderRowHtml } from './term_ui';
+import { renderRowHtml, renderScreen } from './term_ui';
 import { i18n } from './i18n';
 import { setTimer } from './util';
 import { wrapText, u2b, parseStatusRow } from './string_util';
@@ -54,7 +54,6 @@ export function TermView(rowCount) {
 
   this.doHighlightOnCurRow = false;
 
-  this.displayingRows = [];
 
   this.curRow = 0;
   this.curCol = 0;
@@ -68,6 +67,11 @@ export function TermView(rowCount) {
   this.blinkOn = false;
   this.doBlink = true;
   this.cursorBlinkTimer = null;
+
+  // React
+  this.componentScreen = {
+    setCurrentHighlighted() {},
+  };
 
   this.selection = null;
   this.input = document.getElementById('t');
@@ -91,16 +95,14 @@ export function TermView(rowCount) {
   this.titleTimer = null;
   this.notif = null;
 
-  var mainDiv = document.createElement('div');
-  mainDiv.setAttribute('class', 'main');
-  var defaultRows = '';
-  for (var i = 0; i < rowCount; ++i) {
-    defaultRows += '<span type="bbsrow" srow="'+i+'"></span>';
-    this.displayingRows.push(null);
-  }
-  mainDiv.innerHTML = '<div id="mainContainer">' + defaultRows + '</div>';
-  this.BBSWin.appendChild(mainDiv);
-  this.mainDisplay = mainDiv;
+  Object.defineProperty(this, 'mainContainer', {
+    get: function() { return $('#mainContainer')[0] },
+  });
+
+  var mainDisplay = document.createElement('div');
+  mainDisplay.setAttribute('class', 'main');
+  this.BBSWin.appendChild(mainDisplay);
+  this.mainDisplay = mainDisplay;
 
   var lastRowDiv = document.createElement('div');
   lastRowDiv.setAttribute('id', 'easyReadingLastRow');
@@ -116,7 +118,6 @@ export function TermView(rowCount) {
   this.replyRowDiv = replyRowDiv;
   this.BBSWin.appendChild(replyRowDiv);
 
-  this.mainContainer = document.getElementById('mainContainer');
   this.mainDisplay.style.border = '0px';
   this.setFontFace('MingLiu,monospace');
 
@@ -328,7 +329,6 @@ TermView.prototype = {
         lineChangeds[row] = false;
       }
     }
-
     if (changedLineHtmlStrs.length > 0) {
       if (this.useEasyReadingMode) {
         if (this.buf.startedEasyReading && this.buf.easyReadingShowReplyText) {
@@ -339,17 +339,13 @@ TermView.prototype = {
           this.populateEasyReadingPage();
         }
       } else {
-        while (this.mainContainer.childNodes.length > rows)
-          this.mainContainer.removeChild(this.mainContainer.lastChild);
-        for (var i = 0; i < changedRows.length; ++i) {
-          var row = changedRows[i];
-          var component = renderRowHtml(
-            changedLineHtmlStrs[i], row, this.chh, false,
-            this.mainContainer.childNodes[row]);
-          component.setHighlight(
-            this.buf.highlightCursor && this.buf.currentHighlighted == row);
-          this.displayingRows[row] = component;
-        }
+        this.componentScreen = renderScreen(
+          lines,
+          this.chh,
+          /* showsLinkPreview */false,
+          this.mainDisplay
+        )
+        this.componentScreen.setCurrentHighlighted(this.buf.highlightCursor && this.buf.currentHighlighted)
       }
       this.buf.prevPageState = this.buf.pageState;
 
@@ -369,14 +365,7 @@ TermView.prototype = {
     if (this.currentHighlighted == row || this.currentHighlighted === null && row < 0)
       return;
     console.log('highlight: ' + row);
-    if (this.currentHighlighted)
-      this.displayingRows[this.currentHighlighted].setHighlight(false);
-    if (row >= 0) {
-      this.displayingRows[row].setHighlight(true);
-      this.currentHighlighted = row;
-    } else {
-      this.currentHighlighted = null;
-    }
+    this.componentScreen.setCurrentHighlighted(row)
   },
 
   onInput: function(e) {
@@ -909,7 +898,6 @@ TermView.prototype = {
 
   clearRows: function() {
     this.mainContainer.innerHTML = '';
-    this.displayingRows = [];
   },
 
   appendRows: function(lines, showsLinkPreview) {
@@ -919,10 +907,9 @@ TermView.prototype = {
       el.setAttribute('type', 'bbsrow');
       el.setAttribute('srow', this.mainContainer.childNodes.length);
       this.mainContainer.appendChild(el);
-      var component = renderRowHtml(
+      renderRowHtml(
         line, this.mainContainer.childNodes.length, this.chh,
         showsLinkPreview, el);
-      this.displayingRows.push(component);
     }
   },
 
