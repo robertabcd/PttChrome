@@ -150,25 +150,6 @@ TermChar.prototype = {
   }
 };
 
-function TermHtml() {
-  this.html='';
-}
-
-TermHtml.prototype = {
-
-  setHtml: function(str) {
-    this.html = str;
-  },
-
-  addHtml: function(str) {
-    this.html += str;
-  },
-
-  getHtml: function() {
-    return this.html;
-  }
-};
-
 export function TermBuf(cols, rows) {
   this.cols = cols;
   this.rows = rows;
@@ -212,21 +193,17 @@ export function TermBuf(cols, rows) {
   this.pageLines = [];
   this.pageWrappedLines = [];
 
-  this.outputhtmls = new Array(rows);
   this.lineChangeds = new Array(rows);
 
   this.viewBufferTimer = 30;
 
   while (--rows >= 0) {
     var line = new Array(cols);
-    var outputhtml = new Array(cols);
     var c = cols;
     while (--c >= 0) {
       line[c] = new TermChar(' ');
-      outputhtml[c] = new TermHtml();
     }
     this.lines[rows] = line;
-    this.outputhtmls[rows] = outputhtml;
     //this.keyWordLine[rows]=false;
   }
   this.BBSWin = document.getElementById('BBSWindow');

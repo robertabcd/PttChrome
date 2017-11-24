@@ -308,13 +308,11 @@ TermView.prototype = {
     var changedRows = [];
 
     var lines = this.buf.lines;
-    var outhtmls = this.buf.outputhtmls;
     for (var row = 0; row < rows; ++row) {
       var chh = this.chh;
       this.curRow = row;
       // resets color
       var line = lines[row];
-      var outhtml = outhtmls[row];
       var lineChanged = lineChangeds[row];
       if (lineChanged === false && !force)
         continue;
