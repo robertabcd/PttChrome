@@ -31,16 +31,12 @@ export function renderRowHtml(chars, row, forceWidth, showsLinkPreviews, cont) {
   );
 }
 
-export function renderScreen(
-  lines,
-  forceWidth,
-  showsLinkPreviews,
-  cont
-) {
+export function renderScreen(lines, forceWidth, showsLinkPreviews, enablePicPreview, cont) {
   return ReactDOM.render(
     <Screen
       lines={lines}
       forceWidth={forceWidth}
-      showsLinkPreviews={showsLinkPreviews}
+      enableLinkInlinePreview={showsLinkPreviews}
+      enableLinkHoverPreview={enablePicPreview}
     />, cont);
 }

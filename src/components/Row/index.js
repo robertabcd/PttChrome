@@ -3,15 +3,24 @@ import LinkSegmentBuilder from "./LinkSegmentBuilder";
 export const Row = ({
   chars,
   row,
-  showsLinkPreviews,
+  enableLinkInlinePreview,
   forceWidth,
-  highlighted
+  highlighted,
+  onHyperLinkMouseOver,
+  onHyperLinkMouseOut
 }) => (
   <span type="bbsrow" srow={row}>
     {chars
       .reduce(
         LinkSegmentBuilder.accumulator,
-        new LinkSegmentBuilder(row, showsLinkPreviews, forceWidth, highlighted)
+        new LinkSegmentBuilder(
+          row,
+          enableLinkInlinePreview,
+          forceWidth,
+          highlighted,
+          onHyperLinkMouseOver,
+          onHyperLinkMouseOut
+        )
       )
       .build()}
   </span>

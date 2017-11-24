@@ -2,7 +2,6 @@
 
 import { TermKeyboard } from './term_keyboard';
 import { termInvColors } from './term_buf';
-import { renderImagePreview } from './image_preview';
 import { renderRowHtml, renderScreen } from './term_ui';
 import { i18n } from './i18n';
 import { setTimer } from './util';
@@ -340,21 +339,15 @@ TermView.prototype = {
         }
       } else {
         this.componentScreen = renderScreen(
-          lines,
+          /* For Screen#componentWillReceiveProps */lines.slice(),
           this.chh,
           /* showsLinkPreview */false,
+          this.enablePicPreview,
           this.mainDisplay
         )
         this.componentScreen.setCurrentHighlighted(this.buf.highlightCursor && this.buf.currentHighlighted)
       }
       this.buf.prevPageState = this.buf.pageState;
-
-      if (this.enablePicPreview) {
-        // hide preview if any update
-        renderImagePreview(document.getElementById('imagePreviewContainer'),
-          null);
-        this.setupPicPreviewOnHover();
-      }
     }
     //var time = new Date().getTime() - start;
     //console.log(time);
@@ -764,37 +757,6 @@ TermView.prototype = {
       start: this.countCol(r.startContainer, r.startOffset),
       end: this.countCol(r.endContainer, r.endOffset)
     };
-  },
-
-  setupPicPreviewOnHover: function() {
-    var self = this;
-    var aNodes = $([
-      ".main a[href^='http://ppt.cc/']",
-      ".main a[type='p']",
-      ".main a[href^='http://imgur.com/']",
-      ".main a[href^='https://imgur.com/']",
-      ".main a[href^='http://i.imgur.com/']",
-      ".main a[href^='https://i.imgur.com/']",
-      ".main a[href^='https://flic.kr/p/']",
-      ".main a[href^='https://www.flickr.com/photos/']"
-    ].join(",")).not([
-      "a[href^='http://imgur.com/a/']",
-      "a[href^='https://imgur.com/a/']",
-      "a[href^='http://imgur.com/gallery/']",
-      "a[href^='https://imgur.com/gallery/']"
-    ].join(","));
-    var cont = document.getElementById('imagePreviewContainer');
-    var onover = function(e) {
-      renderImagePreview(cont, this.getAttribute('href'));
-    };
-    var onout = function(e) {
-      renderImagePreview(cont, null);
-    };
-    for (var i = 0; i < aNodes.length; ++i) {
-      var aNode = aNodes[i];
-      aNode.addEventListener('mouseover', onover);
-      aNode.addEventListener('mouseout', onout);
-    }
   },
 
   showWaterballNotification: function() {
