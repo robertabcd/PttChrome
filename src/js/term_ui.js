@@ -19,28 +19,24 @@ export class ColorState {
 /**
  * @deprecated
  */
-export function renderRowHtml(chars, row, forceWidth, showsLinkPreviews, cont) {
+export function renderRowHtml(chars, row, forceWidth, enableLinkInlinePreview, cont) {
   return ReactDOM.render(
     <Row
       chars={chars}
       row={row}
       forceWidth={forceWidth}
-      enableLinkInlinePreview={showsLinkPreviews}
+      enableLinkInlinePreview={enableLinkInlinePreview}
     />,
     cont
   );
 }
 
-export function renderScreen(
-  lines,
-  forceWidth,
-  showsLinkPreviews,
-  cont
-) {
+export function renderScreen(lines, forceWidth, enableLinkInlinePreview, enableLinkHoverPreview, cont) {
   return ReactDOM.render(
     <Screen
       lines={lines}
       forceWidth={forceWidth}
-      showsLinkPreviews={showsLinkPreviews}
+      enableLinkInlinePreview={enableLinkInlinePreview}
+      enableLinkHoverPreview={enableLinkHoverPreview}
     />, cont);
 }
