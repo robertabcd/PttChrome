@@ -59,56 +59,7 @@ AnsiParser.prototype.feed = function(data) {
         }
         switch (ch) {
         case 'm':
-          var attr = term.attr;
-          for (var n_params = params.length; n_params; --n_params){
-            var v = params.shift();
-            switch (v) {
-            case 0: // reset
-              attr.resetAttr();
-              break;
-            case 1: // bright
-              attr.bright=true;
-              break;
-            case 4:
-              attr.underLine=true;
-              break;
-            case 5: // blink
-            case 6:
-              attr.blink=true;
-              break;
-            case 7: // invert
-              attr.invert=true;
-              break;
-            case 8:
-              // invisible is not supported
-              break;
-            /*
-            case 22: // normal, or not bright
-              attr.bright=false;
-              break;
-            case 24: // not underlined
-              attr.underLine=false;
-              break;
-            case 25: // steady, or not blink
-              attr.blink=false;
-              break;
-            case 27: // positive, or not invert
-              attr.invert=false;
-              break;
-            */
-            default:
-              if (v <= 37) {
-                if (v >= 30) { // fg
-                  attr.fg = v - 30;
-                }
-              } else if (v >= 40) {
-                if (v<=47) { //bg
-                  attr.bg = v - 40;
-                }
-              }
-              break;
-            }
-          }
+          term.assignParamsToAttrs(params);
           break;
         case '@':
           term.insert(params[0]>0 ? params[0] : 1);

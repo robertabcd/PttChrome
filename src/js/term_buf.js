@@ -83,6 +83,57 @@ TermChar.defaultBg = 0;
 
 TermChar.prototype = {
 
+  assignParams: function(params) {
+    params.forEach(v => {    
+      switch (v) {
+      case 0: // reset
+        this.resetAttr();
+        break;
+      case 1: // bright
+        this.bright=true;
+        break;
+      case 4:
+        this.underLine=true;
+        break;
+      case 5: // blink
+      case 6:
+        this.blink=true;
+        break;
+      case 7: // invert
+        this.invert=true;
+        break;
+      case 8:
+        // invisible is not supported
+        break;
+      /*
+      case 22: // normal, or not bright
+        this.bright=false;
+        break;
+      case 24: // not underlined
+        this.underLine=false;
+        break;
+      case 25: // steady, or not blink
+        this.blink=false;
+        break;
+      case 27: // positive, or not invert
+        this.invert=false;
+        break;
+      */
+      default:
+        if (v <= 37) {
+          if (v >= 30) { // fg
+            this.fg = v - 30;
+          }
+        } else if (v >= 40) {
+          if (v<=47) { //bg
+            this.bg = v - 40;
+          }
+        }
+        break;
+      }
+    })
+  },
+
   copyFrom: function(attr) {
     this.ch = attr.ch;
     this.isLeadByte = attr.isLeadByte;
@@ -217,6 +268,10 @@ TermBuf.prototype = {
 
   setView: function(view) {
     this.view = view;
+  },
+
+  assignParamsToAttrs: function(params) {
+    this.attr.assignParams(params)
   },
 
   puts: function(str) {
