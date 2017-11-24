@@ -724,7 +724,7 @@ App.prototype.getWindowInnerBounds = function() {
 };
 
 App.prototype.getFirstGridOffsets = function() {
-  var container = $("#mainContainer")[0];
+  var container = $(".main")[0];
   return {
     top: container.offsetTop,
     left: container.offsetLeft

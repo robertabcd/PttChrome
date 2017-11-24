@@ -1,30 +1,20 @@
 import LinkSegmentBuilder from "./LinkSegmentBuilder";
 
-export class Row extends React.Component {
-  constructor() {
-    super();
-    this.state = { highlighted: false };
-  }
-
-  render() {
-    return this.props.chars
+export const Row = ({
+  chars,
+  row,
+  showsLinkPreviews,
+  forceWidth,
+  highlighted
+}) => (
+  <span type="bbsrow" srow={row}>
+    {chars
       .reduce(
         LinkSegmentBuilder.accumulator,
-        new LinkSegmentBuilder(
-          this.props.row,
-          this.props.showsLinkPreviews,
-          this.props.forceWidth,
-          this.state.highlighted
-        )
+        new LinkSegmentBuilder(row, showsLinkPreviews, forceWidth, highlighted)
       )
-      .build();
-  }
-
-  setHighlight(shouldHighlight) {
-    if (this.state.highlighted != shouldHighlight) {
-      this.setState({ highlighted: shouldHighlight });
-    }
-  }
-}
+      .build()}
+  </span>
+);
 
 export default Row;
