@@ -19,13 +19,12 @@
     "webpack-dev-server": "^2.9.3"
   },
   "babel": {
-    "presets": [["env"]],
     "env": {
       "development": {
-        "presets": [["env"], ["react"]]
+        "presets": [["env", { "modules": false }], ["react"]]
       },
       "production": {
-        "presets": [["env"], ["react"]]
+        "presets": [["env", { "modules": false }], ["react"]]
       }
     }
   },

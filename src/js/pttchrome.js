@@ -1687,4 +1687,4 @@ pttchrome.App.prototype.setBBSCmd = function(cmd, cmdhandler) {
   }
 };
 
-exports.App = pttchrome.App;
+export const App = pttchrome.App;

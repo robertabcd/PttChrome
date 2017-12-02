@@ -1,5 +1,5 @@
-exports.symbolTable = {};
-var a = exports.symbolTable;
+export const symbolTable = {};
+var a = symbolTable;
 a.xa1=1;
 a.xa0=1;
 a.xa1=1;
