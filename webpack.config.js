@@ -18,13 +18,10 @@ module.exports = {
     pathinfo: DEVELOPER_MODE,
     filename: `[name]${ PRODUCTION_MODE ? '.[chunkhash]' : '' }.js`
   },
-  resolve: {
-    extensions: ['.js', '.jsx']
-  },
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        test: /\.js$/,
         exclude: /node_modules/,
         loader: "babel-loader"
       },

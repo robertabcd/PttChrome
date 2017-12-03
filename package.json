@@ -27,7 +27,7 @@
   },
   "lint-staged": {
     "*.json": ["prettier --write", "git add"],
-    "src/components/**/*.{js,jsx,json,css}": ["prettier --write", "git add"]
+    "src/components/**/*.{js,json,css}": ["prettier --write", "git add"]
   },
   "babel": {
     "env": {
