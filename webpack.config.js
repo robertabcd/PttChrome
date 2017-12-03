@@ -8,16 +8,9 @@ const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
 const DEVELOPER_MODE = process.env.NODE_ENV === 'development'
 const PRODUCTION_MODE = process.env.NODE_ENV === 'production'
 
-const PAGE_TITLE = process.env.PTTCHROME_PAGE_TITLE || 'PttChrome';
-const DEFAULT_SITE = PRODUCTION_MODE ? 'wsstelnet://ws.ptt.cc/bbs' : 'wstelnet://localhost:8080/bbs'
-
 module.exports = {
   entry: {
-    'pttchrome': [
-      './src/js/main.js',
-      './src/css/main.css',
-      './src/css/color.css'
-    ]
+    'pttchrome': './src/entry.js',
   },
   output: {
     path: path.join(__dirname, 'dist/assets/'),
@@ -65,12 +58,10 @@ module.exports = {
   devtool: 'source-map',
   plugins: [
     new webpack.DefinePlugin({
-      'COMPILE_CONSTANTS': JSON.stringify({
-        PAGE_TITLE,
-        DEFAULT_SITE,
-        ENABLE_GOTO_OTHER_SITE: false,
-        DEVELOPER_MODE,
-      })
+      'process.env.PTTCHROME_PAGE_TITLE': JSON.stringify(process.env.PTTCHROME_PAGE_TITLE || 'PttChrome'),
+      'process.env.DEFAULT_SITE': JSON.stringify(PRODUCTION_MODE ? 'wsstelnet://ws.ptt.cc/bbs' : 'wstelnet://localhost:8080/bbs'),
+      'process.env.ENABLE_GOTO_OTHER_SITE': JSON.stringify(false),
+      'process.env.DEVELOPER_MODE': JSON.stringify(DEVELOPER_MODE),
     }),
     new ExtractTextPlugin({
       disable: DEVELOPER_MODE,
