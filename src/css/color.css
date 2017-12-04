@@ -1,6 +1,6 @@
 .y
 {
- background-image:url(../icon/http.bmp);
+ background-image: url(../icon/http.bmp?inline);
  background-repeat: repeat-x;
  background-position: 0% 90%;
 }

@@ -44,12 +44,20 @@ module.exports = {
       },
       {
         test: /\.(bin|bmp|png|woff)$/,
-        use: [
+        oneOf: [
           {
-            loader: 'file-loader',
-            options: {
-              name: '[name].[hash].[ext]'
-            }  
+            resourceQuery: /inline/,
+            use: 'url-loader'
+          },
+          {
+            use: [
+              {
+                loader: 'file-loader',
+                options: {
+                  name: '[name].[hash].[ext]'
+                }
+              }
+            ]
           }
         ]
       }
