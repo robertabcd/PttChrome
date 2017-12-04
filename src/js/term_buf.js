@@ -83,10 +83,61 @@ TermChar.defaultBg = 0;
 
 TermChar.prototype = {
 
-  copyFrom: function(attr) {
-    this.ch = attr.ch;
-    this.isLeadByte = attr.isLeadByte;
-    this.copyAttr(attr);
+  assignParams: function(params) {
+    params.forEach(v => {    
+      switch (v) {
+      case 0: // reset
+        this.resetAttr();
+        break;
+      case 1: // bright
+        this.bright=true;
+        break;
+      case 4:
+        this.underLine=true;
+        break;
+      case 5: // blink
+      case 6:
+        this.blink=true;
+        break;
+      case 7: // invert
+        this.invert=true;
+        break;
+      case 8:
+        // invisible is not supported
+        break;
+      /*
+      case 22: // normal, or not bright
+        this.bright=false;
+        break;
+      case 24: // not underlined
+        this.underLine=false;
+        break;
+      case 25: // steady, or not blink
+        this.blink=false;
+        break;
+      case 27: // positive, or not invert
+        this.invert=false;
+        break;
+      */
+      default:
+        if (v <= 37) {
+          if (v >= 30) { // fg
+            this.fg = v - 30;
+          }
+        } else if (v >= 40) {
+          if (v<=47) { //bg
+            this.bg = v - 40;
+          }
+        }
+        break;
+      }
+    })
+  },
+
+  copyFromNewChar: function() {
+    this.ch = TermChar.newChar.ch;
+    this.isLeadByte = TermChar.newChar.isLeadByte;
+    this.resetAttr();
   },
 
   copyAttr: function(attr) {
@@ -150,24 +201,7 @@ TermChar.prototype = {
   }
 };
 
-function TermHtml() {
-  this.html='';
-}
-
-TermHtml.prototype = {
-
-  setHtml: function(str) {
-    this.html = str;
-  },
-
-  addHtml: function(str) {
-    this.html += str;
-  },
-
-  getHtml: function() {
-    return this.html;
-  }
-};
+TermChar.newChar = new TermChar(' ')
 
 export function TermBuf(cols, rows) {
   this.cols = cols;
@@ -192,7 +226,6 @@ export function TermBuf(cols, rows) {
   //this.scrollingTop=0;
   //this.scrollingBottom=23;
   this.attr = new TermChar(' ');
-  this.newChar = new TermChar(' ');
   this.disableLinefeed = false;
   this.altScreen = '';
   this.changed = false;
@@ -212,21 +245,17 @@ export function TermBuf(cols, rows) {
   this.pageLines = [];
   this.pageWrappedLines = [];
 
-  this.outputhtmls = new Array(rows);
   this.lineChangeds = new Array(rows);
 
   this.viewBufferTimer = 30;
 
   while (--rows >= 0) {
     var line = new Array(cols);
-    var outputhtml = new Array(cols);
     var c = cols;
     while (--c >= 0) {
       line[c] = new TermChar(' ');
-      outputhtml[c] = new TermHtml();
     }
     this.lines[rows] = line;
-    this.outputhtmls[rows] = outputhtml;
     //this.keyWordLine[rows]=false;
   }
   this.BBSWin = document.getElementById('BBSWindow');
@@ -240,6 +269,10 @@ TermBuf.prototype = {
 
   setView: function(view) {
     this.view = view;
+  },
+
+  assignParamsToAttrs: function(params) {
+    this.attr.assignParams(params)
   },
 
   puts: function(str) {
@@ -448,13 +481,13 @@ TermBuf.prototype = {
       var line = lines[this.cur_y];
       var col, row;
       for (col = this.cur_x; col < cols; ++col) {
-        line[col].copyFrom(this.newChar);
+        line[col].copyFromNewChar();
         line[col].needUpdate = true;
       }
       for (row = this.cur_y; row < rows; ++row) {
         line = lines[row];
         for (col = 0; col < cols; ++col) {
-          line[col].copyFrom(this.newChar);
+          line[col].copyFromNewChar();
           line[col].needUpdate = true;
         }
       }
@@ -465,13 +498,13 @@ TermBuf.prototype = {
       for (row = 0; row < this.cur_y; ++row) {
         line = lines[row];
         for (col = 0; col < cols; ++col) {
-          line[col].copyFrom(this.newChar);
+          line[col].copyFromNewChar();
           line[col].needUpdate = true;
         }
       }
       line = lines[this.cur_y];
       for (col = 0; col < this.cur_x; ++col) {
-        line[col].copyFrom(this.newChar);
+        line[col].copyFromNewChar();
         line[col].needUpdate = true;
       }
       break;
@@ -480,7 +513,7 @@ TermBuf.prototype = {
         var col = cols;
         var line = lines[rows];
         while (--col >= 0) {
-          line[col].copyFrom(this.newChar);
+          line[col].copyFromNewChar();
           line[col].needUpdate = true;
         }
       }
@@ -527,14 +560,14 @@ TermBuf.prototype = {
     if (cur_x == cols) return;
     if (cur_x + param >= cols) {
       for(var col = cur_x; col < cols; ++col) {
-        line[col].copyFrom(this.newChar);
+        line[col].copyFromNewChar();
         line[col].needUpdate = true;
       }
     } else {
       while (--param >= 0) {
         var ch = line.pop();
         line.splice(cur_x, 0, ch);
-        ch.copyFrom(this.newChar);
+        ch.copyFromNewChar();
       }
       for (var col = cur_x; col < cols; ++col)
         line[col].needUpdate = true;
@@ -551,7 +584,7 @@ TermBuf.prototype = {
     if (cur_x == cols) return;
     if (cur_x + param >= cols) {
       for (var col = cur_x; col < cols; ++col) {
-        line[col].copyFrom(this.newChar);
+        line[col].copyFromNewChar();
         line[col].needUpdate = true;
       }
     } else {
@@ -559,7 +592,7 @@ TermBuf.prototype = {
       while (--n >= 0)
         line.splice(cur_x, 0, line.pop());
       for (var col = cols - param; col < cols; ++col)
-        line[col].copyFrom(this.newChar);
+        line[col].copyFromNewChar();
       for (var col = cur_x; col < cols; ++col)
         line[col].needUpdate = true;
     }
@@ -575,7 +608,7 @@ TermBuf.prototype = {
     if (cur_x == cols) return;
     var n = (cur_x + param > cols) ? cols : cur_x + param;
     for (var col = cur_x; col < n; ++col) {
-      line[col].copyFrom(this.newChar);
+      line[col].copyFromNewChar();
       line[col].needUpdate = true;
     }
     this.changed = true;
@@ -588,20 +621,20 @@ TermBuf.prototype = {
     switch (param) {
     case 0: // erase to rigth
       for (var col = this.cur_x; col < cols; ++col) {
-        line[col].copyFrom(this.newChar);
+        line[col].copyFromNewChar();
         line[col].needUpdate = true;
       }
       break;
     case 1: //erase to left
       var cur_x = this.cur_x;
       for (var col = 0; col < cur_x; ++col) {
-        line[col].copyFrom(this.newChar);
+        line[col].copyFromNewChar();
         line[col].needUpdate=true;
       }
       break;
     case 2: //erase all
       for (var col = 0; col < cols; ++col) {
-        line[col].copyFrom(this.newChar);
+        line[col].copyFromNewChar();
         line[col].needUpdate = true;
       }
       break;
@@ -646,7 +679,7 @@ TermBuf.prototype = {
       var cols = this.cols;
       for(var row=scrollStart; row <= scrollEnd; ++row) {
         for(var col=0; col< cols; ++col) {
-          lines[row][col].copyFrom(this.newChar);
+          lines[row][col].copyFromNewChar();
           lines[row][col].needUpdate=true;
         }
       }
@@ -662,7 +695,7 @@ TermBuf.prototype = {
           var line = lines.pop();
           lines.splice(rows-1-scrollEnd+scrollStart, 0, line);
           for (var col = 0; col < cols; ++col)
-            line[col].copyFrom(this.newChar);
+            line[col].copyFromNewChar();
         }
         for (var i = 0; i < rows-1-scrollEnd; ++i)
           lines.push(lines.shift());
@@ -673,7 +706,7 @@ TermBuf.prototype = {
           var line = lines.shift();
           lines.splice(scrollEnd-scrollStart, 0, line);
           for (var col = 0; col < cols; ++col) // clear the line
-            line[col].copyFrom(this.newChar);
+            line[col].copyFromNewChar();
         }
         for (var i = 0; i < scrollStart; ++i)
           lines.unshift(lines.pop());
@@ -803,14 +836,14 @@ TermBuf.prototype = {
 
     // generate texts with ansi color
     if (color) {
-      var output = this.ansiCmp(this.newChar, text[colStart], reset);
+      var output = this.ansiCmp(TermChar.newChar, text[colStart], reset);
       for (var col = colStart; col < colEnd-1; ++col) {
         if (isutf8 && text[col].isLeadByte && this.ansiCmp(text[col], text[col+1]))
           output += this.ansiCmp(text[col], text[col+1]).replace(/m$/g, ';50m') + text[col].ch;
         else
           output += text[col].ch + this.ansiCmp(text[col], text[col+1]);
       }
-      output += text[colEnd-1].ch + this.ansiCmp(text[colEnd-1], this.newChar);
+      output += text[colEnd-1].ch + this.ansiCmp(text[colEnd-1], TermChar.newChar);
       return (isutf8 && charset != 'UTF-8' ? b2u(output) : output);
     }
 
@@ -828,22 +861,6 @@ TermBuf.prototype = {
           return c.ch;
       }
     }).join('');
-  },
-
-  findText: function(text, searchrow) {
-    var result = {col: -1, row: -1};
-    var searchStart = 0;
-    var searchEnd = this.cols - 1;
-    if (searchrow >= 0) searchStart = searchEnd = searchrow;
-    for (var row = searchStart; row <= searchEnd; ++row) {
-      var line = this.getText(row, 0, this.cols, false, true);
-      result.col = line.indexOf(text);
-      if (result.col >= 0) {
-        result.row = row;
-        break;
-      }
-    }
-    return result;
   },
 
   getRowText: function(row, colStart, colEnd, lines) {
@@ -881,20 +898,6 @@ TermBuf.prototype = {
       }
     }).join('');
 
-  },
-
-  parseText: function(text) {
-    var strs = text.split('^');
-    var returnStr = strs[0];
-    for (var i = 1; i < strs.length; ++i) {
-      if (strs[i].length > 0) {
-        returnStr += String.fromCharCode(strs[i].charCodeAt(0) - 64);
-        returnStr += strs[i].substr(1);
-      } else if (i < strs.length-1) {
-        returnStr += '^' + strs[++i];
-      } else returnStr += '^';
-    }
-    return returnStr;
   },
 
   ansiCmp: function(preChar, thisChar, forceReset) {
@@ -999,41 +1002,6 @@ TermBuf.prototype = {
       //console.log('pageState = 0 (NORMAL)');
       this.pageState = 0;
     }
-  },
-
-  isPttZArea: function() {
-    var rows = 24;
-    var lines = this.lines;
-    if (this.view.charset != 'UTF-8') {
-      var line = lines[0];
-      var PTTstr1 = '\xa1\x69\xba\xeb\xb5\xd8\xa4\xe5\xb3\xb9\xa1\x6a';
-      for (var i = 0; i <= 11; ++i) {
-        if (line[i].ch != PTTstr1.charAt(i))
-          return false;
-      }
-      line = lines[rows-1];
-      var PTTstr2 = '\xa1\x69\xa5\x5c\xaf\xe0\xc1\xe4\xa1\x6a';
-      for (var i = 1; i <= 10; ++i) {
-        if (line[i].ch != PTTstr2.charAt(i-1))
-          return false;
-      }
-    } else {
-      var line = lines[0];
-      var PTTstr = '';
-      for (var i = 0; i <= 11; i+=2) {
-        PTTstr += line[i].ch;
-      }
-      if (PTTstr != this.PTTZSTR1)
-        return false;
-      line = lines[rows-1];
-      PTTstr = '';
-      for (var i = 1; i <= 10; i+=2) {
-        PTTstr+=line[i].ch;
-      }
-      if (PTTstr != this.PTTZSTR2)
-        return false;
-    }
-    return true;
   },
 
   isUnicolor: function(lineindex, start, end){
