@@ -21,10 +21,30 @@
   "babel": {
     "env": {
       "development": {
-        "presets": [["env", { "modules": false }], ["react"]]
+        "presets": [
+          [
+            "env",
+            {
+              "modules": false
+            }
+          ],
+          [
+            "react"
+          ]
+        ]
       },
       "production": {
-        "presets": [["env", { "modules": false }], ["react"]]
+        "presets": [
+          [
+            "env",
+            {
+              "modules": false
+            }
+          ],
+          [
+            "react"
+          ]
+        ]
       }
     }
   },
