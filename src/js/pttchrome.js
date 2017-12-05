@@ -188,7 +188,6 @@ export const App = function(onInitializedCallback, options) {
   this.pushthreadAutoUpdateCount = 0;
   this.maxPushthreadAutoUpdateCount = -1;
   this.onWindowResize();
-  this.setupDeveloperModeAlert();
   this.setupConnectionAlert();
   this.setupPasteShortcutAlert();
   this.setupLiveHelper();
@@ -198,25 +197,27 @@ export const App = function(onInitializedCallback, options) {
 
   this.pref = new PttChromePref(this, onInitializedCallback);
 
-  (new Promise(function(resolve, reject) {
-    if (process.env.DEVELOPER_MODE) {
-      $('#developerModeAlertDismiss').click(function(e) {
-        $('#developerModeAlert').hide();
-        resolve();
-      });
-      $('#developerModeAlert').show();
-    } else {
-      resolve();
-    }
-  })).then(function() {
+  (process.env.DEVELOPER_MODE ? import('../components/DeveloperModeAlert')
+    .then(({DeveloperModeAlert}) => new Promise((resolve, reject) => {
+      const container = document.getElementById('reactAlert')
+      const onDismiss = () => {
+        ReactDOM.unmountComponentAtNode(container)
+        resolve()
+      }
+      ReactDOM.render(
+        <DeveloperModeAlert onDismiss={onDismiss} />,
+        container
+      )
+    })) : Promise.resolve()
+  ).then(() => {
     // connect.
-    self.connect(getQueryVariable('site') || process.env.DEFAULT_SITE);
+    this.connect(getQueryVariable('site') || process.env.DEFAULT_SITE);
 
     // TODO: Call onSymFont for font data when it's implemented.
 
     console.log("load pref from storage");
     // call getStorage to trigger load setting
-    self.pref.getStorage();
+    this.pref.getStorage();
   });
 
   // init touch only if chrome is higher than version 36
@@ -461,13 +462,6 @@ App.prototype.switchToEasyReadingMode = function(doSwitch) {
   }
   // request the full screen
   this.view.conn.send(unescapeStr('^L'));
-};
-
-App.prototype.setupDeveloperModeAlert = function() {
-  $('#developerModeAlertReconnect').empty();
-  $('#developerModeAlertHeader').text(i18n('alert_developerModeHeader'));
-  $('#developerModeAlertText').text(i18n('alert_developerModeText'));
-  $('#developerModeAlertDismiss').text(i18n('alert_developerModeDismiss'));
 };
 
 App.prototype.setupConnectionAlert = function() {
