@@ -3,7 +3,9 @@
   "version": "1.2.0",
   "dependencies": {
     "base58": "^1.0.1",
-    "classnames": "^2.2.5"
+    "classnames": "^2.2.5",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -26,6 +28,7 @@
     "uglifyjs-webpack-plugin": "^0.4.6",
     "url-loader": "^0.6.2",
     "webpack": "^3.7.1",
+    "webpack-cdn-plugin": "^1.6.6",
     "webpack-dev-server": "^2.9.3"
   },
   "lint-staged": {
