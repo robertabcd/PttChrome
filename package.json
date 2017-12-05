@@ -5,11 +5,15 @@
     "base58": "^1.0.1",
     "classnames": "^2.2.5",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0"
+    "react-bootstrap": "^0.31.5",
+    "react-dom": "^16.2.0",
+    "react-overlays": "^0.7.4",
+    "recompose": "^0.26.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
+    "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
@@ -48,6 +52,7 @@
           ["react"]
         ],
         "plugins": [
+          "syntax-dynamic-import",
           "transform-class-properties",
           "transform-object-rest-spread"
         ]
@@ -63,6 +68,7 @@
           ["react"]
         ],
         "plugins": [
+          "syntax-dynamic-import",
           "transform-class-properties",
           "transform-object-rest-spread"
         ]
