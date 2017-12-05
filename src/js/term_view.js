@@ -24,9 +24,6 @@ export function TermView(rowCount) {
   this.charset = 'big5';
   this.EnterChar = '\r';
   this.EscChar = '\x15'; // Ctrl-U
-  this.dropToPaste = false;
-  this.ctrlPicturePreview = false;
-  this.picturePreviewInfo = false;
   this.middleButtonFunction = 0;
   this.leftButtonFunction = false;
   this.mouseWheelFunction1 = 1;
@@ -38,7 +35,6 @@ export function TermView(rowCount) {
   this.fontFitWindowWidth = false;
   this.verticalAlignCenter = true;
   this.horizontalAlignCenter = true;
-  this.easyReadingWithImg = false;
   //new pref - end
 
   this.bbsViewMargin = 0;
