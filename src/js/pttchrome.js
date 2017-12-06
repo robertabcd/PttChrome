@@ -14,6 +14,7 @@ import { i18n } from './i18n';
 import { unescapeStr, b2u, parseWaterball } from './string_util';
 import { getQueryVariable, setTimer } from './util';
 import PasteShortcutAlert from '../components/PasteShortcutAlert';
+import ConnectionAlert from '../components/ConnectionAlert';
 
 export const App = function(onInitializedCallback, options) {
 
@@ -191,7 +192,6 @@ export const App = function(onInitializedCallback, options) {
   this.pushthreadAutoUpdateCount = 0;
   this.maxPushthreadAutoUpdateCount = -1;
   this.onWindowResize();
-  this.setupConnectionAlert();
   this.setupLiveHelper();
   this.setupContextMenus();
   this.contextMenuShown = false;
@@ -294,7 +294,6 @@ App.prototype._attachConn = function(conn) {
 App.prototype.onConnect = function() {
   this.conn.isConnected = true;
   this.view.setConn(this.conn);
-  $('#connectionAlert').hide();
   console.info("pttchrome onConnect");
   this.connectState = 1;
   this.updateTabIcon('connect');
@@ -341,7 +340,15 @@ App.prototype.onClose = function() {
   this.connectState = 2;
   this.idleTime = 0;
 
-  $('#connectionAlert').show();
+  const onDismiss = () => {
+    ReactDOM.unmountComponentAtNode(container);
+    this.connect(this.connectedUrl.url);
+  }
+  const container = document.getElementById('reactAlert');
+  ReactDOM.render(
+    <ConnectionAlert onDismiss={onDismiss} />,
+    container
+  );
   this.updateTabIcon('disconnect');
 };
 
@@ -463,19 +470,6 @@ App.prototype.switchToEasyReadingMode = function(doSwitch) {
   }
   // request the full screen
   this.view.conn.send(unescapeStr('^L'));
-};
-
-App.prototype.setupConnectionAlert = function() {
-  $('#connectionAlertReconnect').empty();
-  $('#connectionAlertHeader').text(i18n('alert_connectionHeader'));
-  $('#connectionAlertText').text(i18n('alert_connectionText'));
-  $('#connectionAlertReconnect').text(i18n('alert_connectionReconnect'));
-
-  var self = this;
-  $('#connectionAlertReconnect').click(function(e) {
-    self.connect(self.connectedUrl.url);
-    $('#connectionAlert').hide();
-  });
 };
 
 App.prototype.doCopy = function(str) {
