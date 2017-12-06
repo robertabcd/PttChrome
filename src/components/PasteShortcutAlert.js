@@ -1,12 +1,12 @@
 import React from "react";
 import { Alert, Button } from "react-bootstrap";
 import { i18n } from "../js/i18n";
+import "./PageTopAlert.css";
 
 export const PasteShortcutAlert = ({ onDismiss }) => (
   <Alert
     bsStyle="info"
-    id="pasteShortcutAlert"
-    style={{ display: "block" /* FIXME: Overrides main.css */ }}
+    className="PageTopAlert"
     tabIndex={-1}
     onDismiss={onDismiss}
   >
