@@ -69,7 +69,6 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env.PTTCHROME_PAGE_TITLE': JSON.stringify(process.env.PTTCHROME_PAGE_TITLE || 'PttChrome'),
       'process.env.DEFAULT_SITE': JSON.stringify(PRODUCTION_MODE ? 'wsstelnet://ws.ptt.cc/bbs' : 'wstelnet://localhost:8080/bbs'),
-      'process.env.ENABLE_GOTO_OTHER_SITE': JSON.stringify(false),
       'process.env.DEVELOPER_MODE': JSON.stringify(DEVELOPER_MODE),
     }),
     new ExtractTextPlugin({

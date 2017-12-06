@@ -56,9 +56,6 @@ export const en_US = {
   "cmenu_mouseBrowsing": {
     "message": "Mouse browsing"
   },
-  "cmenu_goToOtherSite": {
-    "message": "Go to other site ..."
-  },
   "cmenu_showInputHelper": {
     "message": "Input helper ..."
   },
@@ -235,10 +232,6 @@ export const en_US = {
   // notifications
   "notification_said": {
     "message": "says:"
-  },
-
-  "input_sitePlaceholder": {
-    "message": "input URL here and then press ENTER"
   },
 
   // input helper

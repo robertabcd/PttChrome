@@ -193,7 +193,6 @@ export const App = function(onInitializedCallback, options) {
   this.onWindowResize();
   this.setupConnectionAlert();
   this.setupLiveHelper();
-  this.setupOtherSiteInput();
   this.setupContextMenus();
   this.contextMenuShown = false;
 
@@ -479,29 +478,6 @@ App.prototype.setupConnectionAlert = function() {
   });
 };
 
-App.prototype.setupOtherSiteInput = function() {
-  var self = this;
-  $('#siteModal input').attr('placeholder', i18n('input_sitePlaceholder'));
-  $('#siteModal input').keyup(function(e) {
-    if (e.keyCode == 13) {
-      var url = $(this).val();
-      self.connect(url);
-      $('#siteModal').modal('hide');
-    }
-  });
-  $('#siteModal').on('shown.bs.modal', function(e) {
-    $('#connectionAlert').hide();
-    self.modalShown = true;
-    $('#siteModal input').val('');
-    $('#siteModal input').focus();
-  });
-  $('#siteModal').on('hidden.bs.modal', function(e) {
-    $('#connectionAlert').hide();
-    self.modalShown = false;
-  });
-
-};
-
 App.prototype.doCopy = function(str) {
   if (str.indexOf('\x1b') < 0) {
     str = str.replace(/\r\n/g, '\r');
@@ -612,10 +588,6 @@ App.prototype.doOpenUrlNewTab = function(a) {
   var e = document.createEvent('MouseEvents');
   e.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, true, false, false, false, 0, null);
   a.dispatchEvent(e);
-};
-
-App.prototype.doGoToOtherSite = function() {
-  $('#siteModal').modal('show');
 };
 
 App.prototype.incrementCountToUpdatePushthread = function(interval) {
@@ -1602,9 +1574,6 @@ App.prototype.setupContextMenus = function() {
   $('#cmenu_openUrlNewTab a').text(i18n('cmenu_openUrlNewTab'));
   $('#cmenu_copyLinkUrl a').text(i18n('cmenu_copyLinkUrl'));
   $('#cmenu_mouseBrowsing a').text(i18n('cmenu_mouseBrowsing'));
-  $('#cmenu_goToOtherSite a').text(i18n('cmenu_goToOtherSite'));
-  if (!process.env.ENABLE_GOTO_OTHER_SITE)
-    $('#cmenu_goToOtherSite a').hide();
   $('#cmenu_showInputHelper a').text(i18n('cmenu_showInputHelper'));
   $('#cmenu_showLiveArticleHelper a').text(i18n('cmenu_showLiveArticleHelper'));
   $('#cmenu_settings a').text(i18n('cmenu_settings'));
@@ -1633,9 +1602,6 @@ App.prototype.setupContextMenus = function() {
     },
     'cmenu_mouseBrowsing': function() { 
       self.switchMouseBrowsing(); 
-    },
-    'cmenu_goToOtherSite': function() { 
-      self.doGoToOtherSite(); 
     },
     'cmenu_showInputHelper': function() { 
       self.inputHelper.showHelper(); 
