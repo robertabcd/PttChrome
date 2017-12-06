@@ -1,4 +1,6 @@
 ﻿// Main Program
+import BaseModal from 'react-overlays/lib/Modal';
+import { Fade, Modal } from "react-bootstrap";
 import { AnsiParser } from './ansi_parser';
 import { TermView } from './term_view';
 import { TermBuf } from './term_buf';
@@ -11,6 +13,7 @@ import { TouchController } from './touch_controller';
 import { i18n } from './i18n';
 import { unescapeStr, b2u, parseWaterball } from './string_util';
 import { getQueryVariable, setTimer } from './util';
+import PasteShortcutAlert from '../components/PasteShortcutAlert';
 
 export const App = function(onInitializedCallback, options) {
 
@@ -189,7 +192,6 @@ export const App = function(onInitializedCallback, options) {
   this.maxPushthreadAutoUpdateCount = -1;
   this.onWindowResize();
   this.setupConnectionAlert();
-  this.setupPasteShortcutAlert();
   this.setupLiveHelper();
   this.setupOtherSiteInput();
   this.setupContextMenus();
@@ -477,16 +479,6 @@ App.prototype.setupConnectionAlert = function() {
   });
 };
 
-App.prototype.setupPasteShortcutAlert = function(){
-  $('#pasteShortcutHeader').text(i18n('alert_pasteShortcutHeader'));
-  $('#pasteShortcutText').text(i18n('alert_pasteShortcutText'));
-  $('#pasteShortcutClose').text(i18n('alert_pasteShortcutClose'));
-  $('#pasteShortcutClose').click(function(e) {
-    $('#pasteShortcutAlert').modal('hide');
-    self.modalShown = false;
-  });
-};
-
 App.prototype.setupOtherSiteInput = function() {
   var self = this;
   $('#siteModal input').attr('placeholder', i18n('input_sitePlaceholder'));
@@ -563,8 +555,26 @@ App.prototype.onDOMCopy = function(e) {
 
 App.prototype.doPaste = function() {
   console.log("doPaste not implemented");
-  $('#pasteShortcutAlert').modal('show');
-  self.modalShown = true;
+  const container = document.getElementById('reactAlert')
+  const onDismiss = () => {
+    ReactDOM.unmountComponentAtNode(container)
+    this.modalShown = false;
+  }
+  ReactDOM.render(
+    <BaseModal
+      show
+      onExited={onDismiss}
+      backdropClassName="modal-backdrop"
+      containerClassName="modal-open"
+      transition={Fade}
+      dialogTransitionTimeout={Modal.TRANSITION_DURATION}
+      backdropTransitionTimeout={Modal.BACKDROP_TRANSITION_DURATION}
+    >
+      <PasteShortcutAlert onDismiss={onDismiss} />
+    </BaseModal>,
+    container
+  )
+  this.modalShown = true;
 };
 
 App.prototype.onPasteDone = function(content) {
