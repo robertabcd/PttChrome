@@ -2,6 +2,7 @@ import React from "react";
 import { compose, lifecycle } from "recompose";
 import { Alert, Button, Fade } from "react-bootstrap";
 import { i18n } from "../js/i18n";
+import "./PageTopAlert.css";
 
 const enhance = compose(
   lifecycle({
@@ -24,12 +25,7 @@ const enhance = compose(
 
 export const ConnectionAlert = ({ onDismiss }) => (
   <Fade in>
-    <Alert
-      bsStyle="danger"
-      id="connectionAlert"
-      style={{ display: "block" /* FIXME: Overrides main.css */ }}
-      onDismiss={onDismiss}
-    >
+    <Alert bsStyle="danger" className="PageTopAlert" onDismiss={onDismiss}>
       <h4>{i18n("alert_connectionHeader")}</h4>
       <p>{i18n("alert_connectionText")}</p>
       <p>
