@@ -1,0 +1,82 @@
+.InputHelperModal__Dialog {
+  color: black;
+}
+
+.InputHelperModal__ColorList {
+  list-style-type: none;
+  width: 296px;
+  height: 74px;
+  padding: 0px;
+  background-color: black;
+}
+.InputHelperModal__ColorList li {
+  display: block;
+  float: left;
+  width: 37px;
+  height: 37px;
+}
+.InputHelperModal__ColorList li:hover {
+  -webkit-transform: scale(1.2, 1.2);
+  box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.4);
+}
+
+.InputHelperModal__Preview {
+  color: #c0c0c0;
+  text-align: center;
+  background-color: black;
+  height: 38px;
+  margin-bottom: 10px;
+  padding-top: 8px;
+}
+.InputHelperModal__Preview__Content {
+  font-family: MingLiU, MingLiUNoGlyph, monospace;
+  font-size: 22px;
+  line-height: 22px;
+}
+
+.InputHelperModal__SymbolList,
+.InputHelperModal__EmoticonList {
+  list-style-type: none;
+  padding: 0 4px;
+  margin-top: 5px;
+}
+.InputHelperModal__SymbolList > li {
+  font-family: MingLiU, MingLiUNoGlyph, monospace;
+  width: 100%;
+  border: 1px solid #ccc;
+  font-size: 30px;
+  line-height: 30px;
+  padding: 2px;
+  background-color: white;
+  margin-bottom: -1px;
+  height: 37px;
+  cursor: pointer;
+  display: block;
+  float: left;
+  width: 37px;
+  margin-right: -1px;
+}
+.InputHelperModal__SymbolList > li:hover {
+  -webkit-transform: scale(1.4, 1.4);
+  border: 2px solid black;
+}
+
+.InputHelperModal__EmoticonList > li {
+  font-family: MingLiU, MingLiUNoGlyph, monospace;
+  width: 100%;
+  border: 1px solid #ccc;
+  font-size: 21px;
+  line-height: 21px;
+  padding: 2px;
+  background-color: white;
+  margin-bottom: -1px;
+  height: 28px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.InputHelperModal__EmoticonList > li:hover {
+  -webkit-transform: scale(1.1, 1.1);
+  border: 2px solid black;
+}
