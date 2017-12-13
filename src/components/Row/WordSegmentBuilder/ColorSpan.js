@@ -1,13 +1,11 @@
 import cx from "classnames";
 
 export const ColorSpan = ({ colorState, inner }) => (
-  <span className={cx(`q${colorState.fg}`, `b${colorState.bg}`)}>
-    {colorState.blink && ( // FIXME: tagName??, attrName??
-      <x
-        s={cx(`q${colorState.fg}`, `b${colorState.bg}`)}
-        h={`qq${colorState.bg}`}
-      />
-    )}
+  <span
+    className={cx(`q${colorState.fg}`, `b${colorState.bg}`, {
+      [`qq${colorState.bg}`]: colorState.blink
+    })}
+  >
     {inner}
   </span>
 );

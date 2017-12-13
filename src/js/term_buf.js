@@ -799,13 +799,8 @@ TermBuf.prototype = {
 
     if (this.view.blinkOn) {
       this.view.blinkOn = false;
-      this.view.blinkShow = !this.view.blinkShow;
-      //
-      var allBlinkSpan = document.getElementsByTagName('x');
-      for (var i = 0; i < allBlinkSpan.length; i++) {
-        var c = (this.view.blinkShow && this.view.doBlink) ? allBlinkSpan[i].getAttribute("h") : allBlinkSpan[i].getAttribute("s");
-        allBlinkSpan[i].parentNode.setAttribute("class", c);
-      }
+
+      document.body.classList.toggle('blink--active')
     }
   },
 

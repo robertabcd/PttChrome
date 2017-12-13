@@ -62,9 +62,7 @@ export function TermView(rowCount) {
   this.lineWrap = 78;
 
   //this.DBDetection = false;
-  this.blinkShow = false;
   this.blinkOn = false;
-  this.doBlink = true;
   this.cursorBlinkTimer = null;
 
   // React
