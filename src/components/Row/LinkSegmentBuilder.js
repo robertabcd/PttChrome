@@ -7,7 +7,7 @@ export class LinkSegmentBuilder {
   constructor(row, showsLinkPreviews, forceWidth, highlighted) {
     this.row = row;
     this.forceWidth = forceWidth;
-    this.highlighted;
+    this.highlighted = highlighted;
     //
     this.segs = [];
     this.linkPreviews = showsLinkPreviews ? [] : false;
@@ -17,7 +17,7 @@ export class LinkSegmentBuilder {
     this.href = null;
   }
 
-  beginSegment() {
+  saveSegment() {
     const element = this.colorSegBuilder.build();
     if (this.href) {
       this.segs.push(
@@ -48,14 +48,14 @@ export class LinkSegmentBuilder {
     }
     this.colorSegBuilder.readChar(ch);
     if (ch.isEndOfURL()) {
-      this.beginSegment();
+      this.saveSegment();
       this.colorSegBuilder = null;
     }
   }
 
   build() {
     if (this.colorSegBuilder !== null) {
-      this.beginSegment();
+      this.saveSegment();
     }
     // TODO: Detect userid and apply class "blu_$userid".
     return (
