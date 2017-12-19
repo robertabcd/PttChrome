@@ -2,8 +2,7 @@
 
 import { TermKeyboard } from './term_keyboard';
 import { termInvColors } from './term_buf';
-import { renderImagePreview } from './image_preview';
-import { renderRowHtml } from './term_ui';
+import { renderRowHtml, renderScreen } from './term_ui';
 import { i18n } from './i18n';
 import { setTimer } from './util';
 import { wrapText, u2b, parseStatusRow } from './string_util';
@@ -24,9 +23,6 @@ export function TermView(rowCount) {
   this.charset = 'big5';
   this.EnterChar = '\r';
   this.EscChar = '\x15'; // Ctrl-U
-  this.dropToPaste = false;
-  this.ctrlPicturePreview = false;
-  this.picturePreviewInfo = false;
   this.middleButtonFunction = 0;
   this.leftButtonFunction = false;
   this.mouseWheelFunction1 = 1;
@@ -38,7 +34,6 @@ export function TermView(rowCount) {
   this.fontFitWindowWidth = false;
   this.verticalAlignCenter = true;
   this.horizontalAlignCenter = true;
-  this.easyReadingWithImg = false;
   //new pref - end
 
   this.bbsViewMargin = 0;
@@ -58,7 +53,6 @@ export function TermView(rowCount) {
 
   this.doHighlightOnCurRow = false;
 
-  this.displayingRows = [];
 
   this.curRow = 0;
   this.curCol = 0;
@@ -72,6 +66,11 @@ export function TermView(rowCount) {
   this.blinkOn = false;
   this.doBlink = true;
   this.cursorBlinkTimer = null;
+
+  // React
+  this.componentScreen = {
+    setCurrentHighlighted() {},
+  };
 
   this.selection = null;
   this.input = document.getElementById('t');
@@ -95,16 +94,14 @@ export function TermView(rowCount) {
   this.titleTimer = null;
   this.notif = null;
 
-  var mainDiv = document.createElement('div');
-  mainDiv.setAttribute('class', 'main');
-  var defaultRows = '';
-  for (var i = 0; i < rowCount; ++i) {
-    defaultRows += '<span type="bbsrow" srow="'+i+'"></span>';
-    this.displayingRows.push(null);
-  }
-  mainDiv.innerHTML = '<div id="mainContainer">' + defaultRows + '</div>';
-  this.BBSWin.appendChild(mainDiv);
-  this.mainDisplay = mainDiv;
+  Object.defineProperty(this, 'mainContainer', {
+    get: function() { return $('#mainContainer')[0] },
+  });
+
+  var mainDisplay = document.createElement('div');
+  mainDisplay.setAttribute('class', 'main');
+  this.BBSWin.appendChild(mainDisplay);
+  this.mainDisplay = mainDisplay;
 
   var lastRowDiv = document.createElement('div');
   lastRowDiv.setAttribute('id', 'easyReadingLastRow');
@@ -120,7 +117,6 @@ export function TermView(rowCount) {
   this.replyRowDiv = replyRowDiv;
   this.BBSWin.appendChild(replyRowDiv);
 
-  this.mainContainer = document.getElementById('mainContainer');
   this.mainDisplay.style.border = '0px';
   this.setFontFace('MingLiu,monospace');
 
@@ -290,13 +286,6 @@ TermView.prototype = {
     this.redraw(false);
   },
 
-  prePicRel: function(str) {
-    if(str.search(/\.(bmp|gif|jpe?g|png)$/i) == -1)
-      return ' type="w"';
-    else
-      return ' type="p"';
-  },
-
   redraw: function(force) {
 
     //var start = new Date().getTime();
@@ -332,7 +321,6 @@ TermView.prototype = {
         lineChangeds[row] = false;
       }
     }
-
     if (changedLineHtmlStrs.length > 0) {
       if (this.useEasyReadingMode) {
         if (this.buf.startedEasyReading && this.buf.easyReadingShowReplyText) {
@@ -343,26 +331,16 @@ TermView.prototype = {
           this.populateEasyReadingPage();
         }
       } else {
-        while (this.mainContainer.childNodes.length > rows)
-          this.mainContainer.removeChild(this.mainContainer.lastChild);
-        for (var i = 0; i < changedRows.length; ++i) {
-          var row = changedRows[i];
-          var component = renderRowHtml(
-            changedLineHtmlStrs[i], row, this.chh, false,
-            this.mainContainer.childNodes[row]);
-          component.setHighlight(
-            this.buf.highlightCursor && this.buf.currentHighlighted == row);
-          this.displayingRows[row] = component;
-        }
+        this.componentScreen = renderScreen(
+          /* For Screen#componentWillReceiveProps */lines.slice(),
+          this.chh,
+          /* showsLinkPreview */false,
+          this.enablePicPreview,
+          this.mainDisplay
+        )
+        this.componentScreen.setCurrentHighlighted(this.buf.highlightCursor && this.buf.currentHighlighted)
       }
       this.buf.prevPageState = this.buf.pageState;
-
-      if (this.enablePicPreview) {
-        // hide preview if any update
-        renderImagePreview(document.getElementById('imagePreviewContainer'),
-          null);
-        this.setupPicPreviewOnHover();
-      }
     }
     //var time = new Date().getTime() - start;
     //console.log(time);
@@ -373,14 +351,7 @@ TermView.prototype = {
     if (this.currentHighlighted == row || this.currentHighlighted === null && row < 0)
       return;
     console.log('highlight: ' + row);
-    if (this.currentHighlighted)
-      this.displayingRows[this.currentHighlighted].setHighlight(false);
-    if (row >= 0) {
-      this.displayingRows[row].setHighlight(true);
-      this.currentHighlighted = row;
-    } else {
-      this.currentHighlighted = null;
-    }
+    this.componentScreen.setCurrentHighlighted(row)
   },
 
   onInput: function(e) {
@@ -781,37 +752,6 @@ TermView.prototype = {
     };
   },
 
-  setupPicPreviewOnHover: function() {
-    var self = this;
-    var aNodes = $([
-      ".main a[href^='http://ppt.cc/']",
-      ".main a[type='p']",
-      ".main a[href^='http://imgur.com/']",
-      ".main a[href^='https://imgur.com/']",
-      ".main a[href^='http://i.imgur.com/']",
-      ".main a[href^='https://i.imgur.com/']",
-      ".main a[href^='https://flic.kr/p/']",
-      ".main a[href^='https://www.flickr.com/photos/']"
-    ].join(",")).not([
-      "a[href^='http://imgur.com/a/']",
-      "a[href^='https://imgur.com/a/']",
-      "a[href^='http://imgur.com/gallery/']",
-      "a[href^='https://imgur.com/gallery/']"
-    ].join(","));
-    var cont = document.getElementById('imagePreviewContainer');
-    var onover = function(e) {
-      renderImagePreview(cont, this.getAttribute('href'));
-    };
-    var onout = function(e) {
-      renderImagePreview(cont, null);
-    };
-    for (var i = 0; i < aNodes.length; ++i) {
-      var aNode = aNodes[i];
-      aNode.addEventListener('mouseover', onover);
-      aNode.addEventListener('mouseout', onout);
-    }
-  },
-
   showWaterballNotification: function() {
     if (!this.enableNotifications) {
       return;
@@ -913,7 +853,6 @@ TermView.prototype = {
 
   clearRows: function() {
     this.mainContainer.innerHTML = '';
-    this.displayingRows = [];
   },
 
   appendRows: function(lines, showsLinkPreview) {
@@ -923,10 +862,9 @@ TermView.prototype = {
       el.setAttribute('type', 'bbsrow');
       el.setAttribute('srow', this.mainContainer.childNodes.length);
       this.mainContainer.appendChild(el);
-      var component = renderRowHtml(
+      renderRowHtml(
         line, this.mainContainer.childNodes.length, this.chh,
         showsLinkPreview, el);
-      this.displayingRows.push(component);
     }
   },
 

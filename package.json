@@ -2,11 +2,14 @@
   "name": "pttchrome",
   "version": "1.2.0",
   "dependencies": {
+    "base58": "^1.0.1",
     "classnames": "^2.2.5"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
     "cross-env": "^5.1.0",
@@ -39,9 +42,11 @@
               "modules": false
             }
           ],
-          [
-            "react"
-          ]
+          ["react"]
+        ],
+        "plugins": [
+          "transform-class-properties",
+          "transform-object-rest-spread"
         ]
       },
       "production": {
@@ -52,9 +57,11 @@
               "modules": false
             }
           ],
-          [
-            "react"
-          ]
+          ["react"]
+        ],
+        "plugins": [
+          "transform-class-properties",
+          "transform-object-rest-spread"
         ]
       }
     }

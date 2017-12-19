@@ -1,4 +1,5 @@
-import Row from '../components/Row';
+import Row from "../components/Row";
+import Screen from "../components/Screen";
 
 export class ColorState {
   constructor(fg, bg, blink) {
@@ -15,8 +16,27 @@ export class ColorState {
   }
 }
 
-export function renderRowHtml(chars, row, forceWidth, showsLinkPreviews, cont) {
+/**
+ * @deprecated
+ */
+export function renderRowHtml(chars, row, forceWidth, enableLinkInlinePreview, cont) {
   return ReactDOM.render(
-    <Row chars={chars} row={row} forceWidth={forceWidth}
-      showsLinkPreviews={showsLinkPreviews} />, cont);
+    <Row
+      chars={chars}
+      row={row}
+      forceWidth={forceWidth}
+      enableLinkInlinePreview={enableLinkInlinePreview}
+    />,
+    cont
+  );
+}
+
+export function renderScreen(lines, forceWidth, enableLinkInlinePreview, enableLinkHoverPreview, cont) {
+  return ReactDOM.render(
+    <Screen
+      lines={lines}
+      forceWidth={forceWidth}
+      enableLinkInlinePreview={enableLinkInlinePreview}
+      enableLinkHoverPreview={enableLinkHoverPreview}
+    />, cont);
 }

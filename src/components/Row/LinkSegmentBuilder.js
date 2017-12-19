@@ -1,16 +1,25 @@
 import cx from "classnames";
-import { HyperLinkPreview } from "../../js/image_preview";
 import HyperLink from "./HyperLink";
 import ColorSegmentBuilder from "./ColorSegmentBuilder";
+import ImagePreviewer, { of, resolveSrcToImageUrl } from "../ImagePreviewer";
 
 export class LinkSegmentBuilder {
-  constructor(row, showsLinkPreviews, forceWidth, highlighted) {
+  constructor(
+    row,
+    enableLinkInlinePreview,
+    forceWidth,
+    highlighted,
+    onHyperLinkMouseOver,
+    onHyperLinkMouseOut
+  ) {
     this.row = row;
     this.forceWidth = forceWidth;
     this.highlighted = highlighted;
+    this.onHyperLinkMouseOver = onHyperLinkMouseOver;
+    this.onHyperLinkMouseOut = onHyperLinkMouseOut;
     //
     this.segs = [];
-    this.linkPreviews = showsLinkPreviews ? [] : false;
+    this.inlineLinkPreviews = enableLinkInlinePreview ? [] : false;
     //
     this.colorSegBuilder = null;
     this.col = null;
@@ -27,12 +36,18 @@ export class LinkSegmentBuilder {
           inner={element}
           data-scol={this.col}
           data-srow={this.row}
+          onMouseOver={this.onHyperLinkMouseOver}
+          onMouseOut={this.onHyperLinkMouseOut}
         />
       );
       // TODO: Modularize this.
-      if (this.linkPreviews) {
-        this.linkPreviews.push(
-          <HyperLinkPreview key={this.col} src={this.href} />
+      if (this.inlineLinkPreviews) {
+        this.inlineLinkPreviews.push(
+          <ImagePreviewer
+            key={`${this.col}-${this.href}`}
+            request={of(this.href).then(resolveSrcToImageUrl)}
+            component={ImagePreviewer.Inline}
+          />
         );
       }
     } else {
@@ -61,14 +76,13 @@ export class LinkSegmentBuilder {
     return (
       <div>
         <span
-          key="line"
           className={cx({ b2: this.highlighted })}
           data-type="bbsline"
           data-row={this.row}
         >
           {this.segs}
         </span>
-        <div key="previews">{this.linkPreviews}</div>
+        <div>{this.inlineLinkPreviews}</div>
       </div>
     );
   }

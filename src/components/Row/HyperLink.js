@@ -1,5 +1,14 @@
-export const HyperLink = ({ col, row, href, inner }) => (
+export const HyperLink = ({
+  col,
+  row,
+  href,
+  inner,
+  onMouseOver,
+  onMouseOut
+}) => (
   <a
+    onMouseOver={onMouseOver}
+    onMouseOut={onMouseOut}
     scol={col} // FIXME: data-?
     srow={row} // FIXME: data-?
     className="y"
