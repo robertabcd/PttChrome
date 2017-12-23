@@ -1,0 +1,17 @@
+.LiveHelperModal__Body {
+  display: flex;
+  line-height: 34px;
+  color: black;
+}
+
+.LiveHelperModal__Body__Text {
+  margin: 0 5px;
+}
+
+.LiveHelperModal__Body__Input {
+  width: 10%;
+}
+
+.LiveHelperModal__Body__Close {
+  margin-left: auto;
+}
