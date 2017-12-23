@@ -183,13 +183,6 @@ export function TermView(rowCount) {
       return; // Shift Ctrl Alt (19)
     if (self.bbscore.modalShown || self.bbscore.contextMenuShown)
       return;
-    if (document.getElementById('connectionAlert').style.display != 'none') {
-      if (e.keyCode == 13)
-        document.getElementById('connectionAlertReconnect').click();
-      if (e.keyCode == 27)
-        document.getElementById('connectionAlertExitAll').click();
-      return;
-    }
     self.onKeyDown(e);
   }, false);
 
@@ -200,10 +193,6 @@ export function TermView(rowCount) {
       return; // Shift Ctrl Alt (19)
     if (self.bbscore.modalShown || self.bbscore.contextMenuShown)
       return;
-    if (document.getElementById('connectionAlert').style.display != 'none' && 
-      (e.keyCode == 13 || e.keyCode == 27)) {
-      return;
-    }
     // set input area focus whenever key down even if there is selection
     self.bbscore.setInputAreaFocus();
   }, false);

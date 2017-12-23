@@ -12,9 +12,6 @@
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-    <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
-
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
@@ -36,7 +33,6 @@
       <li id="cmenu_divider2" class="divider contextQuickSearch"></li>
       <li id="cmenu_selectAll" class="cmenuItem contextNormal"><a></a></li>
       <li id="cmenu_mouseBrowsing" class="cmenuItem contextNormal"><a></a></li>
-      <li id="cmenu_goToOtherSite" class="cmenuItem contextNormal"><a></a></li>
       <li id="cmenu_showInputHelper" class="cmenuItem contextNormal"><a></a></li>
       <li id="cmenu_showLiveArticleHelper" class="cmenuItem contextNormal"><a></a></li>
       <li id="cmenu_divider3" class="divider contextNormal"></li>
@@ -53,16 +49,6 @@
       </select>
     </div>
     <div id="flashcontent" style="width:1px; height:1px; left:-10000px; top:-10000px;position: absolute;overflow: hidden;"></div>
-
-    <div id="siteModal" class="modal fade" style="color:black;overflow-y:auto">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-body">
-            <input type="text" class="form-control" ></input>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!--Preferences Modal-->
     <div id="prefModal" class="modal fade" style="color:black;overflow-y:auto;z-index:2;">
@@ -151,28 +137,8 @@
         </div>
       </div>
     </div>
-    <div id="developerModeAlert" class="alert alert-danger alert-dismissable fade in">
-      <h4 id="developerModeAlertHeader"></h4>
-      <p id="developerModeAlertText"></p>
-      <p>
-        <button id="developerModeAlertDismiss" type="button" class="btn btn-danger"></button>
-      </p>
-    </div>
-    <div id="connectionAlert" class="alert alert-danger alert-dismissable fade in">
-      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-      <h4 id="connectionAlertHeader"></h4>
-      <p id="connectionAlertText"></p>
-      <p>
-        <button id="connectionAlertReconnect" type="button" class="btn btn-danger"></button>
-      </p>
-    </div>
-    <div id="pasteShortcutAlert" class="alert alert-info alert-dismissible fade in" role="alert">
-      <h4 id="pasteShortcutHeader"></h4>
-      <p id="pasteShortcutText"></p>
-      <p>
-        <button id="pasteShortcutClose" type="button" class="btn btn-primary"></button>
-      </p>
-    </div>
+    <div id="reactAlert"></div>
+    
     <div id="liveHelper" class="modal-dialog">
       <div class="modal-content">
         <div class="modal-body nomouse_command" style="height:60px;">

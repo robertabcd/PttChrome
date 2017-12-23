@@ -56,9 +56,6 @@
   "cmenu_mouseBrowsing": {
     "message": "滑鼠瀏覽"
   },
-  "cmenu_goToOtherSite": {
-    "message": "去其他站台 ..."
-  },
   "cmenu_showInputHelper": {
     "message": "輸入小幫手 ..."
   },
@@ -232,10 +229,6 @@
   // notifications
   "notification_said": {
     "message": "說:"
-  },
-
-  "input_sitePlaceholder": {
-    "message": "在此輸入站台地址後按 ENTER"
   },
 
   // input helper

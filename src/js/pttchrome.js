@@ -1,4 +1,6 @@
 ﻿// Main Program
+import BaseModal from 'react-overlays/lib/Modal';
+import { Fade, Modal } from "react-bootstrap";
 import { AnsiParser } from './ansi_parser';
 import { TermView } from './term_view';
 import { TermBuf } from './term_buf';
@@ -11,6 +13,8 @@ import { TouchController } from './touch_controller';
 import { i18n } from './i18n';
 import { unescapeStr, b2u, parseWaterball } from './string_util';
 import { getQueryVariable, setTimer } from './util';
+import PasteShortcutAlert from '../components/PasteShortcutAlert';
+import ConnectionAlert from '../components/ConnectionAlert';
 
 export const App = function(onInitializedCallback, options) {
 
@@ -188,35 +192,33 @@ export const App = function(onInitializedCallback, options) {
   this.pushthreadAutoUpdateCount = 0;
   this.maxPushthreadAutoUpdateCount = -1;
   this.onWindowResize();
-  this.setupDeveloperModeAlert();
-  this.setupConnectionAlert();
-  this.setupPasteShortcutAlert();
   this.setupLiveHelper();
-  this.setupOtherSiteInput();
   this.setupContextMenus();
   this.contextMenuShown = false;
 
   this.pref = new PttChromePref(this, onInitializedCallback);
 
-  (new Promise(function(resolve, reject) {
-    if (process.env.DEVELOPER_MODE) {
-      $('#developerModeAlertDismiss').click(function(e) {
-        $('#developerModeAlert').hide();
-        resolve();
-      });
-      $('#developerModeAlert').show();
-    } else {
-      resolve();
-    }
-  })).then(function() {
+  (process.env.DEVELOPER_MODE ? import('../components/DeveloperModeAlert')
+    .then(({DeveloperModeAlert}) => new Promise((resolve, reject) => {
+      const container = document.getElementById('reactAlert')
+      const onDismiss = () => {
+        ReactDOM.unmountComponentAtNode(container)
+        resolve()
+      }
+      ReactDOM.render(
+        <DeveloperModeAlert onDismiss={onDismiss} />,
+        container
+      )
+    })) : Promise.resolve()
+  ).then(() => {
     // connect.
-    self.connect(getQueryVariable('site') || process.env.DEFAULT_SITE);
+    this.connect(getQueryVariable('site') || process.env.DEFAULT_SITE);
 
     // TODO: Call onSymFont for font data when it's implemented.
 
     console.log("load pref from storage");
     // call getStorage to trigger load setting
-    self.pref.getStorage();
+    this.pref.getStorage();
   });
 
   // init touch only if chrome is higher than version 36
@@ -292,7 +294,6 @@ App.prototype._attachConn = function(conn) {
 App.prototype.onConnect = function() {
   this.conn.isConnected = true;
   this.view.setConn(this.conn);
-  $('#connectionAlert').hide();
   console.info("pttchrome onConnect");
   this.connectState = 1;
   this.updateTabIcon('connect');
@@ -339,7 +340,15 @@ App.prototype.onClose = function() {
   this.connectState = 2;
   this.idleTime = 0;
 
-  $('#connectionAlert').show();
+  const onDismiss = () => {
+    ReactDOM.unmountComponentAtNode(container);
+    this.connect(this.connectedUrl.url);
+  }
+  const container = document.getElementById('reactAlert');
+  ReactDOM.render(
+    <ConnectionAlert onDismiss={onDismiss} />,
+    container
+  );
   this.updateTabIcon('disconnect');
 };
 
@@ -463,59 +472,6 @@ App.prototype.switchToEasyReadingMode = function(doSwitch) {
   this.view.conn.send(unescapeStr('^L'));
 };
 
-App.prototype.setupDeveloperModeAlert = function() {
-  $('#developerModeAlertReconnect').empty();
-  $('#developerModeAlertHeader').text(i18n('alert_developerModeHeader'));
-  $('#developerModeAlertText').text(i18n('alert_developerModeText'));
-  $('#developerModeAlertDismiss').text(i18n('alert_developerModeDismiss'));
-};
-
-App.prototype.setupConnectionAlert = function() {
-  $('#connectionAlertReconnect').empty();
-  $('#connectionAlertHeader').text(i18n('alert_connectionHeader'));
-  $('#connectionAlertText').text(i18n('alert_connectionText'));
-  $('#connectionAlertReconnect').text(i18n('alert_connectionReconnect'));
-
-  var self = this;
-  $('#connectionAlertReconnect').click(function(e) {
-    self.connect(self.connectedUrl.url);
-    $('#connectionAlert').hide();
-  });
-};
-
-App.prototype.setupPasteShortcutAlert = function(){
-  $('#pasteShortcutHeader').text(i18n('alert_pasteShortcutHeader'));
-  $('#pasteShortcutText').text(i18n('alert_pasteShortcutText'));
-  $('#pasteShortcutClose').text(i18n('alert_pasteShortcutClose'));
-  $('#pasteShortcutClose').click(function(e) {
-    $('#pasteShortcutAlert').modal('hide');
-    self.modalShown = false;
-  });
-};
-
-App.prototype.setupOtherSiteInput = function() {
-  var self = this;
-  $('#siteModal input').attr('placeholder', i18n('input_sitePlaceholder'));
-  $('#siteModal input').keyup(function(e) {
-    if (e.keyCode == 13) {
-      var url = $(this).val();
-      self.connect(url);
-      $('#siteModal').modal('hide');
-    }
-  });
-  $('#siteModal').on('shown.bs.modal', function(e) {
-    $('#connectionAlert').hide();
-    self.modalShown = true;
-    $('#siteModal input').val('');
-    $('#siteModal input').focus();
-  });
-  $('#siteModal').on('hidden.bs.modal', function(e) {
-    $('#connectionAlert').hide();
-    self.modalShown = false;
-  });
-
-};
-
 App.prototype.doCopy = function(str) {
   if (str.indexOf('\x1b') < 0) {
     str = str.replace(/\r\n/g, '\r');
@@ -569,8 +525,26 @@ App.prototype.onDOMCopy = function(e) {
 
 App.prototype.doPaste = function() {
   console.log("doPaste not implemented");
-  $('#pasteShortcutAlert').modal('show');
-  self.modalShown = true;
+  const container = document.getElementById('reactAlert')
+  const onDismiss = () => {
+    ReactDOM.unmountComponentAtNode(container)
+    this.modalShown = false;
+  }
+  ReactDOM.render(
+    <BaseModal
+      show
+      onExited={onDismiss}
+      backdropClassName="modal-backdrop"
+      containerClassName="modal-open"
+      transition={Fade}
+      dialogTransitionTimeout={Modal.TRANSITION_DURATION}
+      backdropTransitionTimeout={Modal.BACKDROP_TRANSITION_DURATION}
+    >
+      <PasteShortcutAlert onDismiss={onDismiss} />
+    </BaseModal>,
+    container
+  )
+  this.modalShown = true;
 };
 
 App.prototype.onPasteDone = function(content) {
@@ -608,10 +582,6 @@ App.prototype.doOpenUrlNewTab = function(a) {
   var e = document.createEvent('MouseEvents');
   e.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, true, false, false, false, 0, null);
   a.dispatchEvent(e);
-};
-
-App.prototype.doGoToOtherSite = function() {
-  $('#siteModal').modal('show');
 };
 
 App.prototype.incrementCountToUpdatePushthread = function(interval) {
@@ -1598,9 +1568,6 @@ App.prototype.setupContextMenus = function() {
   $('#cmenu_openUrlNewTab a').text(i18n('cmenu_openUrlNewTab'));
   $('#cmenu_copyLinkUrl a').text(i18n('cmenu_copyLinkUrl'));
   $('#cmenu_mouseBrowsing a').text(i18n('cmenu_mouseBrowsing'));
-  $('#cmenu_goToOtherSite a').text(i18n('cmenu_goToOtherSite'));
-  if (!process.env.ENABLE_GOTO_OTHER_SITE)
-    $('#cmenu_goToOtherSite a').hide();
   $('#cmenu_showInputHelper a').text(i18n('cmenu_showInputHelper'));
   $('#cmenu_showLiveArticleHelper a').text(i18n('cmenu_showLiveArticleHelper'));
   $('#cmenu_settings a').text(i18n('cmenu_settings'));
@@ -1629,9 +1596,6 @@ App.prototype.setupContextMenus = function() {
     },
     'cmenu_mouseBrowsing': function() { 
       self.switchMouseBrowsing(); 
-    },
-    'cmenu_goToOtherSite': function() { 
-      self.doGoToOtherSite(); 
     },
     'cmenu_showInputHelper': function() { 
       self.inputHelper.showHelper(); 
