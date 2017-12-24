@@ -1,0 +1,71 @@
+#tooltip_antiIdleTime,
+#tooltip_fontFace {
+  color: black;
+}
+
+.PrefModal > .modal-dialog {
+  height: 90%;
+  -webkit-user-select: none;
+}
+
+.PrefModal .modal-content {
+  height: 100%;
+}
+
+.PrefModal .modal-body {
+  height: 100%;
+  padding: 0;
+}
+
+.PrefModal__Grid {
+  height: 100%;
+  display: flex;
+  color: black;
+}
+
+.PrefModal__Grid__Col--left {
+  height: 100%;
+  width: 160px;
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px;
+  box-shadow: -10px 0 180px -60px #949494 inset;
+}
+
+.PrefModal__Grid__Col--left__Reset {
+  margin-top: auto;
+  margin-bottom: 30px;
+}
+
+.PrefModal__Grid__Col--right {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.PrefModal__Grid__Col--right__Fieldset > :not(legend) {
+  padding-left: 20px;
+}
+
+.PrefModal__Grid__Col--right__Fieldset input[type="text"],
+.PrefModal__Grid__Col--right__Fieldset input[type="number"],
+.PrefModal__Grid__Col--right__Fieldset input[type="password"],
+.PrefModal__Grid__Col--right__Fieldset select {
+  width: 250px;
+}
+
+.PrefModal__Grid__Col--right__Fieldset select {
+  margin-top: 5px;
+}
+
+.PrefModal__Grid__Col--right__MouseBrowsingHighlightColor {
+  margin-left: 30px;
+}
+
+.PrefModal__Grid__Col--right__MouseBrowsingHighlightColor > select {
+  margin: 5px 0 10px;
+  width: 70px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
