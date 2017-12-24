@@ -7,7 +7,6 @@ import { TermBuf } from './term_buf';
 import { TelnetConnection } from './telnet';
 import { Websocket } from './websocket';
 import { EasyReading } from './easy_reading';
-import { PttChromePref } from './pref';
 import { TouchController } from './touch_controller';
 import { i18n } from './i18n';
 import { unescapeStr, b2u, parseWaterball } from './string_util';
@@ -16,10 +15,20 @@ import PasteShortcutAlert from '../components/PasteShortcutAlert';
 import ConnectionAlert from '../components/ConnectionAlert';
 import InputHelperModal from '../components/InputHelperModal';
 import LiveHelperModal from '../components/LiveHelperModal';
+import PrefModal from '../components/PrefModal';
 
 function noop() {}
 
-export const App = function(onInitializedCallback, options) {
+const QUICK_SEARCH = {
+  providers: [
+    {
+      name: 'goo.gl',
+      url: 'https://goo.gl/%s'
+    }
+  ]
+};
+
+export const App = function(options) {
 
   this.CmdHandler = document.getElementById('cmdHandler');
   this.CmdHandler.setAttribute('useMouseBrowsing', '1');
@@ -56,7 +65,6 @@ export const App = function(onInitializedCallback, options) {
   this.CmdHandler.setAttribute('hideSendPage','1');
   this.CmdHandler.setAttribute('hideViewInfo','1');
   this.CmdHandler.setAttribute('SkipMouseClick','0');
-  this.pref = null;
 
   this.view = new TermView(24);
   this.buf = new TermBuf(80, 24);
@@ -195,31 +203,6 @@ export const App = function(onInitializedCallback, options) {
   this.onWindowResize();
   this.setupContextMenus();
   this.contextMenuShown = false;
-
-  this.pref = new PttChromePref(this, onInitializedCallback);
-
-  (process.env.DEVELOPER_MODE ? import('../components/DeveloperModeAlert')
-    .then(({DeveloperModeAlert}) => new Promise((resolve, reject) => {
-      const container = document.getElementById('reactAlert')
-      const onDismiss = () => {
-        ReactDOM.unmountComponentAtNode(container)
-        resolve()
-      }
-      ReactDOM.render(
-        <DeveloperModeAlert onDismiss={onDismiss} />,
-        container
-      )
-    })) : Promise.resolve()
-  ).then(() => {
-    // connect.
-    this.connect(getQueryVariable('site') || process.env.DEFAULT_SITE);
-
-    // TODO: Call onSymFont for font data when it's implemented.
-
-    console.log("load pref from storage");
-    // call getStorage to trigger load setting
-    this.pref.getStorage();
-  });
 
   // init touch only if chrome is higher than version 36
   if (this.chromeVersion && this.chromeVersion >= 37) {
@@ -550,24 +533,9 @@ App.prototype.setAutoPushthreadUpdate = function(seconds) {
   this.maxPushthreadAutoUpdateCount = seconds;
 };
 
-App.prototype.doSettings = function() {
-  $('#prefModal').modal('show');
-};
-
 App.prototype.onWindowResize = function() {
   this.view.innerBounds = this.getWindowInnerBounds();
   this.view.fontResize();
-
-  if (this.modalShown) {
-    var width = document.documentElement.clientWidth * 0.7;
-    width = (width > 730) ? width : 730;
-    width -= 190;
-    var height = document.documentElement.clientHeight * 0.9;
-    height = (height > 400) ? height: 400;
-    height -= 76;
-    $('#prefModal .modal-body').css('height', height + 'px');
-    $('#prefModal .modal-body').css('width', width + 'px');
-  }
 };
 
 App.prototype.switchMouseBrowsing = function() {
@@ -949,11 +917,17 @@ App.prototype.resetMouseCursor = function(cX, cY) {
   this.buf.mouseCursor = 11;
 };
 
-App.prototype.onPrefChange = function(pref, name) {
+App.prototype.onValuesPrefChange = function(values) {
+  for (var name in values) {
+    this.onPrefChange(name, values[name]);
+  }
+};
+
+App.prototype.onPrefChange = function(name, value) {
   try {
     switch (name) {
     case 'useMouseBrowsing':
-      var useMouseBrowsing = pref.get(name);
+      var useMouseBrowsing = value;
       this.CmdHandler.setAttribute('useMouseBrowsing', useMouseBrowsing?'1':'0');
       this.buf.useMouseBrowsing = useMouseBrowsing;
 
@@ -970,64 +944,64 @@ App.prototype.onPrefChange = function(pref, name) {
       this.view.updateCursorPos();
       break;
     case 'mouseBrowsingHighlight':
-      this.buf.highlightCursor = pref.get(name);
+      this.buf.highlightCursor = value;
       this.view.redraw(true);
       this.view.updateCursorPos();
       break;
     case 'mouseBrowsingHighlightColor':
-      this.view.highlightBG = pref.get(name);
+      this.view.highlightBG = value;
       this.view.redraw(true);
       this.view.updateCursorPos();
       break;
     case 'mouseLeftFunction':
-      this.view.leftButtonFunction = pref.get(name);
+      this.view.leftButtonFunction = value;
       if (typeof(this.view.leftButtonFunction) == 'boolean') {
         this.view.leftButtonFunction = this.view.leftButtonFunction ? 1:0;
       }
       break;
     case 'mouseMiddleFunction':
-      this.view.middleButtonFunction = pref.get(name);
+      this.view.middleButtonFunction = value;
       break;
     case 'mouseWheelFunction1':
-      this.view.mouseWheelFunction1 = pref.get(name);
+      this.view.mouseWheelFunction1 = value;
       break;
     case 'mouseWheelFunction2':
-      this.view.mouseWheelFunction2 = pref.get(name);
+      this.view.mouseWheelFunction2 = value;
       break;
     case 'mouseWheelFunction3':
-      this.view.mouseWheelFunction3 = pref.get(name);
+      this.view.mouseWheelFunction3 = value;
       break;
     case 'copyOnSelect':
-      this.copyOnSelect = pref.get(name);
+      this.copyOnSelect = value;
       break;
     case 'endTurnsOnLiveUpdate':
-      this.endTurnsOnLiveUpdate = pref.get(name);
+      this.endTurnsOnLiveUpdate = value;
       break;
     case 'enablePicPreview':
       // TODO: move this to ImagePreview.
-      this.view.enablePicPreview = pref.get(name);
+      this.view.enablePicPreview = value;
       break;
     case 'enableNotifications':
-      this.view.enableNotifications = pref.get(name);
+      this.view.enableNotifications = value;
       break;
     case 'enableEasyReading':
       /*if (this.connectedUrl.site == 'ptt.cc') {
-        this.view.useEasyReadingMode = this.pref.get('enableEasyReading');
+        this.view.useEasyReadingMode = value;
       } else {
         this.view.useEasyReadingMode = false;
       }*/
       break;
     case 'antiIdleTime':
-      this.antiIdleTime = pref.get(name) * 1000;
+      this.antiIdleTime = value * 1000;
       break;
     case 'dbcsDetect':
-      this.view.dbcsDetect = pref.get(name);
+      this.view.dbcsDetect = value;
       break;
     case 'lineWrap':
-      this.conn.lineWrap = pref.get(name);
+      this.conn.lineWrap = value;
       break;
     case 'fontFitWindowWidth':
-      this.view.fontFitWindowWidth = pref.get(name);
+      this.view.fontFitWindowWidth = value;
       if (this.view.fontFitWindowWidth) {
         $('.main').addClass('trans-fix');
       } else {
@@ -1036,13 +1010,13 @@ App.prototype.onPrefChange = function(pref, name) {
       this.onWindowResize();
       break;
     case 'fontFace':
-      var fontFace = pref.get(name);
+      var fontFace = value;
       if (!fontFace) 
         fontFace='monospace';
       this.view.setFontFace(fontFace);
       break;
     case 'bbsMargin':
-      var margin = pref.get(name);
+      var margin = value;
       this.view.bbsViewMargin = margin;
       this.onWindowResize();
       break;
@@ -1298,12 +1272,12 @@ App.prototype.mouse_scroll = function(e) {
 
 App.prototype.showQuickSearchMenus = function(e, selectedText, hideContextMenu) {
   var self = this;
-  if (this.pref.quickSearches.length === 0) return;
+  if (QUICK_SEARCH.providers.length === 0) return;
 
   var menuSelector = '#quickSearchMenus';
   var menuHtml = '';
-  for (var i = 0; i < this.pref.quickSearches.length; ++i) {
-    var q = this.pref.quickSearches[i];
+  for (var i = 0; i < QUICK_SEARCH.providers.length; ++i) {
+    var q = QUICK_SEARCH.providers[i];
     menuHtml += '<li class="cmenuItem"><a data-url="'+q.url+'">'+q.name+'</a></li>';
   }
   $(menuSelector).html(menuHtml);
@@ -1394,7 +1368,7 @@ App.prototype.setupContextMenus = function() {
           clipedText = clipedText.substr(0, 15) + ' ... ';
         }
         $('#cmenuSearchContent').text("'"+clipedText+"'");
-        if (self.pref.quickSearches.length > 0) {
+        if (QUICK_SEARCH.providers.length > 0) {
           self.showQuickSearchMenus(e, selectedText, function() {
             hideContextMenu();
           });
@@ -1629,8 +1603,30 @@ App.prototype.setupContextMenus = function() {
         })
       };
     },
-    'cmenu_settings': function() { 
-      self.doSettings(); 
+    'cmenu_settings': () => { 
+      const onSave = (values) => {
+        ReactDOM.unmountComponentAtNode(document.getElementById('reactAlert'))
+        this.onValuesPrefChange(values);
+        this.modalShown = false;
+        this.setInputAreaFocus();
+        this.switchToEasyReadingMode(this.view.useEasyReadingMode);
+      };
+      const onReset = (values) => {
+        this.view.redraw(true);
+        onSave(values)
+      }
+      const renderPrefModal = () => {
+        this.onDisableLiveHelperModalState();
+        this.modalShown = true;
+        ReactDOM.render(
+          <PrefModal
+            onSave={onSave}
+            onReset={onReset}
+          />,
+          document.getElementById('reactAlert')
+        );
+      };
+      renderPrefModal();
     }
   };
 

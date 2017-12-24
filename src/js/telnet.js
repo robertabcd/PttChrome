@@ -142,7 +142,7 @@ TelnetConnection.prototype._onDataAvailable = function(e) {
           switch (this.iac_sb[0]) {
           case TERM_TYPE: 
             // FIXME: support other terminal types
-            //var termType = this.app.prefs.TermType;
+            //var termType = this.app.__prefs__.TermType;
             var rep = IAC + SB + TERM_TYPE + IS + this.termType + IAC + SE;
             this._sendRaw( rep );
             break;
