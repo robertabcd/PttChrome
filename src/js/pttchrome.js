@@ -304,7 +304,6 @@ App.prototype.onConnect = function() {
     self.view.onBlink();
     self.incrementCountToUpdatePushthread();
   }, 1000);
-  this.view.resetCursorBlink();
 };
 
 App.prototype.onData = function(data) {
@@ -329,9 +328,6 @@ App.prototype.onClose = function() {
   console.info("pttchrome onClose");
   if (this.timerEverySec) {
     this.timerEverySec.cancel();
-  }
-  if (this.view.cursorBlinkTimer) {
-    this.view.cursorBlinkTimer.cancel();
   }
   this.conn.isConnected = false;
 

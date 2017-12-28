@@ -37,7 +37,6 @@ export function TermView(rowCount) {
   //new pref - end
 
   this.bbsViewMargin = 0;
-  this.cursorShow = true;
 
   this.buf = null;
   this.bbscore = null;
@@ -63,7 +62,6 @@ export function TermView(rowCount) {
 
   //this.DBDetection = false;
   this.blinkOn = false;
-  this.cursorBlinkTimer = null;
 
   // React
   this.componentScreen = {
@@ -212,28 +210,6 @@ TermView.prototype = {
     //   else this.update();
   },
 
-  onCursorBlink: function() {
-    this.cursorShow=!this.cursorShow;
-    if (this.cursorShow)
-      this.bbsCursor.style.display = 'block';
-    else
-      this.bbsCursor.style.display = 'none';
-  },
-
-  resetCursorBlink: function() {
-    if (!this._isConnected())
-      return;
-    var self = this;
-    this.cursorShow = true;
-    this.bbsCursor.style.display = 'block';
-    if (this.cursorBlinkTimer) {
-      this.cursorBlinkTimer.cancel();
-    }
-    this.cursorBlinkTimer = setTimer(true, function() {
-      self.onCursorBlink();
-    }, 1000);
-  },
-
   setBuf: function(buf) {
     this.buf=buf;
   },
@@ -364,7 +340,6 @@ TermView.prototype = {
   },
 
   onTextInput: function(text, isPasting) {
-    this.resetCursorBlink();
     if (isPasting) {
       text = text.replace(/\r\n/g, '\r');
       text = text.replace(/\n/g, '\r');
@@ -381,8 +356,6 @@ TermView.prototype = {
   },
 
   onKeyDown: function(e) {
-    this.resetCursorBlink();
-
     if (this.useEasyReadingMode && this.buf.startedEasyReading && 
         !this.buf.easyReadingShowReplyText && !this.buf.easyReadingShowPushInitText) {
       this.easyReadingKeyDownKeyCode = e.keyCode;
