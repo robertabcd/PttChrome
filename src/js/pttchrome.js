@@ -7,7 +7,6 @@ import { TermBuf } from './term_buf';
 import { TelnetConnection } from './telnet';
 import { Websocket } from './websocket';
 import { EasyReading } from './easy_reading';
-import { InputHelper } from './input_helper';
 import { PttChromePref } from './pref';
 import { TouchController } from './touch_controller';
 import { i18n } from './i18n';
@@ -15,6 +14,7 @@ import { unescapeStr, b2u, parseWaterball } from './string_util';
 import { getQueryVariable, setTimer } from './util';
 import PasteShortcutAlert from '../components/PasteShortcutAlert';
 import ConnectionAlert from '../components/ConnectionAlert';
+import InputHelperModal from '../components/InputHelperModal';
 
 export const App = function(onInitializedCallback, options) {
 
@@ -88,8 +88,6 @@ export const App = function(onInitializedCallback, options) {
 
   this.inputAreaFocusTimer = null;
   this.modalShown = false;
-
-  this.inputHelper = new InputHelper(this);
 
   this.lastSelection = null;
 
@@ -304,7 +302,6 @@ App.prototype.onConnect = function() {
     self.view.onBlink();
     self.incrementCountToUpdatePushthread();
   }, 1000);
-  this.view.resetCursorBlink();
 };
 
 App.prototype.onData = function(data) {
@@ -329,9 +326,6 @@ App.prototype.onClose = function() {
   console.info("pttchrome onClose");
   if (this.timerEverySec) {
     this.timerEverySec.cancel();
-  }
-  if (this.view.cursorBlinkTimer) {
-    this.view.cursorBlinkTimer.cancel();
   }
   this.conn.isConnected = false;
 
@@ -733,10 +727,6 @@ App.prototype.onMouse_click = function (e) {
   var cX = e.clientX, cY = e.clientY;
   if (!this.conn || !this.conn.isConnected)
     return;
-  if (this.inputHelper.clickedOn) {
-    this.inputHelper.clickedOn = false;
-    return;
-  }
 
   // disable auto update pushthread if any command is issued;
   this.disableLiveHelper();
@@ -1266,11 +1256,6 @@ App.prototype.mouse_up = function(e) {
 };
 
 App.prototype.mouse_move = function(e) {
-  if (this.inputHelper.mouseDown) {
-    this.inputHelper.onMouseDrag(e);
-    return;
-  }
-
   if (this.buf.useMouseBrowsing) {
     if (window.getSelection().isCollapsed) {
       if(!this.mouseLeftButtonDown)
@@ -1597,8 +1582,51 @@ App.prototype.setupContextMenus = function() {
     'cmenu_mouseBrowsing': function() { 
       self.switchMouseBrowsing(); 
     },
-    'cmenu_showInputHelper': function() { 
-      self.inputHelper.showHelper(); 
+    'cmenu_showInputHelper': () => {
+      const onReset = () => this.conn.send('\x15[m');
+      const onCmdSend = cmd => {
+        if (!window.getSelection().isCollapsed && this.buf.pageState == 6) {
+          // something selected
+          var sel = this.view.getSelectionColRow();
+          var y = this.buf.cur_y;
+          var selCmd = '';
+          // move cursor to end and send reset code
+          selCmd += '\x1b[H';
+          if (y > sel.end.row) {
+            selCmd += '\x1b[A'.repeat(y - sel.end.row);
+          } else if (y < sel.end.row) {
+            selCmd += '\x1b[B'.repeat(sel.end.row - y);
+          }
+          var repeats = this.buf.getRowText(sel.end.row, 0, sel.end.col).length;
+          selCmd += '\x1b[C'.repeat(repeats) + '\x15[m';
+      
+          // move cursor to start and send color code
+          y = sel.end.row;
+          selCmd += '\x1b[H';
+          if (y > sel.start.row) {
+            selCmd += '\x1b[A'.repeat(y - sel.start.row);
+          } else if (y < sel.start.row) {
+            selCmd += '\x1b[B'.repeat(sel.start.row - y);
+          }
+          repeats = this.buf.getRowText(sel.start.row, 0, sel.start.col).length;
+          selCmd += '\x1b[C'.repeat(repeats);
+          cmd = selCmd + cmd;
+        }
+        this.conn.send(cmd);
+      }
+      const onConvSend = value => this.conn.convSend(value);
+      const onHide = () => {
+        ReactDOM.unmountComponentAtNode(document.getElementById('reactAlert'))
+      }
+      ReactDOM.render(
+        <InputHelperModal
+          onHide={onHide}
+          onReset={onReset}
+          onCmdSend={onCmdSend}
+          onConvSend={onConvSend}
+        />,
+        document.getElementById('reactAlert')
+      );
     },
     'cmenu_showLiveArticleHelper': function() { 
       $('#liveHelper').show(); 

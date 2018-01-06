@@ -7,106 +7,11 @@
   src: url('../fonts/DFHeiLightB5.woff');
 }
 
-#colorHelperInstruction {
-  font-size: 12px;
-}
-#colorHelperList {
-  list-style-type: none;
-  width: 296px;
-  height: 74px;
-  padding: 0px;
-  background-color: black;
-}
-#colorHelperList li {
-  display: block;
-  float: left;
-  width: 37px;
-  height: 37px;
-}
-#colorHelperList li:hover {
-  -webkit-transform: scale(1.2, 1.2);
-  box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.4);
-}
-#colorHelperPreview {
-  font-family: MingLiU, MingLiUNoGlyph, monospace;
-  font-size: 22px;
-  line-height: 22px;
-}
-#colorHelperBlink {
-  width: 60px;
-  float: left;
-  margin-top: 7px;
-  margin-bottom: 7px;
-}
-
-#inputHelperTabTitle .dropdown-toggle,
-#inputHelperTabTitle .dropdown-menu a {
-  cursor: pointer;
-}
-.symList,
-.emoList {
-  list-style-type: none;
-  padding: 0 4px;
-  margin-top: 5px;
-}
-.symList > li {
-  font-family: MingLiU, MingLiUNoGlyph, monospace;
-  width: 100%;
-  border: 1px solid #ccc;
-  font-size: 30px;
-  line-height: 30px;
-  padding: 2px;
-  background-color: white;
-  margin-bottom: -1px;
-  height: 37px;
-  cursor: pointer;
-  display: block;
-  float: left;
-  width: 37px;
-  margin-right: -1px;
-}
-.symList > li:hover {
-  -webkit-transform: scale(1.4, 1.4);
-  border: 2px solid black;
-}
-
-.emoList > li {
-  font-family: MingLiU, MingLiUNoGlyph, monospace;
-  width: 100%;
-  border: 1px solid #ccc;
-  font-size: 21px;
-  line-height: 21px;
-  padding: 2px;
-  background-color: white;
-  margin-bottom: -1px;
-  height: 28px;
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.emoList > li:hover {
-  -webkit-transform: scale(1.1, 1.1);
-  border: 2px solid black;
-}
-
 .tab-pane {
   margin-top: 20px;
   margin-bottom: 0px;
 }
 
-#inputHelper {
-  position: absolute;
-  color: black;
-  width: 340px;
-  top: 20px;
-  left: 20px;
-  margin: 0px;
-  z-index: 100;
-  display: none;
-  -webkit-user-select: none;
-  cursor: default;
-}
 
 #liveHelper {
   position: absolute;
@@ -149,31 +54,31 @@
   left: 0px;
 }
 
-.dropdown-menu {
+#contextMenus {
   -webkit-user-select: none;
 }
 
-.dropdown-menu .checked:before {
+#contextMenus .checked:before {
   content:"\e013";
   font-family: 'Glyphicons Halflings';
   position: absolute;
   left: 10px;
 }
 
-.dropdown-menu li > a {
+#contextMenus li > a {
   padding: 3px 20px 3px 30px;
   cursor: default;
   -webkit-user-select: none;
 }
 
-.dropdown-menu li > a:hover,
-.dropdown-menu li > a:focus {
+#contextMenus li > a:hover,
+#contextMenus li > a:focus {
   color: white;
   background-color: #428bca;
 }
 
-.dropdown-menu li > a:hover span,
-.dropdown-menu li > a:focus span {
+#contextMenus li > a:hover span,
+#contextMenus li > a:focus span {
   color: white;
 }
 
@@ -363,6 +268,14 @@
   -webkit-user-select: none;
 }
 
+#cursor {
+  display: none;
+}
+
+.blink--active #cursor {
+  display: block;
+}
+
 .main, #easyReadingLastRow, #easyReadingReplyRow {
   font-family: MingLiu, monospace;
   font-size: 26px;
@@ -374,7 +287,7 @@
   margin-bottom:0px;
   -webkit-user-select: text;
   background-color: black;
-  //box-shadow: 0 0 60px 50px black;
+  /* box-shadow: 0 0 60px 50px black; */
 }
 
 .main *,
