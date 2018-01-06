@@ -53,10 +53,14 @@ export class LinkSegmentBuilder {
     } else {
       this.segs.push(element);
     }
+    this.colorSegBuilder = null;
   }
 
   readChar(ch, i) {
-    if (this.colorSegBuilder === null || ch.isStartOfURL()) {
+    if (this.colorSegBuilder !== null && ch.isStartOfURL()) {
+      this.saveSegment();
+    }
+    if (this.colorSegBuilder === null) {
       this.colorSegBuilder = new ColorSegmentBuilder(this.forceWidth);
       this.col = i;
       this.href = ch.isStartOfURL() ? ch.getFullURL() : null;
@@ -64,7 +68,6 @@ export class LinkSegmentBuilder {
     this.colorSegBuilder.readChar(ch);
     if (ch.isEndOfURL()) {
       this.saveSegment();
-      this.colorSegBuilder = null;
     }
   }
 
