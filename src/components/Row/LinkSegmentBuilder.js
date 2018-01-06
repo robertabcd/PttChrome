@@ -51,7 +51,7 @@ export class LinkSegmentBuilder {
         );
       }
     } else {
-      this.segs.push(element);
+      this.segs.push(<span key={this.col}>{element}</span>);
     }
     this.colorSegBuilder = null;
   }
