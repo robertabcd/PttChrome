@@ -15,6 +15,9 @@ import { getQueryVariable, setTimer } from './util';
 import PasteShortcutAlert from '../components/PasteShortcutAlert';
 import ConnectionAlert from '../components/ConnectionAlert';
 import InputHelperModal from '../components/InputHelperModal';
+import LiveHelperModal from '../components/LiveHelperModal';
+
+function noop() {}
 
 export const App = function(onInitializedCallback, options) {
 
@@ -190,7 +193,6 @@ export const App = function(onInitializedCallback, options) {
   this.pushthreadAutoUpdateCount = 0;
   this.maxPushthreadAutoUpdateCount = -1;
   this.onWindowResize();
-  this.setupLiveHelper();
   this.setupContextMenus();
   this.contextMenuShown = false;
 
@@ -396,61 +398,13 @@ App.prototype.setInputAreaFocus = function() {
   this.inputArea.focus();
 };
 
-App.prototype.setupLiveHelper = function() {
-  $('#liveHelperEnable').text(i18n('liveHelperEnable'));
-  $('#liveHelperSpan').text(i18n('liveHelperSpan'));
-  $('#liveHelperSpanSec').text(i18n('liveHelperSpanSec'));
-
-  var self = this;
-  $('#liveHelperEnable').click(function(e) {
-    self.onLiveHelperEnableClicked(true);
-  });
-  $('#liveHelperEnable').tooltip({title:'Alt + r'});
-
-  $('#liveHelperSec').change(function(e) {
-    var sec = $(this).val();
-    if (sec < 1) {
-      sec = 1;
-      $(this).val(sec);
-    }
-    var enableThis = $('#liveHelperEnable').hasClass('active');
-    if (enableThis) {
-      self.setAutoPushthreadUpdate(sec);
-    }
-  });
-
-  $('#liveHelperClose').click(function(e) {
-    $('#liveHelper').hide();
-  });
-};
-
-App.prototype.onLiveHelperEnableClicked = function(fromUi) {
-  var enableThis = !$('#liveHelperEnable').hasClass('active');
-  if (enableThis) {
-    // cancel easy reading mode first
-    this.view.useEasyReadingMode = false;
-    this.switchToEasyReadingMode();
-    var sec = $('#liveHelperSec').val();
-    this.setAutoPushthreadUpdate(sec);
-    if (!fromUi) {
-      $('#liveHelperEnable').addClass('active');
-    }
-  } else {
-    this.disableLiveHelper(fromUi);
-  }
-};
-
-App.prototype.disableLiveHelper = function(fromUi) {
-  this.setAutoPushthreadUpdate(-1);
-  if (!fromUi) {
-    $('#liveHelperEnable').removeClass('active');
-  }
-};
+App.prototype.onToggleLiveHelperModalState = noop;
+App.prototype.onDisableLiveHelperModalState = noop;
 
 App.prototype.switchToEasyReadingMode = function(doSwitch) {
   this.easyReading.leaveCurrentPost();
   if (doSwitch) {
-    this.disableLiveHelper();
+    this.onDisableLiveHelperModalState();
     // clear the deep cloned copy of lines
     this.buf.pageLines = [];
     if (this.buf.pageState == 3) this.view.conn.send('\x1b[D\x1b[C'); //this.view.conn.send('qr');
@@ -729,7 +683,7 @@ App.prototype.onMouse_click = function (e) {
     return;
 
   // disable auto update pushthread if any command is issued;
-  this.disableLiveHelper();
+  this.onDisableLiveHelperModalState();
 
   // TODO make a responder stack.
   this.easyReading._onMouseClick(e);
@@ -1628,8 +1582,52 @@ App.prototype.setupContextMenus = function() {
         document.getElementById('reactAlert')
       );
     },
-    'cmenu_showLiveArticleHelper': function() { 
-      $('#liveHelper').show(); 
+    'cmenu_showLiveArticleHelper': () => {
+      let state = {
+        enabled: false,
+        sec: 1,
+      };
+      const onHide = () => {
+        this.onToggleLiveHelperModalState = noop;
+        this.onDisableLiveHelperModalState = noop;
+        ReactDOM.unmountComponentAtNode(document.getElementById('reactAlert'))
+      };
+      const onChange = nextState => {
+        state = nextState;
+        renderLiveHelperModal();
+        if (state.enabled) {
+          // cancel easy reading mode first
+          this.view.useEasyReadingMode = false;
+          this.switchToEasyReadingMode();
+          this.setAutoPushthreadUpdate(state.sec);
+        } else {
+          this.setAutoPushthreadUpdate(-1);
+        }
+      };
+      const renderLiveHelperModal = () => {
+        ReactDOM.render(
+          <LiveHelperModal
+            onHide={onHide}
+            {...state}
+            onChange={onChange}
+          />,
+          document.getElementById('reactAlert')
+        );
+      };
+      renderLiveHelperModal();
+      //
+      this.onToggleLiveHelperModalState = () => {
+        onChange({
+          enabled: !state.enabled,
+          sec: state.sec,
+        })
+      };
+      this.onDisableLiveHelperModalState = () => {
+        onChange({
+          enabled: false,
+          sec: state.sec,
+        })
+      };
     },
     'cmenu_settings': function() { 
       self.doSettings(); 

@@ -173,7 +173,7 @@ export function TermView(rowCount) {
       return;
 
     // disable auto update pushthread if any command is issued;
-    if (!e.altKey) self.bbscore.disableLiveHelper();
+    if (!e.altKey) self.bbscore.onDisableLiveHelperModalState();
 
     if(e.keyCode > 15 && e.keyCode < 19)
       return; // Shift Ctrl Alt (19)
@@ -371,7 +371,7 @@ TermView.prototype = {
         case 'End': //End
           if ((this.bbscore.buf.pageState == 2 || this.bbscore.buf.pageState == 3) &&
             this.bbscore.endTurnsOnLiveUpdate) {
-            this.bbscore.onLiveHelperEnableClicked(false);
+            this.bbscore.onToggleLiveHelperModalState();
             stop = true;
           }
           break;

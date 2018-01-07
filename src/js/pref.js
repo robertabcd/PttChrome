@@ -158,7 +158,7 @@ PttChromePref.prototype = {
       $('#prefModal .modal-body').css('width', width + 'px');
     });
     $('#prefModal').on('shown.bs.modal', function(e) {
-      self.app.disableLiveHelper();
+      self.app.onDisableLiveHelperModalState();
       self.app.modalShown = true;
     });
     $('#prefModal').on('hidden.bs.modal', function(e) {
