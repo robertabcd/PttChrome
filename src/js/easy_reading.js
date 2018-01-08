@@ -4,6 +4,7 @@ import {
   parseReqNotMetText,
   parseStatusRow
 } from './string_util';
+import { readValuesWithDefault } from '../components/PrefModal';
 
 export function EasyReading(core, view, termBuf) {
   this._core = core;
@@ -34,15 +35,16 @@ export function EasyReading(core, view, termBuf) {
 
 EasyReading.prototype._onChanged = function(e) {
   console.log("page state: " + this._termBuf.prevPageState + "->" + this._termBuf.pageState);
+  const values = readValuesWithDefault()
   // make sure to come back to easy reading mode
   if (this._termBuf.prevPageState == 2 &&
       this._termBuf.pageState == 3 &&
       !this._enabled && 
-      this._core.pref.values.enableEasyReading &&
+      values.enableEasyReading &&
       this._core.connectedUrl.easyReadingSupported)
   {
     this._enabled = true;
-  } else if (!this._core.pref.values.enableEasyReading) {
+  } else if (!values.enableEasyReading) {
     this._enabled = false;
   }
 
