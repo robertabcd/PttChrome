@@ -22,37 +22,6 @@ export const App = function(options) {
   this.CmdHandler = document.getElementById('cmdHandler');
   this.CmdHandler.setAttribute('useMouseBrowsing', '1');
   this.CmdHandler.setAttribute('doDOMMouseScroll','0');
-  //this.CmdHandler.setAttribute('useMouseUpDown', '0');
-  //this.CmdHandler.setAttribute('useMouseSwitchPage', '0');
-  //this.CmdHandler.setAttribute("useMouseReadThread", '0');
-  this.CmdHandler.setAttribute('useTextDragAndDrop', '0');
-  this.CmdHandler.setAttribute('webContextMenu', '1');
-  this.CmdHandler.setAttribute('SavePageMenu', '1');
-  this.CmdHandler.setAttribute('EmbeddedPlayerMenu', '1');
-  this.CmdHandler.setAttribute('PreviewPictureMenu', '0');
-  this.CmdHandler.setAttribute('PushThreadMenu', '0');
-  this.CmdHandler.setAttribute('OpenAllLinkMenu', '0');
-  this.CmdHandler.setAttribute("MouseBrowseMenu", '0');
-  this.CmdHandler.setAttribute('FileIoMenu', '0');
-  this.CmdHandler.setAttribute('ScreenKeyboardMenu', '1');
-  this.CmdHandler.setAttribute('ScreenKeyboardOpened', '0');
-  this.CmdHandler.setAttribute('DragingWindow', '0');
-  this.CmdHandler.setAttribute('MaxZIndex', 11);
-  this.CmdHandler.setAttribute('allowDrag','0');
-  this.CmdHandler.setAttribute('haveLink','0');
-  //this.CmdHandler.setAttribute('onLink','0');
-  //this.CmdHandler.setAttribute('onPicLink','0');
-  this.CmdHandler.setAttribute('draging','0');
-  this.CmdHandler.setAttribute('textSelected','0');
-  this.CmdHandler.setAttribute('dragType','');
-  this.CmdHandler.setAttribute('LastPicAddr', '0');
-  this.CmdHandler.setAttribute('isMouseRightBtnDrag','0');
-
-  this.CmdHandler.setAttribute('hideBookMarkLink','1');
-  this.CmdHandler.setAttribute('hideSendLink','1');
-  this.CmdHandler.setAttribute('hideBookMarkPage','1');
-  this.CmdHandler.setAttribute('hideSendPage','1');
-  this.CmdHandler.setAttribute('hideViewInfo','1');
   this.CmdHandler.setAttribute('SkipMouseClick','0');
 
   this.view = new TermView(24);
@@ -102,9 +71,6 @@ export const App = function(options) {
   }
 
   var self = this;
-  this.CmdHandler.addEventListener("OverlayCommand", function(e) {
-    self.overlayCommandListener(e);
-  }, false);
 
   window.addEventListener('click', function(e) {
     self.mouse_click(e);
@@ -319,11 +285,6 @@ App.prototype.onClose = function() {
 App.prototype.sendData = function(str) {
   if (this.connectState == 1)
     this.conn.convSend(str);
-};
-
-App.prototype.sendCmdData = function(str) {
-  if (this.connectState == 1)
-    this.conn.send(str);
 };
 
 App.prototype.cancelMbTimer = function() {
@@ -718,180 +679,6 @@ App.prototype.onMouse_click = function (e) {
   }
 };
 
-App.prototype.overlayCommandListener = function (e) {
-  var elm = e.target;
-  var cmd = elm.getAttribute("pttChromeCommand");
-  if (elm) {
-    if (elm.id == 'cmdHandler') {
-      switch (cmd) {
-        case "doArrowUp":
-          if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-            if (this.view.mainDisplay.scrollTop === 0) {
-              this.easyReading.leaveCurrentPost();
-              this.conn.send('\x1b[D\x1b[A\x1b[C');
-            } else {
-              this.view.mainDisplay.scrollTop -= this.view.chh;
-            }
-          } else {
-            this.conn.send('\x1b[A');
-          }
-          break;
-        case "doArrowDown":
-          if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-            if (this.view.mainDisplay.scrollTop >= this.view.mainContainer.clientHeight - this.view.chh * this.buf.rows) {
-              this.easyReading.leaveCurrentPost();
-              this.conn.send('\x1b[B');
-            } else {
-              this.view.mainDisplay.scrollTop += this.view.chh;
-            }
-          } else {
-            this.conn.send('\x1b[B');
-          }
-          break;
-        case "doPageUp":
-          if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-            this.view.mainDisplay.scrollTop -= this.view.chh * this.easyReading._turnPageLines;
-          } else {
-            this.conn.send('\x1b[5~');
-          }
-          break;
-        case "doPageDown":
-          if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-            this.view.mainDisplay.scrollTop += this.view.chh * this.easyReading._turnPageLines;
-          } else {
-            this.conn.send('\x1b[6~');
-          }
-          break;
-        case "previousThread":
-          if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-            this.easyReading.leaveCurrentPost();
-            this.conn.send('[');
-          } else if (this.buf.pageState==2 || this.buf.pageState==3 || this.buf.pageState==4) {
-            this.conn.send('[');
-          }
-          break;
-        case "nextThread":
-          if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-            this.easyReading.leaveCurrentPost();
-            this.conn.send(']');
-          } else if (this.buf.pageState==2 || this.buf.pageState==3 || this.buf.pageState==4) {
-            this.conn.send(']');
-          }
-          break;
-        case "doEnter":
-          if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-            if (this.view.mainDisplay.scrollTop >= this.view.mainContainer.clientHeight - this.view.chh * this.buf.rows) {
-              this.easyReading.leaveCurrentPost();
-              this.conn.send('\r');
-            } else {
-              this.view.mainDisplay.scrollTop += this.view.chh;
-            }
-          } else {
-            this.conn.send('\r');
-          }
-          break;
-        case "doRight":
-          if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
-            if (this.view.mainDisplay.scrollTop >= this.view.mainContainer.clientHeight - this.view.chh * this.buf.rows) {
-              this.easyReading.leaveCurrentPost();
-              this.conn.send('\x1b[C');
-            } else {
-              this.view.mainDisplay.scrollTop += this.view.chh * this.easyReading._turnPageLines;
-            }
-          } else {
-            this.conn.send('\x1b[C');
-          }
-          break;
-        case "reloadTabIconDelay":
-          this.doReloadTabIcon(100);
-          break;
-        case "reloadTabIcon":
-          //alert('reloadTabIcon');
-          this.reloadTabIcon();
-          break;
-        case "doAddTrack":
-          this.doAddTrack();
-          break;
-        case "doDelTrack":
-          this.doDelTrack();
-          break;
-        case "doClearTrack":
-          this.doClearTrack();
-          break;
-        case "openSymbolInput":
-          if (this.symbolinput) {
-            this.symbolinput.setCore(this);
-            this.symbolinput.displayWindow();
-          }
-          break;
-        case "doSavePage":
-          this.doSavePage();
-          break;
-        case "doCopyHtml":
-          this.doCopyHtml();
-          break;
-        case "doSelectAll":
-          this.doSelectAll();
-          break;
-        case "doCopy":
-          this.doCopySelect();
-          break;
-        case "doPaste":
-          this.doPaste();
-          break;
-        case "doOpenAllLink":
-          this.doOpenAllLink();
-          break;
-        //case "doLoadUserSetting":
-        //  this.doLoadUserSetting();
-        //  break;
-        case "switchMouseBrowsing":
-          this.switchMouseBrowsing();
-          break;
-        case "openYoutubeWindow":
-          var param = elm.getAttribute("YoutubeURL");
-          elm.removeAttribute("YoutubeURL");
-          if (this.playerMgr)
-            this.playerMgr.openYoutubeWindow(param);
-          break;
-        case "openUstreamWindow":
-          var param = elm.getAttribute("UstreamURL");
-          elm.removeAttribute("UstreamURL");
-          if (this.playerMgr)
-            this.playerMgr.openUstreamWindow(param);
-          break;
-        case "openUrecordWindow":
-          var param = elm.getAttribute("UrecordURL");
-          elm.removeAttribute("UrecordURL");
-          if (this.playerMgr)
-            this.playerMgr.openUrecordWindow(param);
-          break;
-        case "previewPicture":
-          var param = elm.getAttribute("PictureURL");
-          elm.removeAttribute("PictureURL");
-          if (this.picViewerMgr)
-            this.picViewerMgr.openPicture(param);
-          break;
-        case "checkPrefExist":
-          this.doSiteSettingCheck(250);
-          break;
-        case "pushThread":
-          this.doPushThread();
-          break;
-        case "setAlert":
-          var param = elm.getAttribute("AlertMessage");
-          elm.removeAttribute("AlertMessage");
-          //this.view.showAlertMessage(document.title, param);
-          //alert(param);
-          break;
-        default:
-          break;
-      }
-    }
-    elm.removeAttribute("pttChromeCommand");
-  }
-};
-
 App.prototype.onMouse_move = function(cX, cY) {
   var pos = this.clientToPos(cX, cY);
   this.buf.onMouse_move(pos.col, pos.row, false);
@@ -1025,7 +812,6 @@ App.prototype.checkClass = function(cn) {
 App.prototype.mouse_click = function(e) {
   if (this.modalShown)
     return;
-
   var skipMouseClick = (this.CmdHandler.getAttribute('SkipMouseClick') == '1');
   this.CmdHandler.setAttribute('SkipMouseClick','0');
 
@@ -1056,11 +842,9 @@ App.prototype.mouse_click = function(e) {
         }
       } else if (this.view.leftButtonFunction) {
         if (this.view.leftButtonFunction == 1) {
-          this.setBBSCmd('doEnter', this.CmdHandler);
           e.preventDefault();
           this.setInputAreaFocus();
         } else if (this.view.leftButtonFunction == 2) {
-          this.setBBSCmd('doRight', this.CmdHandler);
           e.preventDefault();
           this.setInputAreaFocus();
         }
@@ -1126,11 +910,9 @@ App.prototype.mouse_up = function(e) {
   //0=left button, 1=middle button, 2=right button
   if (e.button === 0) {
     this.setMbTimer();
-    //this.CmdHandler.setAttribute('MouseLeftButtonDown', '0');
     this.mouseLeftButtonDown = false;
   } else if (e.button == 2) {
     this.mouseRightButtonDown = false;
-    //this.CmdHandler.setAttribute('MouseRightButtonDown', '0');
   }
 
   if (e.button === 0 || e.button == 2) { //left or right button
@@ -1198,56 +980,17 @@ App.prototype.mouse_scroll = function(e) {
     return;
   }
 
-  var cmdhandler = this.CmdHandler;
-
   // scroll = up/down
   // hold right mouse key + scroll = page up/down
   // hold left mouse key + scroll = thread prev/next
   var mouseWheelActionsUp = [ 'none', 'doArrowUp', 'doPageUp', 'previousThread' ];
   var mouseWheelActionsDown = [ 'none', 'doArrowDown', 'doPageDown', 'nextThread' ];
 
-  if (e.deltaY < 0 || e.wheelDelta > 0) { // scrolling up
-    if (this.mouseRightButtonDown) {
-      var action = mouseWheelActionsUp[this.view.mouseWheelFunction2];
-      if (action !== 'none') {
-        this.setBBSCmd(action, cmdhandler);
-      }
-    } else if (this.mouseLeftButtonDown) {
-      var action = mouseWheelActionsUp[this.view.mouseWheelFunction3];
-      if (action !== 'none') {
-        this.setBBSCmd(action, cmdhandler);
-        this.setBBSCmd('cancelHoldMouse', cmdhandler);
-      }
-    } else {
-      var action = mouseWheelActionsUp[this.view.mouseWheelFunction1];
-      if (action !== 'none') {
-        this.setBBSCmd(action, cmdhandler);
-      }
-    }
-  } else { // scrolling down
-    if (this.mouseRightButtonDown) {
-      var action = mouseWheelActionsDown[this.view.mouseWheelFunction2];
-      if (action !== 'none') {
-        this.setBBSCmd(action, cmdhandler);
-      }
-    } else if (this.mouseLeftButtonDown) {
-      var action = mouseWheelActionsDown[this.view.mouseWheelFunction3];
-      if (action !== 'none') {
-        this.setBBSCmd(action, cmdhandler);
-        this.setBBSCmd('cancelHoldMouse', cmdhandler);
-      }
-    } else {
-      var action = mouseWheelActionsDown[this.view.mouseWheelFunction1];
-      if (action !== 'none') {
-        this.setBBSCmd(action, cmdhandler);
-      }
-    }
-  }
-  e.stopPropagation();
+    e.stopPropagation();
   e.preventDefault();
 
   if (this.mouseRightButtonDown) //prevent context menu popup
-    cmdhandler.setAttribute('doDOMMouseScroll','1');
+    this.CmdHandler.setAttribute('doDOMMouseScroll','1');
   if (this.mouseLeftButtonDown) {
     if (this.buf.useMouseBrowsing) {
       cmdhandler.setAttribute('SkipMouseClick','1');
@@ -1262,18 +1005,4 @@ App.prototype.setupContextMenus = function() {
     />,
     document.getElementById('cmenuReact')
   );
-};
-
-App.prototype.setBBSCmd = function(cmd, cmdhandler) {
-  //var doc = gBrowser.contentDocument;
-  var doc = document;
-  if (!cmdhandler)
-    cmdhandler = this.getCmdHandler();
-
-  if (cmdhandler && "createEvent" in doc) {
-    cmdhandler.setAttribute('pttChromeCommand', cmd);
-    var evt = doc.createEvent("Events");
-    evt.initEvent("OverlayCommand", false, false);
-    cmdhandler.dispatchEvent(evt);
-  }
 };
