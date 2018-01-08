@@ -607,14 +607,6 @@ const enhance = compose(
       isBlink: false
     }),
     {
-      onHide: (state, { onHide }) => ({ target }) => {
-        // HACK: FIXME: I believe the React events is conflicting with
-        // jQuery global event handlers, we cannot add the onHide
-        // directly to the <Modal.Header /> element.
-        if (["BUTTON", "SPAN"].includes(target.nodeName)) {
-          onHide();
-        }
-      },
       onColorClick: () => ({ target: { dataset: { fg } } }) => ({
         fg: parseInt(fg, 10)
       }),
@@ -637,13 +629,13 @@ const enhance = compose(
         onConvSend(textContent)
     }
   ),
-  withHandlers(() => {
-    const onMouseDown = ({ currentTarget: { dataset }, clientX, clientY }) => {
+  withHandlers({
+    onMouseDown: () => ({ currentTarget: { dataset }, clientX, clientY }) => {
       dataset.dragActive = true;
       dataset.dragLastX = clientX;
       dataset.dragLastY = clientY;
-    };
-    const onMouseMove = ({
+    },
+    onMouseMove: () => ({
       currentTarget: { dataset, style },
       clientX,
       clientY
@@ -657,76 +649,37 @@ const enhance = compose(
         dataset.dragLastX = clientX;
         dataset.dragLastY = clientY;
       }
-    };
-    const onMouseUp = ({ currentTarget: { dataset } }) => {
+    },
+    onMouseUp: () => ({ currentTarget: { dataset } }) => {
       dataset.dragActive = false;
-    };
-    const cached = {};
-    return {
-      onModalDialogMount: () => ref => {
-        if (ref) {
-          ref = ReactDOM.findDOMNode(ref);
-          ref.addEventListener("mousedown", onMouseDown);
-          ref.addEventListener("mousemove", onMouseMove);
-          ref.addEventListener("mouseup", onMouseUp);
-        } else if (cached.modalDialog) {
-          cached.modalDialog.removeEventListener("mousedown", onMouseDown);
-          cached.modalDialog.removeEventListener("mousemove", onMouseMove);
-          cached.modalDialog.removeEventListener("mouseup", onMouseUp);
-        }
-        cached.modalDialog = ref;
-      },
-      onModalHeaderMount: ({ onHide }) => ref => {
-        /// HACK: FIXME: I believe the React events is conflicting with
-        // jQuery global event handlers, we cannot add the onHide
-        // directly to the <Modal.Header /> element.
-        // There might be a memory leak for removeEventListener.
-        if (ref) {
-          ref = ReactDOM.findDOMNode(ref);
-          ref.addEventListener("click", onHide);
-          cached.modalHeader = ref;
-        } else if (cached.modalHeader) {
-          cached.modalHeader.removeEventListener("click", onHide);
-        }
-        cached.modalHeader = ref;
-      },
-      onColorHelperListMount: ({ onColorClick, onColorContextMenu }) => ref => {
-        // HACK: FIXME: I believe the React events is conflicting with
-        // jQuery global event handlers, we cannot add the onColorClick
-        // directly to the <li /> element.
-        // There might be a memory leak for removeEventListener.
-        if (ref) {
-          ref.addEventListener("click", onColorClick);
-          ref.addEventListener("contextmenu", onColorContextMenu);
-        } else if (cached.colorHelperList) {
-          cached.colorHelperList.removeEventListener("click", onColorClick);
-          cached.colorHelperList.removeEventListener(
-            "contextmenu",
-            onColorContextMenu
-          );
-        }
-        cached.colorHelperList = ref;
-      }
-    };
+    }
   })
 );
 
 export const InputHelperModal = ({
   onReset,
+  onHide,
   // from recompose
-  onModalDialogMount,
-  onModalHeaderMount,
+  onMouseDown,
+  onMouseMove,
+  onMouseUp,
   fg,
   bg,
   isBlink,
-  onColorHelperListMount,
+  onColorClick,
+  onColorContextMenu,
   onBlinkChange,
   onSendClick,
   onSendSelect,
   onSymEmoClick
 }) => (
-  <Modal.Dialog className="InputHelperModal__Dialog" ref={onModalDialogMount}>
-    <Modal.Header closeButton ref={onModalHeaderMount}>
+  <Modal.Dialog
+    className="InputHelperModal__Dialog"
+    onMouseDown={onMouseDown}
+    onMouseMove={onMouseMove}
+    onMouseUp={onMouseUp}
+  >
+    <Modal.Header closeButton onHide={onHide}>
       <Modal.Title>{i18n("inputHelperTitle")}</Modal.Title>
     </Modal.Header>
     <Modal.Body>
@@ -756,26 +709,111 @@ export const InputHelperModal = ({
               <Tab.Pane eventKey="colors">
                 <Row>
                   <Col xs={12} sm={7}>
-                    <ul
-                      className="InputHelperModal__ColorList"
-                      ref={onColorHelperListMount}
-                    >
-                      <li className="b0" data-fg="0" data-bg="0" />
-                      <li className="b1" data-fg="1" data-bg="1" />
-                      <li className="b2" data-fg="2" data-bg="2" />
-                      <li className="b3" data-fg="3" data-bg="3" />
-                      <li className="b4" data-fg="4" data-bg="4" />
-                      <li className="b5" data-fg="5" data-bg="5" />
-                      <li className="b6" data-fg="6" data-bg="6" />
-                      <li className="b7" data-fg="7" data-bg="7" />
-                      <li className="b8" data-fg="8" />
-                      <li className="b9" data-fg="9" />
-                      <li className="b10" data-fg="10" />
-                      <li className="b11" data-fg="11" />
-                      <li className="b12" data-fg="12" />
-                      <li className="b13" data-fg="13" />
-                      <li className="b14" data-fg="14" />
-                      <li className="b15" data-fg="15" />
+                    <ul className="InputHelperModal__ColorList">
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b0"
+                        data-fg="0"
+                        data-bg="0"
+                      />
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b1"
+                        data-fg="1"
+                        data-bg="1"
+                      />
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b2"
+                        data-fg="2"
+                        data-bg="2"
+                      />
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b3"
+                        data-fg="3"
+                        data-bg="3"
+                      />
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b4"
+                        data-fg="4"
+                        data-bg="4"
+                      />
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b5"
+                        data-fg="5"
+                        data-bg="5"
+                      />
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b6"
+                        data-fg="6"
+                        data-bg="6"
+                      />
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b7"
+                        data-fg="7"
+                        data-bg="7"
+                      />
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b8"
+                        data-fg="8"
+                      />
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b9"
+                        data-fg="9"
+                      />
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b10"
+                        data-fg="10"
+                      />
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b11"
+                        data-fg="11"
+                      />
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b12"
+                        data-fg="12"
+                      />
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b13"
+                        data-fg="13"
+                      />
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b14"
+                        data-fg="14"
+                      />
+                      <li
+                        onClick={onColorClick}
+                        onContextMenu={onColorContextMenu}
+                        className="b15"
+                        data-fg="15"
+                      />
                     </ul>
                   </Col>
                   <Col xs={12} sm={5}>
