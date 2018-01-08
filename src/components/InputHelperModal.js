@@ -796,13 +796,16 @@ export const InputHelperModal = ({
                   />
                 </div>
                 <Row>
-                  <Col xs={8}>
+                  <Col xs={4}>
                     <Checkbox checked={isBlink} onChange={onBlinkChange}>
                       {i18n("colorHelperBlink")}
                     </Checkbox>
                   </Col>
-                  <Col xs={4}>
-                    <SplitButton title="Send" onClick={onSendClick}>
+                  <Col xs={8} className="InputHelperModal__SendButtonContainer">
+                    <SplitButton
+                      title={i18n("colorHelperSend")}
+                      onClick={onSendClick}
+                    >
                       <MenuItem eventKey="foreground" onSelect={onSendSelect}>
                         {i18n("colorHelperSendMenuFore")}
                       </MenuItem>
