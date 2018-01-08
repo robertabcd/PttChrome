@@ -2,7 +2,7 @@ import cx from "classnames";
 import React from "react";
 import { compose, withHandlers } from "recompose";
 import { Modal, OverlayTrigger, Tooltip, Button } from "react-bootstrap";
-import { i18n } from "../js/i18n";
+import { i18n } from "../../js/i18n";
 import "./LiveHelperModal.css";
 
 const normalizeSec = value => {
@@ -21,6 +21,7 @@ const enhance = compose(
 );
 
 export const LiveHelperModal = ({
+  show,
   onHide,
   enabled,
   sec,
@@ -28,7 +29,7 @@ export const LiveHelperModal = ({
   onEnabledClick,
   onSecChange
 }) => (
-  <Modal.Dialog>
+  <Modal show={show}>
     <Modal.Body className="LiveHelperModal__Body">
       <OverlayTrigger placement="top" overlay={<Tooltip>Alt + r</Tooltip>}>
         <Button active={enabled} onClick={onEnabledClick}>
@@ -55,7 +56,7 @@ export const LiveHelperModal = ({
         &times;
       </button>
     </Modal.Body>
-  </Modal.Dialog>
+  </Modal>
 );
 
 export default enhance(LiveHelperModal);
