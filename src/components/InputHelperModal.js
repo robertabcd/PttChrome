@@ -611,7 +611,7 @@ const enhance = compose(
         // HACK: FIXME: I believe the React events is conflicting with
         // jQuery global event handlers, we cannot add the onHide
         // directly to the <Modal.Header /> element.
-        if (target.nodeName === "SPAN") {
+        if (["BUTTON", "SPAN"].includes(target.nodeName)) {
           onHide();
         }
       },
