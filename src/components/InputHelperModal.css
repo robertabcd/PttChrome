@@ -1,5 +1,11 @@
 .InputHelperModal__Dialog {
   color: black;
+  right: auto;
+  bottom: auto;
+  overflow: visible;
+}
+.InputHelperModal__Dialog .modal-dialog {
+  margin: 0;
 }
 
 .InputHelperModal__ColorList {
