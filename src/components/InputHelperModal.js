@@ -638,15 +638,24 @@ const enhance = compose(
     }
   ),
   withHandlers(() => {
-    const onMouseDown = ({ currentTarget: { dataset } }) => {
+    const onMouseDown = ({ currentTarget: { dataset }, clientX, clientY }) => {
       dataset.dragActive = true;
+      dataset.dragLastX = clientX;
+      dataset.dragLastY = clientY;
     };
-    const onMouseMove = ({ currentTarget, movementY, movementX }) => {
-      if (currentTarget.dataset.dragActive === "true") {
-        currentTarget.style.cssText += `
-          top:${(parseInt(currentTarget.style.top, 10) || 0) + movementY}px;
-          left:${(parseInt(currentTarget.style.left, 10) || 0) + movementX}px; 
+    const onMouseMove = ({
+      currentTarget: { dataset, style },
+      clientX,
+      clientY
+    }) => {
+      if (dataset.dragActive === "true") {
+        window.getSelection().removeAllRanges();
+        style.cssText += `
+          top:${(parseFloat(style.top) || 0) + clientY - dataset.dragLastY}px;
+          left:${(parseFloat(style.left) || 0) + clientX - dataset.dragLastX}px;
         `;
+        dataset.dragLastX = clientX;
+        dataset.dragLastY = clientY;
       }
     };
     const onMouseUp = ({ currentTarget: { dataset } }) => {
