@@ -17,15 +17,6 @@ import ContextMenu from '../components/ContextMenu';
 
 function noop() {}
 
-const QUICK_SEARCH = {
-  providers: [
-    {
-      name: 'goo.gl',
-      url: 'https://goo.gl/%s'
-    }
-  ]
-};
-
 export const App = function(options) {
 
   this.CmdHandler = document.getElementById('cmdHandler');
@@ -151,10 +142,6 @@ export const App = function(options) {
       self.mouse_scroll(e);
     }, true);
   }
-
-  window.addEventListener('contextmenu', function(e) {
-    self.context_menu(e);
-  }, false);
 
   window.addEventListener('focus', function(e) {
     self.appFocused = true;
@@ -1275,17 +1262,6 @@ App.prototype.setupContextMenus = function() {
     />,
     document.getElementById('cmenuReact')
   );
-};
-
-App.prototype.context_menu = function(e) {
-  var cmdhandler = this.CmdHandler;
-  var doDOMMouseScroll = (cmdhandler.getAttribute('doDOMMouseScroll')=='1');
-  if (doDOMMouseScroll) {
-    e.stopPropagation();
-    e.preventDefault();
-    cmdhandler.setAttribute('doDOMMouseScroll','0');
-    return;
-  }
 };
 
 App.prototype.setBBSCmd = function(cmd, cmdhandler) {
