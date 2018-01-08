@@ -71,7 +71,6 @@ export function TermView(rowCount) {
   this.selection = null;
   this.input = document.getElementById('t');
   this.bbsCursor = document.getElementById('cursor');
-  this.trackKeyWordList = document.getElementById('TrackKeyWordList');
   this.BBSWin = document.getElementById('BBSWindow');
   this.enablePicPreview = true;
   this.scaleX = 1;
