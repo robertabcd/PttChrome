@@ -86,3 +86,8 @@
   -webkit-transform: scale(1.1, 1.1);
   border: 2px solid black;
 }
+
+.InputHelperModal__SendButtonContainer > div {
+  display: inline-block;
+  float: right;
+}
