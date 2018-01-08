@@ -4,7 +4,7 @@ import {
   parseReqNotMetText,
   parseStatusRow
 } from './string_util';
-import { readValuesWithDefault } from '../components/PrefModal';
+import { readValuesWithDefault } from '../components/ContextMenu/PrefModal';
 
 export function EasyReading(core, view, termBuf) {
   this._core = core;
