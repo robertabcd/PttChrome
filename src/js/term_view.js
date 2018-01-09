@@ -13,7 +13,6 @@ const DEFINE_INPUT_BUFFER_SIZE = 12;
 
 export function TermView(rowCount) {
   //new pref - start
-  this.screenType = 0;
   this.bbsWidth = 0;
   this.bbsHeight = 0;
   this.bbsFontSize = 14;
@@ -625,7 +624,7 @@ TermView.prototype = {
     var innerBounds = this.innerBounds;
     var fontWidth = this.bbsFontSize * 2;
 
-    if (this.screenType === 0 || this.screenType == 1) {
+    {
       var width = this.bbsWidth ? this.bbsWidth : innerBounds.width;
       var height = this.bbsHeight ? this.bbsHeight : innerBounds.height;
       if (width === 0 || height === 0) return; // errors for openning in a new window
@@ -646,8 +645,6 @@ TermView.prototype = {
       nowchw = i;
       this.setTermFontSize(nowchw, nowchh);
       fontWidth = nowchh;
-    } else {
-      this.setTermFontSize(this.bbsFontSize, this.bbsFontSize*2);
     }
     var forceWidthElems = document.querySelectorAll('.wpadding');
     for (var i = 0; i < forceWidthElems.length; ++i) {
