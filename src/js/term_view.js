@@ -301,7 +301,7 @@ TermView.prototype = {
           this.enablePicPreview,
           this.mainDisplay
         )
-        this.componentScreen.setCurrentHighlighted(this.buf.highlightCursor && this.buf.currentHighlighted)
+        this.setHighlightedRow(this.buf.currentHighlighted)
       }
       this.buf.prevPageState = this.buf.pageState;
     }
