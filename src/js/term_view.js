@@ -46,9 +46,6 @@ export function TermView(rowCount) {
   this.useEasyReadingMode = false;
   this.easyReadingKeyDownKeyCode = 0;
 
-  this.doHighlightOnCurRow = false;
-
-
   this.curRow = 0;
   this.curCol = 0;
 
