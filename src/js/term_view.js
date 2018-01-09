@@ -17,7 +17,6 @@ export function TermView(rowCount) {
   this.bbsHeight = 0;
   this.bbsFontSize = 14;
   this.dbcsDetect = true;
-  this.hideInputBuffer = false;
   this.highlightBG = 2;
   this.charset = 'big5';
   this.middleButtonFunction = 0;
@@ -543,7 +542,7 @@ TermView.prototype = {
   updateInputBufferPos: function() {
     if (this.input.getAttribute('bshow') == '1') {
       var pos = this.convertMN2XYEx(this.buf.cur_x, this.buf.cur_y);
-      if (!this.hideInputBuffer) {
+      {
         this.input.style.opacity = '1';
         this.input.style.border = 'double';
         {
@@ -552,13 +551,6 @@ TermView.prototype = {
           //this.input.style.lineHeight = this.chh+4 + 'px';
           this.input.style.height = this.chh + 'px';
         }
-      } else {
-        this.input.style.border = 'none';
-        this.input.style.width  = '0px';
-        this.input.style.height = '0px';
-        this.input.style.fontSize = this.chh + 'px';
-        this.input.style.opacity = '0';
-        //this.input.style.left = '-100000px';
       }
       var innerBounds = this.innerBounds;
       var bbswinheight = innerBounds.height;
