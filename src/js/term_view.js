@@ -7,6 +7,8 @@ import { i18n } from './i18n';
 import { setTimer } from './util';
 import { wrapText, u2b, parseStatusRow } from './string_util';
 
+const ENTER_CHAR = '\r';
+
 export function TermView(rowCount) {
   //new pref - start
   this.screenType = 0;
@@ -19,7 +21,6 @@ export function TermView(rowCount) {
   this.hideInputBuffer = false;
   this.highlightBG = 2;
   this.charset = 'big5';
-  this.EnterChar = '\r';
   this.EscChar = '\x15'; // Ctrl-U
   this.middleButtonFunction = 0;
   this.leftButtonFunction = false;
@@ -335,10 +336,10 @@ TermView.prototype = {
     if (isPasting) {
       text = text.replace(/\r\n/g, '\r');
       text = text.replace(/\n/g, '\r');
-      text = text.replace(/\r/g, this.EnterChar);
+      text = text.replace(/\r/g, ENTER_CHAR);
 
       if(text.indexOf('\x1b') < 0 && this.lineWrap > 0) {
-        text = wrapText(text, this.lineWrap, this.EnterChar);
+        text = wrapText(text, this.lineWrap, ENTER_CHAR);
       }
 
       //FIXME: stop user from pasting DBCS words with 2-color
