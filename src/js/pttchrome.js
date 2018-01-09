@@ -17,6 +17,8 @@ import ContextMenu from '../components/ContextMenu';
 
 function noop() {}
 
+const ANTI_IDLE_STR = '\x1b\x1b';
+
 export const App = function(options) {
 
   this.CmdHandler = document.getElementById('cmdHandler');
@@ -36,7 +38,6 @@ export const App = function(options) {
   this.easyReading = new EasyReading(this, this.view, this.buf);
 
   //new pref - start
-  this.antiIdleStr = '\x1b\x1b';
   this.antiIdleTime = 0;
   this.idleTime = 0;
   //new pref - end
@@ -509,8 +510,8 @@ App.prototype.switchMouseBrowsing = function() {
 
 App.prototype.antiIdle = function() {
   if (this.antiIdleTime && this.idleTime > this.antiIdleTime) {
-    if (this.antiIdleStr !== '' && this.connectState == 1) {
-      this.conn.send(this.antiIdleStr);
+    if (this.connectState == 1) {
+      this.conn.send(ANTI_IDLE_STR);
       this.idleTime = 0;
     }
   } else {
