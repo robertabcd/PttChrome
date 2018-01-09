@@ -8,6 +8,7 @@ import { setTimer } from './util';
 import { wrapText, u2b, parseStatusRow } from './string_util';
 
 const ENTER_CHAR = '\r';
+const ESC_CHAR = '\x15'; // Ctrl-U
 
 export function TermView(rowCount) {
   //new pref - start
@@ -21,7 +22,6 @@ export function TermView(rowCount) {
   this.hideInputBuffer = false;
   this.highlightBG = 2;
   this.charset = 'big5';
-  this.EscChar = '\x15'; // Ctrl-U
   this.middleButtonFunction = 0;
   this.leftButtonFunction = false;
   this.mouseWheelFunction1 = 1;
@@ -343,7 +343,7 @@ TermView.prototype = {
       }
 
       //FIXME: stop user from pasting DBCS words with 2-color
-      text = text.replace(/\x1b/g, this.EscChar);
+      text = text.replace(/\x1b/g, ESC_CHAR);
     }
     this._convSend(text);
   },
