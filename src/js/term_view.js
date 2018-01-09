@@ -9,6 +9,7 @@ import { wrapText, u2b, parseStatusRow } from './string_util';
 
 const ENTER_CHAR = '\r';
 const ESC_CHAR = '\x15'; // Ctrl-U
+const DEFINE_INPUT_BUFFER_SIZE = 12;
 
 export function TermView(rowCount) {
   //new pref - start
@@ -18,7 +19,6 @@ export function TermView(rowCount) {
   this.bbsFontSize = 14;
   this.dbcsDetect = true;
   this.inputBufferSizeType = 0;
-  this.defineInputBufferSize = 12;
   this.hideInputBuffer = false;
   this.highlightBG = 2;
   this.charset = 'big5';
@@ -554,10 +554,10 @@ TermView.prototype = {
           //this.input.style.lineHeight = this.chh+4 + 'px';
           this.input.style.height = this.chh + 'px';
         } else {
-          //this.input.style.width  = ((this.defineInputBufferSize*2)-4)*10 + 'px';
-          this.input.style.fontSize = ((this.defineInputBufferSize*2)-4) + 'px';
+          //this.input.style.width  = ((DEFINE_INPUT_BUFFER_SIZE*2)-4)*10 + 'px';
+          this.input.style.fontSize = ((DEFINE_INPUT_BUFFER_SIZE*2)-4) + 'px';
           //this.input.style.lineHeight = this.bbscore.inputBufferSize*2+4 + 'px';
-          this.input.style.height = this.defineInputBufferSize*2 + 'px';
+          this.input.style.height = DEFINE_INPUT_BUFFER_SIZE*2 + 'px';
         }
       } else {
         this.input.style.border = 'none';
