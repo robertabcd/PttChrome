@@ -27,7 +27,6 @@ export function TermView(rowCount) {
   this.mouseWheelFunction2 = 2;
   this.mouseWheelFunction3 = 3;
   //this.highlightFG = 7;
-  this.BackgroundMD5 = '';
   this.fontFitWindowWidth = false;
   this.verticalAlignCenter = true;
   this.horizontalAlignCenter = true;
