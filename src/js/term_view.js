@@ -13,7 +13,6 @@ export function TermView(rowCount) {
   this.bbsWidth = 0;
   this.bbsHeight = 0;
   this.bbsFontSize = 14;
-  this.useHyperLink = true;
   this.dbcsDetect = true;
   this.inputBufferSizeType = 0;
   this.defineInputBufferSize = 12;
