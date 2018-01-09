@@ -311,10 +311,10 @@ TermView.prototype = {
   },
 
   setHighlightedRow: function(row) {
-    if (this.currentHighlighted == row || this.currentHighlighted === null && row < 0)
-      return;
-    console.log('highlight: ' + row);
-    this.componentScreen.setCurrentHighlighted(row)
+    console.log(`setHighlightedRow: ${row}, this.buf.highlightCursor:${ this.buf.highlightCursor}`);
+    if (this.buf.highlightCursor) {
+      this.componentScreen.setCurrentHighlighted(row)
+    }
   },
 
   onInput: function(e) {
