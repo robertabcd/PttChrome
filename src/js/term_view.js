@@ -26,7 +26,6 @@ export function TermView(rowCount) {
   this.mouseWheelFunction3 = 3;
   //this.highlightFG = 7;
   this.fontFitWindowWidth = false;
-  this.horizontalAlignCenter = true;
   //new pref - end
 
   this.bbsViewMargin = 0;
@@ -434,7 +433,7 @@ TermView.prototype = {
       //this.mainDisplay.style.transform = 'scaleX('+this.scaleX+')'; // chrome not stable support yet!
       scaleCss = 'scale('+this.scaleX+','+this.scaleY+')';
       var transOrigin = 'left';
-      if(this.horizontalAlignCenter) {
+      {
         transOrigin = 'center';
       }
       this.mainDisplay.style.webkitTransformOriginX = transOrigin;
@@ -471,7 +470,7 @@ TermView.prototype = {
     var origin;
     var w = this.innerBounds.width;
     var h = this.innerBounds.height;
-    if(this.horizontalAlignCenter && (this.scaleX!=1 || this.scaleY!=1))
+    if(this.scaleX!=1 || this.scaleY!=1)
       origin = [((w - (this.chw*this.buf.cols+10)*this.scaleX)/2) + this.bbsViewMargin, ((h - (this.chh*this.buf.rows)*this.scaleY)/2) + this.bbsViewMargin];
     else
       origin = [this.firstGridOffset.left, this.firstGridOffset.top];

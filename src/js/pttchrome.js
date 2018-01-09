@@ -569,7 +569,7 @@ App.prototype.clientToPos = function(cX, cY) {
   var y;
   var w = this.view.innerBounds.width;
   var h = this.view.innerBounds.height;
-  if (this.view.horizontalAlignCenter && (this.view.scaleX != 1 || this.view.scaleY != 1)) {
+  if (this.view.scaleX != 1 || this.view.scaleY != 1) {
     x = cX - ((w - (this.view.chw * this.buf.cols) * this.view.scaleX) / 2);
     y = cY - ((h - (this.view.chh * this.buf.rows) * this.view.scaleY) / 2);
   } else {
