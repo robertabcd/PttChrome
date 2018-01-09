@@ -17,7 +17,6 @@ export function TermView(rowCount) {
   this.inputBufferSizeType = 0;
   this.defineInputBufferSize = 12;
   this.hideInputBuffer = false;
-  this.hotkeyForSelectAll = false;
   this.highlightBG = 2;
   this.charset = 'big5';
   this.EnterChar = '\r';
