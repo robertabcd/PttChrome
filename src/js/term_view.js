@@ -26,7 +26,6 @@ export function TermView(rowCount) {
   this.mouseWheelFunction3 = 3;
   //this.highlightFG = 7;
   this.fontFitWindowWidth = false;
-  this.verticalAlignCenter = true;
   this.horizontalAlignCenter = true;
   //new pref - end
 
@@ -418,7 +417,7 @@ TermView.prototype = {
 
     this.replyRowDiv.style.fontSize = fontSize;
     this.replyRowDiv.style.width = mainWidth;
-    if (this.verticalAlignCenter && this.chh*this.buf.rows < innerBounds.height)
+    if (this.chh*this.buf.rows < innerBounds.height)
       this.mainDisplay.style.marginTop = ((innerBounds.height-this.chh*this.buf.rows)/2) + this.bbsViewMargin + 'px';
     else
       this.mainDisplay.style.marginTop =  this.bbsViewMargin + 'px';
