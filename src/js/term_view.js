@@ -301,7 +301,7 @@ TermView.prototype = {
           this.enablePicPreview,
           this.mainDisplay
         )
-        this.componentScreen.setCurrentHighlighted(this.buf.highlightCursor && this.buf.currentHighlighted)
+        this.setHighlightedRow(this.buf.currentHighlighted)
       }
       this.buf.prevPageState = this.buf.pageState;
     }
@@ -311,10 +311,10 @@ TermView.prototype = {
   },
 
   setHighlightedRow: function(row) {
-    if (this.currentHighlighted == row || this.currentHighlighted === null && row < 0)
-      return;
-    console.log('highlight: ' + row);
-    this.componentScreen.setCurrentHighlighted(row)
+    console.log(`setHighlightedRow: ${row}, this.buf.highlightCursor:${ this.buf.highlightCursor}`);
+    if (this.buf.highlightCursor) {
+      this.componentScreen.setCurrentHighlighted(row)
+    }
   },
 
   onInput: function(e) {
