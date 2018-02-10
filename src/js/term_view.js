@@ -7,20 +7,18 @@ import { i18n } from './i18n';
 import { setTimer } from './util';
 import { wrapText, u2b, parseStatusRow } from './string_util';
 
+const ENTER_CHAR = '\r';
+const ESC_CHAR = '\x15'; // Ctrl-U
+const DEFINE_INPUT_BUFFER_SIZE = 12;
+
 export function TermView(rowCount) {
   //new pref - start
-  this.screenType = 0;
   this.bbsWidth = 0;
   this.bbsHeight = 0;
   this.bbsFontSize = 14;
   this.dbcsDetect = true;
-  this.inputBufferSizeType = 0;
-  this.defineInputBufferSize = 12;
-  this.hideInputBuffer = false;
   this.highlightBG = 2;
   this.charset = 'big5';
-  this.EnterChar = '\r';
-  this.EscChar = '\x15'; // Ctrl-U
   this.middleButtonFunction = 0;
   this.leftButtonFunction = false;
   this.mouseWheelFunction1 = 1;
@@ -28,8 +26,6 @@ export function TermView(rowCount) {
   this.mouseWheelFunction3 = 3;
   //this.highlightFG = 7;
   this.fontFitWindowWidth = false;
-  this.verticalAlignCenter = true;
-  this.horizontalAlignCenter = true;
   //new pref - end
 
   this.bbsViewMargin = 0;
@@ -335,14 +331,14 @@ TermView.prototype = {
     if (isPasting) {
       text = text.replace(/\r\n/g, '\r');
       text = text.replace(/\n/g, '\r');
-      text = text.replace(/\r/g, this.EnterChar);
+      text = text.replace(/\r/g, ENTER_CHAR);
 
       if(text.indexOf('\x1b') < 0 && this.lineWrap > 0) {
-        text = wrapText(text, this.lineWrap, this.EnterChar);
+        text = wrapText(text, this.lineWrap, ENTER_CHAR);
       }
 
       //FIXME: stop user from pasting DBCS words with 2-color
-      text = text.replace(/\x1b/g, this.EscChar);
+      text = text.replace(/\x1b/g, ESC_CHAR);
     }
     this._convSend(text);
   },
@@ -420,7 +416,7 @@ TermView.prototype = {
 
     this.replyRowDiv.style.fontSize = fontSize;
     this.replyRowDiv.style.width = mainWidth;
-    if (this.verticalAlignCenter && this.chh*this.buf.rows < innerBounds.height)
+    if (this.chh*this.buf.rows < innerBounds.height)
       this.mainDisplay.style.marginTop = ((innerBounds.height-this.chh*this.buf.rows)/2) + this.bbsViewMargin + 'px';
     else
       this.mainDisplay.style.marginTop =  this.bbsViewMargin + 'px';
@@ -437,7 +433,7 @@ TermView.prototype = {
       //this.mainDisplay.style.transform = 'scaleX('+this.scaleX+')'; // chrome not stable support yet!
       scaleCss = 'scale('+this.scaleX+','+this.scaleY+')';
       var transOrigin = 'left';
-      if(this.horizontalAlignCenter) {
+      {
         transOrigin = 'center';
       }
       this.mainDisplay.style.webkitTransformOriginX = transOrigin;
@@ -474,7 +470,7 @@ TermView.prototype = {
     var origin;
     var w = this.innerBounds.width;
     var h = this.innerBounds.height;
-    if(this.horizontalAlignCenter && (this.scaleX!=1 || this.scaleY!=1))
+    if(this.scaleX!=1 || this.scaleY!=1)
       origin = [((w - (this.chw*this.buf.cols+10)*this.scaleX)/2) + this.bbsViewMargin, ((h - (this.chh*this.buf.rows)*this.scaleY)/2) + this.bbsViewMargin];
     else
       origin = [this.firstGridOffset.left, this.firstGridOffset.top];
@@ -544,27 +540,15 @@ TermView.prototype = {
   updateInputBufferPos: function() {
     if (this.input.getAttribute('bshow') == '1') {
       var pos = this.convertMN2XYEx(this.buf.cur_x, this.buf.cur_y);
-      if (!this.hideInputBuffer) {
+      {
         this.input.style.opacity = '1';
         this.input.style.border = 'double';
-        if (this.inputBufferSizeType === 0) {
+        {
           //this.input.style.width  = (this.chh-4)*10 + 'px';
           this.input.style.fontSize = this.chh-4 + 'px';
           //this.input.style.lineHeight = this.chh+4 + 'px';
           this.input.style.height = this.chh + 'px';
-        } else {
-          //this.input.style.width  = ((this.defineInputBufferSize*2)-4)*10 + 'px';
-          this.input.style.fontSize = ((this.defineInputBufferSize*2)-4) + 'px';
-          //this.input.style.lineHeight = this.bbscore.inputBufferSize*2+4 + 'px';
-          this.input.style.height = this.defineInputBufferSize*2 + 'px';
         }
-      } else {
-        this.input.style.border = 'none';
-        this.input.style.width  = '0px';
-        this.input.style.height = '0px';
-        this.input.style.fontSize = this.chh + 'px';
-        this.input.style.opacity = '0';
-        //this.input.style.left = '-100000px';
       }
       var innerBounds = this.innerBounds;
       var bbswinheight = innerBounds.height;
@@ -624,7 +608,7 @@ TermView.prototype = {
     var innerBounds = this.innerBounds;
     var fontWidth = this.bbsFontSize * 2;
 
-    if (this.screenType === 0 || this.screenType == 1) {
+    {
       var width = this.bbsWidth ? this.bbsWidth : innerBounds.width;
       var height = this.bbsHeight ? this.bbsHeight : innerBounds.height;
       if (width === 0 || height === 0) return; // errors for openning in a new window
@@ -645,8 +629,6 @@ TermView.prototype = {
       nowchw = i;
       this.setTermFontSize(nowchw, nowchh);
       fontWidth = nowchh;
-    } else {
-      this.setTermFontSize(this.bbsFontSize, this.bbsFontSize*2);
     }
     var forceWidthElems = document.querySelectorAll('.wpadding');
     for (var i = 0; i < forceWidthElems.length; ++i) {
