@@ -13,12 +13,10 @@ export function TermView(rowCount) {
   this.bbsWidth = 0;
   this.bbsHeight = 0;
   this.bbsFontSize = 14;
-  this.useHyperLink = true;
   this.dbcsDetect = true;
   this.inputBufferSizeType = 0;
   this.defineInputBufferSize = 12;
   this.hideInputBuffer = false;
-  this.hotkeyForSelectAll = false;
   this.highlightBG = 2;
   this.charset = 'big5';
   this.EnterChar = '\r';
@@ -29,8 +27,6 @@ export function TermView(rowCount) {
   this.mouseWheelFunction2 = 2;
   this.mouseWheelFunction3 = 3;
   //this.highlightFG = 7;
-  this.DisplayBackground = false;
-  this.BackgroundMD5 = '';
   this.fontFitWindowWidth = false;
   this.verticalAlignCenter = true;
   this.horizontalAlignCenter = true;
@@ -50,9 +46,6 @@ export function TermView(rowCount) {
   this.useEasyReadingMode = false;
   this.easyReadingKeyDownKeyCode = 0;
 
-  this.doHighlightOnCurRow = false;
-
-
   this.curRow = 0;
   this.curCol = 0;
 
@@ -71,7 +64,6 @@ export function TermView(rowCount) {
   this.selection = null;
   this.input = document.getElementById('t');
   this.bbsCursor = document.getElementById('cursor');
-  this.trackKeyWordList = document.getElementById('TrackKeyWordList');
   this.BBSWin = document.getElementById('BBSWindow');
   this.enablePicPreview = true;
   this.scaleX = 1;
