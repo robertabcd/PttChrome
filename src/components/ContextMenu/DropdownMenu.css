@@ -1,0 +1,72 @@
+/* Boostrap overrides -- BEGIN */
+.DropdownMenu--reset > li > a {
+  padding: 3px 20px 3px 30px;
+  cursor: default;
+  -webkit-user-select: none;
+}
+
+.DropdownMenu--reset > li > a:hover,
+.DropdownMenu--reset > li > a:focus {
+  color: white;
+  background-color: #428bca;
+}
+
+.DropdownMenu--reset > li > a:hover span,
+.DropdownMenu--reset > li > a:focus span {
+  color: white;
+}
+/* Boostrap overrides -- END */
+
+.DropdownMenu--reset {
+  -webkit-user-select: none;
+}
+
+.DropdownMenu__Item__HotKey {
+  float: right;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.42857143;
+  color: #aaa;
+  margin-left: 15px;
+}
+
+.DropdownMenu__Item--checked::before {
+  content: "\e013";
+  font-family: "Glyphicons Halflings";
+  position: absolute;
+  left: 10px;
+  color: black;
+}
+
+.DropdownMenu__Item--quickSearch {
+  position: relative;
+}
+
+.DropdownMenu__Item--quickSearch .QuickSearchMenu {
+  display: none;
+}
+
+.DropdownMenu__Item--quickSearch:hover .QuickSearchMenu {
+  display: block;
+}
+
+.QuickSearchMenu {
+  left: 100%;
+  top: 0px;
+  margin-top: -5px;
+  margin-left: -1px;
+}
+
+.QuickSearchMenu--up {
+  top: initial !important;
+  bottom: 0px;
+  margin-top: 0px !important;
+  margin-bottom: -5px;
+}
+
+.QuickSearchMenu--left {
+  right: 100%;
+  left: initial !important;
+  margin-left: 0px !important;
+  margin-right: -1px;
+}

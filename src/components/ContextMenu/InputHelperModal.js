@@ -14,8 +14,8 @@ import {
   Checkbox,
   SplitButton
 } from "react-bootstrap";
-import ColorSpan from "./Row/WordSegmentBuilder/ColorSpan";
-import { i18n } from "../js/i18n";
+import ColorSpan from "../Row/WordSegmentBuilder/ColorSpan";
+import { i18n } from "../../js/i18n";
 import "./InputHelperModal.css";
 
 const SYMBOLS = {
@@ -657,6 +657,7 @@ const enhance = compose(
 );
 
 export const InputHelperModal = ({
+  show,
   onReset,
   onHide,
   // from recompose
@@ -673,7 +674,8 @@ export const InputHelperModal = ({
   onSendSelect,
   onSymEmoClick
 }) => (
-  <Modal.Dialog
+  <Modal
+    show={show}
     className="InputHelperModal__Dialog"
     onMouseDown={onMouseDown}
     onMouseMove={onMouseMove}
@@ -885,7 +887,7 @@ export const InputHelperModal = ({
         </Row>
       </Tab.Container>
     </Modal.Body>
-  </Modal.Dialog>
+  </Modal>
 );
 
 export default enhance(InputHelperModal);

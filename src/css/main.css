@@ -34,72 +34,6 @@
   left: 0px;
 }
 
-#contextMenus {
-  -webkit-user-select: none;
-}
-
-#contextMenus .checked:before {
-  content:"\e013";
-  font-family: 'Glyphicons Halflings';
-  position: absolute;
-  left: 10px;
-}
-
-#contextMenus li > a {
-  padding: 3px 20px 3px 30px;
-  cursor: default;
-  -webkit-user-select: none;
-}
-
-#contextMenus li > a:hover,
-#contextMenus li > a:focus {
-  color: white;
-  background-color: #428bca;
-}
-
-#contextMenus li > a:hover span,
-#contextMenus li > a:focus span {
-  color: white;
-}
-
-#cmenu_quickSearch {
-  position: relative;
-}
-.cmenuGoesUp {
-  top: initial !important;
-  bottom: 0px;
-  margin-top: 0px !important;
-  margin-bottom: -5px;
-}
-.cmenuGoesLeft {
-  right: 100%;
-  left: initial !important;
-  margin-left: 0px !important;
-  margin-right: -5px;
-}
-
-#quickSearchMenus {
-  left: 100%;
-  top: 0px;
-  margin-top: -5px;
-  margin-left: -5px;
-}
-
-#cmenu_quickSearch > ul {
-  display: none;
-}
-#cmenu_quickSearch:hover > ul {
-  display: block;
-}
-
-.cmenuHotkey {
-  float: right;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.42857143;
-  color: #aaa;
-  margin-left: 15px;
-}
 
 #logo {
   width: 85px;
@@ -171,13 +105,6 @@
 .linkurl {
   text-decoration:underline;
   color:#FF00FF;
-}
-
-a:not(.cmenuItem a) {
-  background-image:url(../icon/http.bmp);
-  background-repeat: repeat-x;
-  background-position: 0% 90%;
-  text-decoration:none;
 }
 
 a:link,a:visited,a:active,a:hover {

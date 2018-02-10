@@ -16,7 +16,7 @@ import {
   OverlayTrigger,
   Popover
 } from "react-bootstrap";
-import { i18n } from "../js/i18n";
+import { i18n } from "../../js/i18n";
 import "./PrefModal.css";
 
 const DEFAULT_PREFS = {
@@ -164,6 +164,7 @@ const enhance = compose(
 );
 
 export const PrefModal = ({
+  show,
   // from recompose
   onCloseClick,
   onResetClick,
@@ -175,7 +176,7 @@ export const PrefModal = ({
   onNumberTextChange,
   replacements
 }) => (
-  <Modal.Dialog onHide={onCloseClick} className="PrefModal">
+  <Modal show={show} onHide={onCloseClick} className="PrefModal">
     <Modal.Body>
       <Tab.Container activeKey={navActiveKey} onSelect={onNavSelect}>
         <div className="PrefModal__Grid">
@@ -501,7 +502,7 @@ export const PrefModal = ({
         </div>
       </Tab.Container>
     </Modal.Body>
-  </Modal.Dialog>
+  </Modal>
 );
 
 export default enhance(PrefModal);
