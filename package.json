@@ -75,6 +75,9 @@
       }
     }
   },
+  "prettier": {
+    "trailingComma": "es5"
+  },
   "scripts": {
     "precommit": "lint-staged",
     "clean": "rimraf dist/assets dist/index.html",
