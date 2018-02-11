@@ -13,7 +13,6 @@ export const TwoColorWord = ({ colorLead, colorTail, forceWidth, text }) => (
       o: colorLead.fg !== colorTail.fg,
       [`b${colorLead.bg}`]: colorLead.bg === colorTail.bg,
       [`b${colorLead.bg}b${colorTail.bg}`]: colorLead.bg !== colorTail.bg,
-      wpadding: forceWidth
     })}
     style={forceWidthStyle(forceWidth)}
     data-text={text}

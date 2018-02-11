@@ -9,12 +9,14 @@ export class LinkSegmentBuilder {
     enableLinkInlinePreview,
     forceWidth,
     highlighted,
+    highlightedClassName,
     onHyperLinkMouseOver,
     onHyperLinkMouseOut
   ) {
     this.row = row;
     this.forceWidth = forceWidth;
     this.highlighted = highlighted;
+    this.highlightedClassName = highlightedClassName;
     this.onHyperLinkMouseOver = onHyperLinkMouseOver;
     this.onHyperLinkMouseOut = onHyperLinkMouseOut;
     //
@@ -79,7 +81,7 @@ export class LinkSegmentBuilder {
     return (
       <div>
         <span
-          className={cx({ b2: this.highlighted })}
+          className={cx({ [this.highlightedClassName]: this.highlighted })}
           data-type="bbsline"
           data-row={this.row}
         >

@@ -155,7 +155,7 @@ export function parseWaterball(str) {
     regex = new RegExp(/\x1b\[24;\d{2}H\x1b\[1;37;45m([^\x1b]+)(?:\x1b\[24;18H)?\x1b\[m/g);
     result = regex.exec(str);
     if (result && result.length == 2) {
-      return { message: result[1] };
+      return { userId: '', message: result[1] };
     }
   }
 

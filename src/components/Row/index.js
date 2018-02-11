@@ -6,8 +6,9 @@ export const Row = ({
   enableLinkInlinePreview,
   forceWidth,
   highlighted,
+  highlightedClassName,
   onHyperLinkMouseOver,
-  onHyperLinkMouseOut
+  onHyperLinkMouseOut,
 }) => (
   <span type="bbsrow" srow={row}>
     {chars
@@ -18,6 +19,7 @@ export const Row = ({
           enableLinkInlinePreview,
           forceWidth,
           highlighted,
+          highlightedClassName,
           onHyperLinkMouseOver,
           onHyperLinkMouseOut
         )

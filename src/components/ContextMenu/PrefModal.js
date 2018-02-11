@@ -1,6 +1,7 @@
+import { createSelector, createStructuredSelector } from "reselect";
 import cx from "classnames";
 import React from "react";
-import { compose, withStateHandlers, withHandlers } from "recompose";
+import { compose, withStateHandlers, withHandlers, lifecycle } from "recompose";
 import {
   Modal,
   Tab,
@@ -14,81 +15,16 @@ import {
   ControlLabel,
   FormControl,
   OverlayTrigger,
-  Popover
+  Popover,
 } from "react-bootstrap";
 import { i18n } from "../../js/i18n";
+import { CallbagConsumer } from "../Callbag";
+import {
+  HIDE_SETTINGS,
+  CHANGE_PENDING_SETTINGS,
+  RESET_DEFAULT_SETTINGS,
+} from "../reducer";
 import "./PrefModal.css";
-
-const DEFAULT_PREFS = {
-  // general
-  //dbcsDetect    : false,
-  enablePicPreview: true,
-  enableNotifications: true,
-  enableEasyReading: false,
-  endTurnsOnLiveUpdate: false,
-  copyOnSelect: false,
-  antiIdleTime: 0,
-  lineWrap: 78,
-
-  // mouse browsing
-  useMouseBrowsing: false,
-  mouseBrowsingHighlight: true,
-  mouseBrowsingHighlightColor: 2,
-  mouseLeftFunction: 0,
-  mouseMiddleFunction: 0,
-  mouseWheelFunction1: 1,
-  mouseWheelFunction2: 2,
-  mouseWheelFunction3: 3,
-
-  // displays
-  fontFitWindowWidth: false,
-  fontFace: "MingLiu,SymMingLiU,monospace",
-  bbsMargin: 0
-};
-
-const PREF_STORAGE_KEY = "pttchrome.pref.v1";
-
-export const readValuesWithDefault = () => {
-  try {
-    return {
-      ...DEFAULT_PREFS,
-      ...JSON.parse(window.localStorage.getItem(PREF_STORAGE_KEY)).values
-    };
-  } catch (e) {
-    return {
-      ...DEFAULT_PREFS
-    };
-  }
-};
-
-const writeValues = values => {
-  try {
-    window.localStorage.setItem(
-      PREF_STORAGE_KEY,
-      JSON.stringify({
-        values
-      })
-    );
-  } catch (e) {}
-  return values;
-};
-
-const normalizeSec = value => {
-  const sec = parseInt(value, 10);
-  return sec > 1 ? sec : 1;
-};
-
-const replaceI18n = (id, replacements) => {
-  return i18n(id)
-    .split(/#(\S+)#/gi)
-    .map((it, index) => {
-      if (index % 2 === 1 && it in replacements) {
-        return replacements[it];
-      } else {
-        return it;
-      }
-    });
-};
 
 const link = (text, url) => (
   <a href={url} target="_blank" rel="noreferrer">
@@ -96,87 +32,89 @@ const link = (text, url) => (
   </a>
 );
 
+const REPLACEMENTS = {
+  link_github_iamchucky: link("Chuck Yang", "https://github.com/iamchucky"),
+  link_github_robertabcd: link("robertabcd", "https://github.com/robertabcd"),
+  link_robertabcd_PttChrome: link(
+    "robertabcd/PttChrome",
+    "https://github.com/robertabcd/PttChrome"
+  ),
+  link_iamchucky_PttChrome: link(
+    "iamchucky/PttChrome",
+    "https://github.com/iamchucky/PttChrome"
+  ),
+  link_GPL20: link(
+    "General Public License v2.0",
+    "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html"
+  ),
+};
+
+const replaceI18n = id =>
+  i18n(id)
+    .split(/#(\S+)#/gi)
+    .map((it, index) => (index % 2 === 1 && REPLACEMENTS[it]) || it);
+
 const enhance = compose(
   withStateHandlers(
     () => ({
       navActiveKey: "general",
-      values: readValuesWithDefault(),
-      replacements: {
-        link_github_iamchucky: link(
-          "Chuck Yang",
-          "https://github.com/iamchucky"
-        ),
-        link_github_robertabcd: link(
-          "robertabcd",
-          "https://github.com/robertabcd"
-        ),
-        link_robertabcd_PttChrome: link(
-          "robertabcd/PttChrome",
-          "https://github.com/robertabcd/PttChrome"
-        ),
-        link_iamchucky_PttChrome: link(
-          "iamchucky/PttChrome",
-          "https://github.com/iamchucky/PttChrome"
-        ),
-        link_GPL20: link(
-          "General Public License v2.0",
-          "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html"
-        )
-      }
     }),
     {
-      onCloseClick: ({ values }, { onSave }) => () =>
-        onSave(writeValues(values)),
-
-      onResetClick: (state, { onReset }) => () =>
-        onReset(
-          writeValues({
-            ...DEFAULT_PREFS
-          })
-        ),
-
       onNavSelect: () => activeKey => ({
-        navActiveKey: activeKey
+        navActiveKey: activeKey,
       }),
 
-      onCheckboxChange: ({ values }) => ({ target: { name, checked } }) => ({
-        values: {
-          ...values,
-          [name]: checked
-        }
-      }),
+      onCheckboxChange: (state, { dispatch }) => ({
+        target: { name, checked },
+      }) =>
+        dispatch({
+          type: CHANGE_PENDING_SETTINGS,
+          data: {
+            [name]: checked,
+          },
+        }),
 
-      onNumberInputChange: ({ values }) => ({ target: { name, value } }) => ({
-        values: {
-          ...values,
-          [name]: parseInt(value, 10)
-        }
-      }),
+      onNumberInputChange: (state, { dispatch }) => ({
+        target: { name, value },
+      }) =>
+        dispatch({
+          type: CHANGE_PENDING_SETTINGS,
+          data: {
+            [name]: parseInt(value, 10),
+          },
+        }),
 
-      onNumberTextChange: ({ values }) => ({ target: { name, value } }) => ({
-        values: {
-          ...values,
-          [name]: value
-        }
-      })
+      onNumberTextChange: (state, { dispatch }) => ({
+        target: { name, value },
+      }) =>
+        dispatch({
+          type: CHANGE_PENDING_SETTINGS,
+          data: {
+            [name]: value,
+          },
+        }),
     }
   )
 );
 
 export const PrefModal = ({
-  show,
+  showsSettings,
+  pendingSettings,
+  dispatch,
   // from recompose
-  onCloseClick,
-  onResetClick,
   navActiveKey,
   onNavSelect,
-  values,
   onCheckboxChange,
   onNumberInputChange,
   onNumberTextChange,
-  replacements
 }) => (
-  <Modal show={show} onHide={onCloseClick} className="PrefModal">
+  <Modal
+    show={showsSettings}
+    onHide={() => {
+      dispatch(HIDE_SETTINGS);
+    }}
+    className="PrefModal"
+  >
     <Modal.Body>
       <Tab.Container activeKey={navActiveKey} onSelect={onNavSelect}>
         <div className="PrefModal__Grid">
@@ -188,7 +126,9 @@ export const PrefModal = ({
             </Nav>
             <Button
               className="PrefModal__Grid__Col--left__Reset"
-              onClick={onResetClick}
+              onClick={() => {
+                dispatch(RESET_DEFAULT_SETTINGS);
+              }}
             >
               {i18n("options_reset")}
             </Button>
@@ -202,42 +142,44 @@ export const PrefModal = ({
                     <button
                       type="button"
                       className="close"
-                      onClick={onCloseClick}
+                      onClick={() => {
+                        dispatch(HIDE_SETTINGS);
+                      }}
                     >
                       &times;
                     </button>
                   </legend>
                   <Checkbox
                     name="enablePicPreview"
-                    checked={values.enablePicPreview}
+                    checked={pendingSettings.enablePicPreview}
                     onChange={onCheckboxChange}
                   >
                     {i18n("options_enablePicPreview")}
                   </Checkbox>
                   <Checkbox
                     name="enableNotifications"
-                    checked={values.enableNotifications}
+                    checked={pendingSettings.enableNotifications}
                     onChange={onCheckboxChange}
                   >
                     {i18n("options_enableNotifications")}
                   </Checkbox>
                   <Checkbox
                     name="enableEasyReading"
-                    checked={values.enableEasyReading}
+                    checked={pendingSettings.enableEasyReading}
                     onChange={onCheckboxChange}
                   >
                     {i18n("options_enableEasyReading")}
                   </Checkbox>
                   <Checkbox
                     name="endTurnsOnLiveUpdate"
-                    checked={values.endTurnsOnLiveUpdate}
+                    checked={pendingSettings.endTurnsOnLiveUpdate}
                     onChange={onCheckboxChange}
                   >
                     {i18n("options_endTurnsOnLiveUpdate")}
                   </Checkbox>
                   <Checkbox
                     name="copyOnSelect"
-                    checked={values.copyOnSelect}
+                    checked={pendingSettings.copyOnSelect}
                     onChange={onCheckboxChange}
                   >
                     {i18n("options_copyOnSelect")}
@@ -256,7 +198,7 @@ export const PrefModal = ({
                       <FormControl
                         name="antiIdleTime"
                         type="number"
-                        value={values.antiIdleTime}
+                        value={pendingSettings.antiIdleTime}
                         onChange={onNumberInputChange}
                       />
                     </OverlayTrigger>
@@ -266,7 +208,7 @@ export const PrefModal = ({
                     <FormControl
                       name="lineWrap"
                       type="number"
-                      value={values.lineWrap}
+                      value={pendingSettings.lineWrap}
                       onChange={onNumberInputChange}
                     />
                   </FormGroup>
@@ -275,7 +217,7 @@ export const PrefModal = ({
                   <legend>{i18n("options_appearance")}</legend>
                   <Checkbox
                     name="fontFitWindowWidth"
-                    checked={values.fontFitWindowWidth}
+                    checked={pendingSettings.fontFitWindowWidth}
                     onChange={onCheckboxChange}
                   >
                     {i18n("options_fontFitWindowWidth")}
@@ -294,7 +236,7 @@ export const PrefModal = ({
                       <FormControl
                         name="fontFace"
                         type="text"
-                        value={values.fontFace}
+                        value={pendingSettings.fontFace}
                         onChange={onNumberTextChange}
                       />
                     </OverlayTrigger>
@@ -304,7 +246,7 @@ export const PrefModal = ({
                     <FormControl
                       name="bbsMargin"
                       type="number"
-                      value={values.bbsMargin}
+                      value={pendingSettings.bbsMargin}
                       onChange={onNumberInputChange}
                     />
                   </FormGroup>
@@ -313,14 +255,14 @@ export const PrefModal = ({
                   <legend>{i18n("options_mouseBrowsing")}</legend>
                   <Checkbox
                     name="useMouseBrowsing"
-                    checked={values.useMouseBrowsing}
+                    checked={pendingSettings.useMouseBrowsing}
                     onChange={onCheckboxChange}
                   >
                     {i18n("options_useMouseBrowsing")}
                   </Checkbox>
                   <Checkbox
                     name="mouseBrowsingHighlight"
-                    checked={values.mouseBrowsingHighlight}
+                    checked={pendingSettings.mouseBrowsingHighlight}
                     onChange={onCheckboxChange}
                   >
                     {i18n("options_mouseBrowsingHighlight")}
@@ -330,11 +272,11 @@ export const PrefModal = ({
                     <FormControl
                       componentClass="select"
                       className={cx(
-                        `b${values.mouseBrowsingHighlightColor}`,
-                        `b${values.mouseBrowsingHighlightColor}`
+                        `b${pendingSettings.mouseBrowsingHighlightColor}`,
+                        `b${pendingSettings.mouseBrowsingHighlightColor}`
                       )}
                       name="mouseBrowsingHighlightColor"
-                      value={values.mouseBrowsingHighlightColor}
+                      value={pendingSettings.mouseBrowsingHighlightColor}
                       onChange={onNumberInputChange}
                     >
                       {Array(16)
@@ -344,9 +286,7 @@ export const PrefModal = ({
                             key={i}
                             value={i}
                             className={cx(
-                              `b${
-                                i
-                              }` /* FIXME: Existing bug: Not working for Chrome */
+                              `b${i}` /* FIXME: Existing bug: Not working for Chrome */
                             )}
                           />
                         ))}
@@ -359,13 +299,13 @@ export const PrefModal = ({
                     <FormControl
                       componentClass="select"
                       name="mouseLeftFunction"
-                      value={values.mouseLeftFunction}
+                      value={pendingSettings.mouseLeftFunction}
                       onChange={onNumberInputChange}
                     >
                       {[
                         "options_none",
                         "options_enterKey",
-                        "options_rightKey"
+                        "options_rightKey",
                       ].map((key, index) => (
                         <option key={key} value={index}>
                           {i18n(key)}
@@ -380,14 +320,14 @@ export const PrefModal = ({
                     <FormControl
                       componentClass="select"
                       name="mouseMiddleFunction"
-                      value={values.mouseMiddleFunction}
+                      value={pendingSettings.mouseMiddleFunction}
                       onChange={onNumberInputChange}
                     >
                       {[
                         "options_none",
                         "options_enterKey",
                         "options_leftKey",
-                        "options_doPaste"
+                        "options_doPaste",
                       ].map((key, index) => (
                         <option key={key} value={index}>
                           {i18n(key)}
@@ -402,14 +342,14 @@ export const PrefModal = ({
                     <FormControl
                       componentClass="select"
                       name="mouseWheelFunction1"
-                      value={values.mouseWheelFunction1}
+                      value={pendingSettings.mouseWheelFunction1}
                       onChange={onNumberInputChange}
                     >
                       {[
                         "options_none",
                         "options_upDown",
                         "options_pageUpDown",
-                        "options_threadLastNext"
+                        "options_threadLastNext",
                       ].map((key, index) => (
                         <option key={key} value={index}>
                           {i18n(key)}
@@ -424,14 +364,14 @@ export const PrefModal = ({
                     <FormControl
                       componentClass="select"
                       name="options_mouseWheelFunction2"
-                      value={values.options_mouseWheelFunction2}
+                      value={pendingSettings.options_mouseWheelFunction2}
                       onChange={onNumberInputChange}
                     >
                       {[
                         "options_none",
                         "options_upDown",
                         "options_pageUpDown",
-                        "options_threadLastNext"
+                        "options_threadLastNext",
                       ].map((key, index) => (
                         <option key={key} value={index}>
                           {i18n(key)}
@@ -446,14 +386,14 @@ export const PrefModal = ({
                     <FormControl
                       componentClass="select"
                       name="options_mouseWheelFunction3"
-                      value={values.options_mouseWheelFunction3}
+                      value={pendingSettings.options_mouseWheelFunction3}
                       onChange={onNumberInputChange}
                     >
                       {[
                         "options_none",
                         "options_upDown",
                         "options_pageUpDown",
-                        "options_threadLastNext"
+                        "options_threadLastNext",
                       ].map((key, index) => (
                         <option key={key} value={index}>
                           {i18n(key)}
@@ -470,22 +410,20 @@ export const PrefModal = ({
                     <button
                       type="button"
                       className="close"
-                      onClick={onCloseClick}
+                      onClick={() => {
+                        dispatch(HIDE_SETTINGS);
+                      }}
                     >
                       &times;
                     </button>
                   </legend>
-                  <p>{replaceI18n("about_description", replacements)}</p>
+                  <p>{replaceI18n("about_description")}</p>
                 </div>
                 <div>
                   <legend>{i18n("about_version_title")}</legend>
                   <ul>
-                    <li>
-                      {replaceI18n("about_version_current", replacements)}
-                    </li>
-                    <li>
-                      {replaceI18n("about_version_original", replacements)}
-                    </li>
+                    <li>{replaceI18n("about_version_current")}</li>
+                    <li>{replaceI18n("about_version_original")}</li>
                   </ul>
                 </div>
                 <div>
@@ -505,4 +443,14 @@ export const PrefModal = ({
   </Modal>
 );
 
-export default enhance(PrefModal);
+const children = createSelector(
+  createStructuredSelector({
+    showsSettings: ({ state }) => state.showsSettings,
+    pendingSettings: ({ state }) => state.pendingSettings,
+    dispatch: ({ dispatch }) => dispatch,
+  }),
+  createSelector(() => enhance, enhance => enhance(PrefModal)),
+  (props, EnhancedPrefModal) => <EnhancedPrefModal {...props} />
+);
+
+export const constElement = <CallbagConsumer>{children}</CallbagConsumer>;

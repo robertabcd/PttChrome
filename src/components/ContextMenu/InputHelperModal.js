@@ -1,3 +1,4 @@
+import { createSelector, createStructuredSelector } from "reselect";
 import cx from "classnames";
 import React from "react";
 import { compose, withStateHandlers, withHandlers } from "recompose";
@@ -12,10 +13,17 @@ import {
   NavDropdown,
   MenuItem,
   Checkbox,
-  SplitButton
+  SplitButton,
 } from "react-bootstrap";
-import ColorSpan from "../Row/WordSegmentBuilder/ColorSpan";
 import { i18n } from "../../js/i18n";
+import ColorSpan from "../Row/WordSegmentBuilder/ColorSpan";
+import { CallbagConsumer } from "../Callbag";
+import {
+  HIDE_INPUT_HELPER,
+  INPUT_HELPER_SEND,
+  INPUT_HELPER_SYMBOL,
+  INPUT_HELPER_RESET,
+} from "../reducer";
 import "./InputHelperModal.css";
 
 const SYMBOLS = {
@@ -52,7 +60,7 @@ const SYMBOLS = {
     "〞",
     "‵",
     "′",
-    "〃"
+    "〃",
   ],
 
   lineBorders: [
@@ -100,7 +108,7 @@ const SYMBOLS = {
     "╡",
     "╘",
     "╧",
-    "╛"
+    "╛",
   ],
 
   blocks: [
@@ -124,7 +132,7 @@ const SYMBOLS = {
     "◢",
     "◣",
     "◥",
-    "◤"
+    "◤",
   ],
 
   lines: [
@@ -154,7 +162,7 @@ const SYMBOLS = {
     "╱",
     "╲",
     "／",
-    "＼"
+    "＼",
   ],
 
   special: [
@@ -189,7 +197,7 @@ const SYMBOLS = {
     "￡",
     "※",
     "♀",
-    "♂"
+    "♂",
   ],
 
   brackets: [
@@ -234,7 +242,7 @@ const SYMBOLS = {
     "﹁",
     "﹂",
     "﹃",
-    "﹄"
+    "﹄",
   ],
 
   greek: [
@@ -285,7 +293,7 @@ const SYMBOLS = {
     "φ",
     "χ",
     "ψ",
-    "ω"
+    "ω",
   ],
 
   phonetic: [
@@ -329,7 +337,7 @@ const SYMBOLS = {
     "˙",
     "ˊ",
     "ˇ",
-    "ˋ"
+    "ˋ",
   ],
 
   math: [
@@ -359,7 +367,7 @@ const SYMBOLS = {
     "≦",
     "≧",
     "∩",
-    "∪"
+    "∪",
   ],
 
   hiragana: [
@@ -433,7 +441,7 @@ const SYMBOLS = {
     "よ",
     "わ",
     "ん",
-    "を"
+    "を",
   ],
 
   katakana: [
@@ -507,8 +515,8 @@ const SYMBOLS = {
     "ヨ",
     "ワ",
     "ン",
-    "ヲ"
-  ]
+    "ヲ",
+  ],
 };
 
 const EMOTICONS = {
@@ -522,7 +530,7 @@ const EMOTICONS = {
     "(o一-一)=○# (￣#)3￣)",
     "╰(‵皿′＊)╯",
     "○(#‵︿′ㄨ)○",
-    "◢▆▅▄▃-崩╰(〒皿〒)╯潰-▃▄▅▆◣"
+    "◢▆▅▄▃-崩╰(〒皿〒)╯潰-▃▄▅▆◣",
   ],
 
   meh: [
@@ -535,7 +543,7 @@ const EMOTICONS = {
     "︿(￣︶￣)︿",
     "..╮(﹋﹏﹌)╭..",
     "╮(╯_╰)╭",
-    "╮(╯▽╰)/"
+    "╮(╯▽╰)/",
   ],
 
   sweat: [
@@ -547,7 +555,7 @@ const EMOTICONS = {
     "╭ ﹀◇﹀〣",
     "ˋ(′_‵||)ˊ",
     "●( ¯▽¯；●",
-    "o(＞＜；)o o"
+    "o(＞＜；)o o",
   ],
 
   happy: [
@@ -559,7 +567,7 @@ const EMOTICONS = {
     "﹨(╯▽╰)∕",
     "\\(@^0^@)/",
     "\\(^▽^)/",
-    "\\⊙▽⊙/"
+    "\\⊙▽⊙/",
   ],
 
   other: [
@@ -572,11 +580,11 @@ const EMOTICONS = {
     "(⊙o⊙)",
     "(≧<>≦)",
     "(☆_☆)",
-    'o(‧"‧)o'
-  ]
+    'o(‧"‧)o',
+  ],
 };
 
-function sendColorCommand({ fg, bg, isBlink }, onCmdSend, type) {
+function buildColorCommand(fg, bg, isBlink, type) {
   let lightColor = "0;";
   if (fg > 7) {
     fg %= 8;
@@ -584,19 +592,16 @@ function sendColorCommand({ fg, bg, isBlink }, onCmdSend, type) {
   }
   fg += 30;
   bg += 40;
-  let blink = "";
-  if (isBlink) {
-    blink = "5;";
+  const blink = isBlink ? "5;" : "";
+  const cmd = "\x15[";
+  switch (type) {
+    case "foreground":
+      return cmd + lightColor + blink + fg + "m";
+    case "background":
+      return cmd + bg + "m";
+    default:
+      return cmd + lightColor + blink + fg + ";" + bg + "m";
   }
-  let cmd = "\x15[";
-  if (type == "foreground") {
-    cmd += lightColor + blink + fg + "m";
-  } else if (type == "background") {
-    cmd += bg + "m";
-  } else {
-    cmd += lightColor + blink + fg + ";" + bg + "m";
-  }
-  onCmdSend(cmd);
 }
 
 const enhance = compose(
@@ -604,29 +609,23 @@ const enhance = compose(
     () => ({
       fg: 7,
       bg: 0,
-      isBlink: false
+      isBlink: false,
     }),
     {
       onColorClick: () => ({ target: { dataset: { fg } } }) => ({
-        fg: parseInt(fg, 10)
+        fg: parseInt(fg, 10),
       }),
       onColorContextMenu: ({ bg }) => event => {
         const { target: { dataset } } = event;
         event.preventDefault();
         event.stopPropagation();
         return {
-          bg: "bg" in dataset ? parseInt(dataset.bg, 10) : bg
+          bg: "bg" in dataset ? parseInt(dataset.bg, 10) : bg,
         };
       },
       onBlinkChange: () => ({ target: { checked } }) => ({
-        isBlink: checked
+        isBlink: checked,
       }),
-      onSendClick: (state, { onCmdSend }) => () =>
-        sendColorCommand(state, onCmdSend),
-      onSendSelect: (state, { onCmdSend }) => eventKey =>
-        sendColorCommand(state, onCmdSend, eventKey),
-      onSymEmoClick: (state, { onConvSend }) => ({ target: { textContent } }) =>
-        onConvSend(textContent)
     }
   ),
   withHandlers({
@@ -638,7 +637,7 @@ const enhance = compose(
     onMouseMove: () => ({
       currentTarget: { dataset, style },
       clientX,
-      clientY
+      clientY,
     }) => {
       if (dataset.dragActive === "true") {
         window.getSelection().removeAllRanges();
@@ -652,14 +651,33 @@ const enhance = compose(
     },
     onMouseUp: () => ({ currentTarget: { dataset } }) => {
       dataset.dragActive = false;
-    }
+    },
+    onSendClick: ({ dispatch, fg, bg, isBlink }) => () => {
+      dispatch({
+        type: INPUT_HELPER_SEND,
+        data: buildColorCommand(fg, bg, isBlink),
+      });
+    },
+
+    onSendSelect: ({ dispatch, fg, bg, isBlink }) => eventKey => {
+      dispatch({
+        type: INPUT_HELPER_SEND,
+        data: buildColorCommand(fg, bg, isBlink, eventKey),
+      });
+    },
+
+    onSymEmoClick: ({ dispatch }) => ({ target: { textContent } }) => {
+      dispatch({
+        type: INPUT_HELPER_SYMBOL,
+        data: textContent,
+      });
+    },
   })
 );
 
 export const InputHelperModal = ({
-  show,
-  onReset,
-  onHide,
+  showsInputHelper,
+  dispatch,
   // from recompose
   onMouseDown,
   onMouseMove,
@@ -672,16 +690,21 @@ export const InputHelperModal = ({
   onBlinkChange,
   onSendClick,
   onSendSelect,
-  onSymEmoClick
+  onSymEmoClick,
 }) => (
   <Modal
-    show={show}
+    show={showsInputHelper}
     className="InputHelperModal__Dialog"
     onMouseDown={onMouseDown}
     onMouseMove={onMouseMove}
     onMouseUp={onMouseUp}
   >
-    <Modal.Header closeButton onHide={onHide}>
+    <Modal.Header
+      closeButton
+      onHide={() => {
+        dispatch(HIDE_INPUT_HELPER);
+      }}
+    >
       <Modal.Title>{i18n("inputHelperTitle")}</Modal.Title>
     </Modal.Header>
     <Modal.Body>
@@ -830,7 +853,7 @@ export const InputHelperModal = ({
                     colorState={{
                       fg,
                       bg,
-                      blink: isBlink
+                      blink: isBlink,
                     }}
                     inner={i18n("colorHelperPreview")}
                   />
@@ -853,7 +876,12 @@ export const InputHelperModal = ({
                         {i18n("colorHelperSendMenuBack")}
                       </MenuItem>
                       <MenuItem divider />
-                      <MenuItem eventKey="reset" onSelect={onReset}>
+                      <MenuItem
+                        eventKey="reset"
+                        onSelect={() => {
+                          dispatch(INPUT_HELPER_RESET);
+                        }}
+                      >
                         {i18n("colorHelperSendMenuReset")}
                       </MenuItem>
                     </SplitButton>
@@ -890,4 +918,13 @@ export const InputHelperModal = ({
   </Modal>
 );
 
-export default enhance(InputHelperModal);
+const children = createSelector(
+  createStructuredSelector({
+    showsInputHelper: ({ state }) => state.dropdownMenu.showsInputHelper,
+    dispatch: ({ dispatch }) => dispatch,
+  }),
+  createSelector(() => enhance, enhance => enhance(InputHelperModal)),
+  (props, EnhancedInputHelperModal) => <EnhancedInputHelperModal {...props} />
+);
+
+export const constElement = <CallbagConsumer>{children}</CallbagConsumer>;

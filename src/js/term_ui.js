@@ -1,5 +1,4 @@
 import Row from "../components/Row";
-import Screen from "../components/Screen";
 
 export class ColorState {
   constructor(fg, bg, blink) {
@@ -29,14 +28,4 @@ export function renderRowHtml(chars, row, forceWidth, enableLinkInlinePreview, c
     />,
     cont
   );
-}
-
-export function renderScreen(lines, forceWidth, enableLinkInlinePreview, enableLinkHoverPreview, cont) {
-  return ReactDOM.render(
-    <Screen
-      lines={lines}
-      forceWidth={forceWidth}
-      enableLinkInlinePreview={enableLinkInlinePreview}
-      enableLinkHoverPreview={enableLinkHoverPreview}
-    />, cont);
 }

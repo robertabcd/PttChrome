@@ -1,0 +1,116 @@
+#BBSWindow {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+  overflow: hidden;
+  z-index: 1;
+  user-select: none;
+  display: none;
+}
+
+.View__Input {
+  box-sizing: content-box;
+  color: initial;
+  resize: none;
+  border: none;
+  z-index: 2;
+  position: absolute;
+  opacity: 0;
+  border: none;
+  left: -100000px;
+  top: -100000px;
+}
+
+.View__Input--active {
+  opacity: 1;
+  border: double;
+}
+
+.View__Cursor {
+  white-space: pre;
+  cursor: text;
+  position: absolute;
+  color: #ffffff;
+  text-decoration: blink;
+  user-select: none;
+  height: 0px;
+  z-index: 2;
+  display: none;
+}
+
+.blink--active .View__Cursor {
+  display: block;
+}
+
+.View__Main {
+  border: 0;
+  height: 24.125em;
+  overflow-x: hidden;
+  overflow-y: auto;
+  text-align: left;
+  transform-origin: center;
+}
+
+.View__Main img {
+  padding: 0px;
+}
+
+.View__Main::-webkit-scrollbar {
+  width: 10px;
+}
+
+.View__Main::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+.View__Main::-webkit-scrollbar-track:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.View__Main::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+}
+.View__Main::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.View__Main,
+.View__EasyReadingRow--last,
+.View__EasyReadingRow--reply {
+  margin-top: 0px;
+  margin-left: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  user-select: text;
+  background-color: black;
+  /* box-shadow: 0 0 60px 50px black; */
+}
+
+.View__Main > span,
+.View__Container > span,
+.View__EasyReadingRow--last > span,
+.View__EasyReadingRow--reply > span {
+  display: block;
+  color: #c0c0c0;
+  white-space: pre;
+}
+
+.View__EasyReadingRow--last,
+.View__EasyReadingRow--reply {
+  position: relative;
+  display: none;
+  overflow: hidden;
+  user-select: none;
+  z-index: 1;
+  height: 1em;
+  background-color: transparent;
+}
+
+.View__EasyReadingRow--last {
+  margin-top: -1em;
+}
+
+.View__EasyReadingRow--reply {
+  margin-top: -2em;
+}
