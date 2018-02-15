@@ -843,9 +843,11 @@ App.prototype.mouse_click = function(e) {
         }
       } else if (this.view.leftButtonFunction) {
         if (this.view.leftButtonFunction == 1) {
+          this.setBBSCmd('doEnter', this.CmdHandler);
           e.preventDefault();
           this.setInputAreaFocus();
         } else if (this.view.leftButtonFunction == 2) {
+          this.setBBSCmd('doRight', this.CmdHandler);
           e.preventDefault();
           this.setInputAreaFocus();
         }
@@ -987,17 +989,127 @@ App.prototype.mouse_scroll = function(e) {
   var mouseWheelActionsUp = [ 'none', 'doArrowUp', 'doPageUp', 'previousThread' ];
   var mouseWheelActionsDown = [ 'none', 'doArrowDown', 'doPageDown', 'nextThread' ];
 
-    e.stopPropagation();
+  if (e.deltaY < 0 || e.wheelDelta > 0) { // scrolling up
+    if (this.mouseRightButtonDown) {
+      var action = mouseWheelActionsUp[this.view.mouseWheelFunction2];
+      this.setBBSCmd(action);
+    } else if (this.mouseLeftButtonDown) {
+      var action = mouseWheelActionsUp[this.view.mouseWheelFunction3];
+      this.setBBSCmd(action);
+    } else {
+      var action = mouseWheelActionsUp[this.view.mouseWheelFunction1];
+      this.setBBSCmd(action);
+    }
+  } else { // scrolling down
+    if (this.mouseRightButtonDown) {
+      var action = mouseWheelActionsDown[this.view.mouseWheelFunction2];
+      this.setBBSCmd(action);
+    } else if (this.mouseLeftButtonDown) {
+      var action = mouseWheelActionsDown[this.view.mouseWheelFunction3];
+      this.setBBSCmd(action);
+    } else {
+      var action = mouseWheelActionsDown[this.view.mouseWheelFunction1];
+      this.setBBSCmd(action);
+    }
+  }
+  
+
+  e.stopPropagation();
   e.preventDefault();
 
   if (this.mouseRightButtonDown) //prevent context menu popup
     this.CmdHandler.setAttribute('doDOMMouseScroll','1');
   if (this.mouseLeftButtonDown) {
     if (this.buf.useMouseBrowsing) {
-      cmdhandler.setAttribute('SkipMouseClick','1');
+      this.CmdHandler.setAttribute('SkipMouseClick','1');
     }
   }
 };
+
+App.prototype.setBBSCmd = function setBBSCmd(cmd) {
+  switch (cmd) {
+    case "doArrowUp":
+      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
+        if (this.view.mainDisplay.scrollTop === 0) {
+          this.easyReading.leaveCurrentPost();
+          this.conn.send('\x1b[D\x1b[A\x1b[C');
+        } else {
+          this.view.mainDisplay.scrollTop -= this.view.chh;
+        }
+      } else {
+        this.conn.send('\x1b[A');
+      }
+      break;
+    case "doArrowDown":
+      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
+        if (this.view.mainDisplay.scrollTop >= this.view.mainContainer.clientHeight - this.view.chh * this.buf.rows) {
+          this.easyReading.leaveCurrentPost();
+          this.conn.send('\x1b[B');
+        } else {
+          this.view.mainDisplay.scrollTop += this.view.chh;
+        }
+      } else {
+        this.conn.send('\x1b[B');
+      }
+      break;
+    case "doPageUp":
+      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
+        this.view.mainDisplay.scrollTop -= this.view.chh * this.easyReading._turnPageLines;
+      } else {
+        this.conn.send('\x1b[5~');
+      }
+      break;
+    case "doPageDown":
+      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
+        this.view.mainDisplay.scrollTop += this.view.chh * this.easyReading._turnPageLines;
+      } else {
+        this.conn.send('\x1b[6~');
+      }
+      break;
+    case "previousThread":
+      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
+        this.easyReading.leaveCurrentPost();
+        this.conn.send('[');
+      } else if (this.buf.pageState==2 || this.buf.pageState==3 || this.buf.pageState==4) {
+        this.conn.send('[');
+      }
+      break;
+    case "nextThread":
+      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
+        this.easyReading.leaveCurrentPost();
+        this.conn.send(']');
+      } else if (this.buf.pageState==2 || this.buf.pageState==3 || this.buf.pageState==4) {
+        this.conn.send(']');
+      }
+      break;
+    case "doEnter":
+      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
+        if (this.view.mainDisplay.scrollTop >= this.view.mainContainer.clientHeight - this.view.chh * this.buf.rows) {
+          this.easyReading.leaveCurrentPost();
+          this.conn.send('\r');
+        } else {
+          this.view.mainDisplay.scrollTop += this.view.chh;
+        }
+      } else {
+        this.conn.send('\r');
+      }
+      break;
+    case "doRight":
+      if (this.view.useEasyReadingMode && this.buf.startedEasyReading) {
+        if (this.view.mainDisplay.scrollTop >= this.view.mainContainer.clientHeight - this.view.chh * this.buf.rows) {
+          this.easyReading.leaveCurrentPost();
+          this.conn.send('\x1b[C');
+        } else {
+          this.view.mainDisplay.scrollTop += this.view.chh * this.easyReading._turnPageLines;
+        }
+      } else {
+        this.conn.send('\x1b[C');
+      }
+      break;
+    default:
+      break;
+  }
+}
 
 App.prototype.setupContextMenus = function() {
   ReactDOM.render(
