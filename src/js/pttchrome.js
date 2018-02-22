@@ -1,16 +1,17 @@
-﻿// Main Program
-import { AnsiParser } from './ansi_parser';
-import { TermView } from './term_view';
+﻿import { TermView } from './term_view';
 import { TermBuf } from './term_buf';
-import { TelnetConnection } from './telnet';
-import { Websocket } from './websocket';
 import { EasyReading } from './easy_reading';
 import { TouchController } from './touch_controller';
 import { unescapeStr } from './string_util';
 import { setTimer } from './util';
+import makeWebSocketDuplex from "../callbags/webSocketDuplex";
+import makeTelnetDuplex, { ACTION_SEND, ACTION_CONV_SEND } from "../callbags/telnetDuplex";
+import makeAnsiDuplex from "../callbags/ansiDuplex";
+import makeLegacyBufDuplex from "../callbags/legacyBufDuplex";
 import ReactApp from "../components/App";
 import { Callbag } from "../components/Callbag";
 import { reducer, initialState } from "../components/reducer";
+
 
 function noop() {}
 
@@ -27,7 +28,6 @@ export const App = function() {
   //this.buf.PTTZSTR1=this.getLM('PTTZArea1');
   //this.buf.PTTZSTR2=this.getLM('PTTZArea2');
   this.view.setBuf(this.buf);
-  this.parser = new AnsiParser(this.buf);
   this.easyReading = new EasyReading(this, this.view, this.buf);
 
 
@@ -82,25 +82,27 @@ export const App = function() {
 };
 
 App.prototype.connect = function(url) {
-  this.reactCallbag.onBeforeConnect();
-  console.log('connect: ' + url);
+  setTimeout(() => {
+    this.reactCallbag.onBeforeConnect();
+    console.log('connect: ' + url);
 
-  var parsed = this._parseURLSimple(url);
-  if (parsed.protocol == 'wsstelnet') {
-    this._setupWebsocketConn('wss://' + parsed.hostname + parsed.path);
-  } else if (parsed.protocol == 'wstelnet') {
-    this._setupWebsocketConn('ws://' + parsed.hostname + parsed.path);
-  } else {
-    console.log('unsupport connect url protocol: ' + parsed.protocol);
-    return;
-  }
+    var parsed = this._parseURLSimple(url);
+    if (parsed.protocol == 'wsstelnet') {
+      this._setupWebsocketConn('wss://' + parsed.hostname + parsed.path);
+    } else if (parsed.protocol == 'wstelnet') {
+      this._setupWebsocketConn('ws://' + parsed.hostname + parsed.path);
+    } else {
+      console.log('unsupport connect url protocol: ' + parsed.protocol);
+      return;
+    }
 
-  this.connectedUrl = {
-    url: url,
-    site: parsed.hostname,
-    port: parsed.port,
-    easyReadingSupported: true
-  };
+    this.connectedUrl = {
+      url: url,
+      site: parsed.hostname,
+      port: parsed.port,
+      easyReadingSupported: true
+    };
+  }, 0);
 };
 
 App.prototype._parseURLSimple = function(url) {
@@ -127,26 +129,51 @@ App.prototype._parseURLSimple = function(url) {
 };
 
 App.prototype._setupWebsocketConn = function(url) {
-  var wsConn = new Websocket(url);
-  this._attachConn(new TelnetConnection(wsConn));
-};
-
-App.prototype._attachConn = function(conn) {
-  this.conn = conn;
-  this.conn.addEventListener('open', this.onConnect.bind(this));
-  this.conn.addEventListener('close', this.onClose.bind(this));
-  this.conn.addEventListener('data', this.onData.bind(this));
+  let duplex = makeWebSocketDuplex(url);
+  duplex = makeTelnetDuplex(duplex);
+  duplex = makeAnsiDuplex(duplex);
+  duplex = makeLegacyBufDuplex(duplex, {
+    buf: this.buf
+  });
+  this.conn = {
+    send(data) {
+      duplex.sink(1, {
+        type: ACTION_SEND,
+        data,
+      })
+    },
+    convSend(data) {
+      duplex.sink(1, {
+        type: ACTION_CONV_SEND,
+        data,
+      })
+    }
+  }
+  duplex.source(0, (t, data) => {
+    switch(t) {
+      case 0: {
+        this.onConnect();
+        break;
+      }
+      case 1: {
+        this.onData(data);
+        break;
+      }
+      case 2: {
+        this.onClose();
+        break;
+      }
+    }
+  });
 };
 
 App.prototype.onConnect = function() {
-  this.view.setConn(this.conn);
   console.info("pttchrome onConnect");
   this.reactCallbag.onConnected();
 };
 
-App.prototype.onData = function({ detail: { data } }) {
+App.prototype.onData = function(data) {
   console.log('onData', data)
-  this.parser.feed(data);
   this.reactCallbag.onData(data);
 };
 

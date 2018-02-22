@@ -224,7 +224,7 @@ export const initialState = {
 };
 
 export function reducer(state, action) {
-  // console.log(`called reducer()`, action.type);
+  // console.log(`called reducer()`, state.connection, action.type);
   switch (action.type) {
     case LEGACY_INIT: {
       singleton.legacy = action.data;
@@ -482,7 +482,7 @@ export function reducer(state, action) {
     case WINDOW_KEYPRESS: {
       const { event } = action;
       if (skipIfMatchesKey(event)) {
-        return;
+        return state;
       }
       singleton.legacy.view._keyboard.onKeyPress(event);
       return state;
@@ -1243,7 +1243,7 @@ function onInput(state) {
   ) {
     // only use on chinese IME
     input.value = "";
-    return;
+    return state;
   }
   if (input.value) {
     singleton.legacy.view.onTextInput(input.value);
