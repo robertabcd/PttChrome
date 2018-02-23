@@ -3,7 +3,7 @@ import cx from "classnames";
 export const ColorSpan = ({ className, colorState, inner }) => (
   <span
     className={cx(className, `q${colorState.fg}`, `b${colorState.bg}`, {
-      [`qq${colorState.bg}`]: colorState.blink
+      [`qq${colorState.bg}`]: colorState.blink,
     })}
   >
     {inner}

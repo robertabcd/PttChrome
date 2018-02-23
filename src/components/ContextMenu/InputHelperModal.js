@@ -12,7 +12,7 @@ import {
   NavDropdown,
   MenuItem,
   Checkbox,
-  SplitButton
+  SplitButton,
 } from "react-bootstrap";
 import ColorSpan from "../Row/WordSegmentBuilder/ColorSpan";
 import { i18n } from "../../js/i18n";
@@ -52,7 +52,7 @@ const SYMBOLS = {
     "〞",
     "‵",
     "′",
-    "〃"
+    "〃",
   ],
 
   lineBorders: [
@@ -100,7 +100,7 @@ const SYMBOLS = {
     "╡",
     "╘",
     "╧",
-    "╛"
+    "╛",
   ],
 
   blocks: [
@@ -124,7 +124,7 @@ const SYMBOLS = {
     "◢",
     "◣",
     "◥",
-    "◤"
+    "◤",
   ],
 
   lines: [
@@ -154,7 +154,7 @@ const SYMBOLS = {
     "╱",
     "╲",
     "／",
-    "＼"
+    "＼",
   ],
 
   special: [
@@ -189,7 +189,7 @@ const SYMBOLS = {
     "￡",
     "※",
     "♀",
-    "♂"
+    "♂",
   ],
 
   brackets: [
@@ -234,7 +234,7 @@ const SYMBOLS = {
     "﹁",
     "﹂",
     "﹃",
-    "﹄"
+    "﹄",
   ],
 
   greek: [
@@ -285,7 +285,7 @@ const SYMBOLS = {
     "φ",
     "χ",
     "ψ",
-    "ω"
+    "ω",
   ],
 
   phonetic: [
@@ -329,7 +329,7 @@ const SYMBOLS = {
     "˙",
     "ˊ",
     "ˇ",
-    "ˋ"
+    "ˋ",
   ],
 
   math: [
@@ -359,7 +359,7 @@ const SYMBOLS = {
     "≦",
     "≧",
     "∩",
-    "∪"
+    "∪",
   ],
 
   hiragana: [
@@ -433,7 +433,7 @@ const SYMBOLS = {
     "よ",
     "わ",
     "ん",
-    "を"
+    "を",
   ],
 
   katakana: [
@@ -507,8 +507,8 @@ const SYMBOLS = {
     "ヨ",
     "ワ",
     "ン",
-    "ヲ"
-  ]
+    "ヲ",
+  ],
 };
 
 const EMOTICONS = {
@@ -522,7 +522,7 @@ const EMOTICONS = {
     "(o一-一)=○# (￣#)3￣)",
     "╰(‵皿′＊)╯",
     "○(#‵︿′ㄨ)○",
-    "◢▆▅▄▃-崩╰(〒皿〒)╯潰-▃▄▅▆◣"
+    "◢▆▅▄▃-崩╰(〒皿〒)╯潰-▃▄▅▆◣",
   ],
 
   meh: [
@@ -535,7 +535,7 @@ const EMOTICONS = {
     "︿(￣︶￣)︿",
     "..╮(﹋﹏﹌)╭..",
     "╮(╯_╰)╭",
-    "╮(╯▽╰)/"
+    "╮(╯▽╰)/",
   ],
 
   sweat: [
@@ -547,7 +547,7 @@ const EMOTICONS = {
     "╭ ﹀◇﹀〣",
     "ˋ(′_‵||)ˊ",
     "●( ¯▽¯；●",
-    "o(＞＜；)o o"
+    "o(＞＜；)o o",
   ],
 
   happy: [
@@ -559,7 +559,7 @@ const EMOTICONS = {
     "﹨(╯▽╰)∕",
     "\\(@^0^@)/",
     "\\(^▽^)/",
-    "\\⊙▽⊙/"
+    "\\⊙▽⊙/",
   ],
 
   other: [
@@ -572,8 +572,8 @@ const EMOTICONS = {
     "(⊙o⊙)",
     "(≧<>≦)",
     "(☆_☆)",
-    'o(‧"‧)o'
-  ]
+    'o(‧"‧)o',
+  ],
 };
 
 function sendColorCommand({ fg, bg, isBlink }, onCmdSend, type) {
@@ -604,29 +604,29 @@ const enhance = compose(
     () => ({
       fg: 7,
       bg: 0,
-      isBlink: false
+      isBlink: false,
     }),
     {
       onColorClick: () => ({ target: { dataset: { fg } } }) => ({
-        fg: parseInt(fg, 10)
+        fg: parseInt(fg, 10),
       }),
       onColorContextMenu: ({ bg }) => event => {
         const { target: { dataset } } = event;
         event.preventDefault();
         event.stopPropagation();
         return {
-          bg: "bg" in dataset ? parseInt(dataset.bg, 10) : bg
+          bg: "bg" in dataset ? parseInt(dataset.bg, 10) : bg,
         };
       },
       onBlinkChange: () => ({ target: { checked } }) => ({
-        isBlink: checked
+        isBlink: checked,
       }),
       onSendClick: (state, { onCmdSend }) => () =>
         sendColorCommand(state, onCmdSend),
       onSendSelect: (state, { onCmdSend }) => eventKey =>
         sendColorCommand(state, onCmdSend, eventKey),
       onSymEmoClick: (state, { onConvSend }) => ({ target: { textContent } }) =>
-        onConvSend(textContent)
+        onConvSend(textContent),
     }
   ),
   withHandlers({
@@ -638,7 +638,7 @@ const enhance = compose(
     onMouseMove: () => ({
       currentTarget: { dataset, style },
       clientX,
-      clientY
+      clientY,
     }) => {
       if (dataset.dragActive === "true") {
         window.getSelection().removeAllRanges();
@@ -652,7 +652,7 @@ const enhance = compose(
     },
     onMouseUp: () => ({ currentTarget: { dataset } }) => {
       dataset.dragActive = false;
-    }
+    },
   })
 );
 
@@ -672,7 +672,7 @@ export const InputHelperModal = ({
   onBlinkChange,
   onSendClick,
   onSendSelect,
-  onSymEmoClick
+  onSymEmoClick,
 }) => (
   <Modal
     show={show}
@@ -830,7 +830,7 @@ export const InputHelperModal = ({
                     colorState={{
                       fg,
                       bg,
-                      blink: isBlink
+                      blink: isBlink,
                     }}
                     inner={i18n("colorHelperPreview")}
                   />

@@ -62,7 +62,7 @@ WordSegmentBuilder.NullObject = {
 
   build() {
     return false;
-  }
+  },
 };
 
 export default WordSegmentBuilder;

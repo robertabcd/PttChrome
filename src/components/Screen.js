@@ -2,7 +2,7 @@ import Row from "./Row";
 import ImagePreviewer, {
   of,
   resolveSrcToImageUrl,
-  resolveWithImageDOM
+  resolveWithImageDOM,
 } from "./ImagePreviewer";
 
 export class Screen extends React.Component {
@@ -14,7 +14,7 @@ export class Screen extends React.Component {
     currentHighlighted: undefined,
     currentImagePreview: undefined,
     left: undefined,
-    top: undefined
+    top: undefined,
   };
 
   componentWillReceiveProps(nextProps) {
@@ -27,7 +27,7 @@ export class Screen extends React.Component {
     if (this.state.currentImagePreview) {
       this.setState({
         left: clientX,
-        top: clientY
+        top: clientY,
       });
     }
   };
@@ -37,7 +37,7 @@ export class Screen extends React.Component {
       this.setState({
         currentImagePreview: of(href)
           .then(resolveSrcToImageUrl)
-          .then(resolveWithImageDOM)
+          .then(resolveWithImageDOM),
       });
     }
   };

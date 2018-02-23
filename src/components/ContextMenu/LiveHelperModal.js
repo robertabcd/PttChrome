@@ -16,7 +16,7 @@ const enhance = compose(
       onChange({ enabled: !enabled, sec }),
 
     onSecChange: ({ enabled, onChange }) => ({ target: { value } }) =>
-      onChange({ enabled, sec: normalizeSec(value) })
+      onChange({ enabled, sec: normalizeSec(value) }),
   })
 );
 
@@ -27,7 +27,7 @@ export const LiveHelperModal = ({
   sec,
   // from recompose
   onEnabledClick,
-  onSecChange
+  onSecChange,
 }) => (
   <Modal show={show}>
     <Modal.Body className="LiveHelperModal__Body">
