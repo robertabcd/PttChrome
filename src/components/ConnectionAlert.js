@@ -19,7 +19,7 @@ const enhance = compose(
     },
     componentWillUnmount() {
       window.removeEventListener("keydown", this.handler, true);
-    }
+    },
   })
 );
 

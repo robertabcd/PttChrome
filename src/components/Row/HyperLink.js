@@ -4,7 +4,7 @@ export const HyperLink = ({
   href,
   inner,
   onMouseOver,
-  onMouseOut
+  onMouseOut,
 }) => (
   <a
     onMouseOver={onMouseOver}

@@ -36,9 +36,9 @@ const QUICK_SEARCH = {
   providers: [
     {
       name: "goo.gl",
-      url: "https://goo.gl/%s"
-    }
-  ]
+      url: "https://goo.gl/%s",
+    },
+  ],
 };
 
 const enhance = compose(
@@ -58,7 +58,7 @@ const enhance = compose(
       onContextMenu: () => event => {
         event.stopPropagation();
         event.preventDefault();
-      }
+      },
     };
   }),
   lifecycle({
@@ -72,7 +72,7 @@ const enhance = compose(
       ) {
         this.props.onMousePositionChange();
       }
-    }
+    },
   })
 );
 
@@ -91,7 +91,7 @@ export const DropdownMenu = ({
   onQuickSearchSelect,
   //
   onDropdownMenuMount,
-  onContextMenu
+  onContextMenu,
 }) => (
   <ul
     className="dropdown-menu DropdownMenu--reset"
@@ -144,7 +144,7 @@ export const DropdownMenu = ({
               "QuickSearchMenu",
               {
                 "QuickSearchMenu--up": pageY > window.innerHeight / 2,
-                "QuickSearchMenu--left": pageX > window.innerWidth * 0.7
+                "QuickSearchMenu--left": pageX > window.innerWidth * 0.7,
               }
             )}
             role="menu"
@@ -173,7 +173,7 @@ export const DropdownMenu = ({
           eventKey="mouseBrowsing"
           onSelect={onMenuSelect}
           className={cx({
-            "DropdownMenu__Item--checked": mouseBrowsingEnabled
+            "DropdownMenu__Item--checked": mouseBrowsingEnabled,
           })}
         >
           {i18n("cmenu_mouseBrowsing")}

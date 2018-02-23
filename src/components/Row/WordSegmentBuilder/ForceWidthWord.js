@@ -5,7 +5,7 @@ export const forceWidthStyle = forceWidth =>
   forceWidth
     ? {
         display: "inline-block",
-        width: `${forceWidth}px`
+        width: `${forceWidth}px`,
       }
     : undefined;
 

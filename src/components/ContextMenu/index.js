@@ -16,7 +16,7 @@ const EVENT_KEY_BY_HOT_KEY = {
   ["E".charCodeAt(0)]: "copyLinkUrl",
   ["P".charCodeAt(0)]: "paste",
   ["S".charCodeAt(0)]: "searchGoogle",
-  ["T".charCodeAt(0)]: "openUrlNewTab"
+  ["T".charCodeAt(0)]: "openUrlNewTab",
 };
 
 const menuHandlerByEventKey = {
@@ -29,7 +29,7 @@ const menuHandlerByEventKey = {
     pttchrome.doOpenUrlNewTab(aElement),
   copyLinkUrl: (pttchrome, { contextOnUrl }) => pttchrome.doCopy(contextOnUrl),
   selectAll: pttchrome => pttchrome.doSelectAll(),
-  mouseBrowsing: pttchrome => pttchrome.switchMouseBrowsing()
+  mouseBrowsing: pttchrome => pttchrome.switchMouseBrowsing(),
 };
 
 const onPrefSaveImpl = (pttchrome, values) => {
@@ -39,7 +39,7 @@ const onPrefSaveImpl = (pttchrome, values) => {
   pttchrome.switchToEasyReadingMode(pttchrome.view.useEasyReadingMode);
 
   return {
-    showsSettings: false
+    showsSettings: false,
   };
 };
 
@@ -60,7 +60,7 @@ const initialState = {
   showsSettings: false,
   // --- LiveHelper state ---
   liveHelperEnabled: false,
-  liveHelperSec: 1
+  liveHelperSec: 1,
 };
 
 const enhance = compose(
@@ -112,7 +112,7 @@ const enhance = compose(
         selectedText,
         urlEnabled,
         normalEnabled,
-        selEnabled
+        selEnabled,
       };
     },
 
@@ -135,7 +135,7 @@ const enhance = compose(
       pttchrome.contextMenuShown = false;
       return {
         ...initialState,
-        showsInputHelper: true
+        showsInputHelper: true,
       };
     },
 
@@ -144,7 +144,7 @@ const enhance = compose(
       pttchrome.contextMenuShown = false;
       return {
         ...initialState,
-        showsLiveArticleHelper: true
+        showsLiveArticleHelper: true,
       };
     },
 
@@ -155,7 +155,7 @@ const enhance = compose(
       pttchrome.modalShown = true;
       return {
         ...initialState,
-        showsSettings: true
+        showsSettings: true,
       };
     },
 
@@ -172,7 +172,7 @@ const enhance = compose(
 
     onInputHelperHide: (state, { pttchrome }) => () => {
       return {
-        showsInputHelper: false
+        showsInputHelper: false,
       };
     },
     onInputHelperReset: (state, { pttchrome }) => () => {
@@ -217,7 +217,7 @@ const enhance = compose(
     onLiveHelperHide: () => () => {
       return {
         showsLiveArticleHelper: false,
-        liveHelperEnabled: false
+        liveHelperEnabled: false,
       };
     },
     onLiveHelperChange: (state, { pttchrome }) => nextState => {
@@ -231,7 +231,7 @@ const enhance = compose(
       }
       return {
         liveHelperEnabled: nextState.enabled,
-        liveHelperSec: nextState.sec
+        liveHelperSec: nextState.sec,
       };
     },
 
@@ -241,7 +241,7 @@ const enhance = compose(
     onPrefReset: (state, { pttchrome }) => values => {
       pttchrome.view.redraw(true);
       return onPrefSaveImpl(pttchrome, values);
-    }
+    },
   }),
   withProps(({ pttchrome, liveHelperEnabled, onLiveHelperChange }) => {
     // FIXME: side effect
@@ -249,13 +249,13 @@ const enhance = compose(
       pttchrome.onToggleLiveHelperModalState = () => {
         onLiveHelperChange({
           enabled: !state.enabled,
-          sec: state.sec
+          sec: state.sec,
         });
       };
       pttchrome.onDisableLiveHelperModalState = () => {
         onLiveHelperChange({
           enabled: false,
-          sec: state.sec
+          sec: state.sec,
         });
       };
     } else {
@@ -309,7 +309,7 @@ const enhance = compose(
         this.contextMenuHandler,
         false
       );
-    }
+    },
   })
 );
 
@@ -342,12 +342,12 @@ export const ContextMenu = ({
   onLiveHelperHide,
   onLiveHelperChange,
   onPrefSave,
-  onPrefReset
+  onPrefReset,
 }) => (
   <React.Fragment>
     <div
       className={cx({
-        open
+        open,
       })}
     >
       <DropdownMenu

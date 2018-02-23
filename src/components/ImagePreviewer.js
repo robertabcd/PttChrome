@@ -14,7 +14,7 @@ export const resolveWithImageDOM = ({ src }) =>
     img.onload = () =>
       resolve({
         src,
-        height: img.height
+        height: img.height,
       });
     img.onerror = reject;
     img.src = src;
@@ -24,7 +24,7 @@ export class ImagePreviewer extends React.PureComponent {
   state = {
     pending: undefined,
     value: undefined,
-    error: undefined
+    error: undefined,
   };
 
   componentDidMount() {
@@ -43,7 +43,7 @@ export class ImagePreviewer extends React.PureComponent {
       return {
         pending: request,
         value: undefined,
-        error: undefined
+        error: undefined,
       };
     });
   }
@@ -72,7 +72,7 @@ export class ImagePreviewer extends React.PureComponent {
       component: undefined,
       request: undefined,
       value: this.state.value,
-      error: this.state.error
+      error: this.state.error,
     });
   }
 }
@@ -105,7 +105,7 @@ ImagePreviewer.OnHover = ({ left, top, value, error }) => {
           top: getTop(top, value.height),
           maxHeight: "80%",
           maxWidth: "90%",
-          zIndex: 2
+          zIndex: 2,
         }}
       />
     );
@@ -117,7 +117,7 @@ ImagePreviewer.OnHover = ({ left, top, value, error }) => {
           position: "absolute",
           left: left + 20,
           top: top,
-          zIndex: 2
+          zIndex: 2,
         }}
       />
     );
@@ -146,8 +146,8 @@ const imageUrlResolvers = [
     },
     request() {
       return Promise.reject(new Error("Unimplemented"));
-    }
-  }
+    },
+  },
 ];
 
 const registerImageUrlResolver = imageUrlResolvers.unshift.bind(
@@ -171,10 +171,10 @@ registerImageUrlResolver({
       api_key: "c8c95356e465b8d7398ff2847152740e",
       photo_id: photoId,
       format: "json",
-      nojsoncallback: 1
+      nojsoncallback: 1,
     })}`;
     return fetch(apiURL, {
-      mode: "cors"
+      mode: "cors",
     })
       .then(r => r.json())
       .then(data => {
@@ -183,10 +183,10 @@ registerImageUrlResolver({
         }
         const { farm, server: svr, id, secret } = data.photo;
         return {
-          src: `https://farm${farm}.staticflickr.com/${svr}/${id}_${secret}.jpg`
+          src: `https://farm${farm}.staticflickr.com/${svr}/${id}_${secret}.jpg`,
         };
       });
-  }
+  },
 });
 
 registerImageUrlResolver({
@@ -199,9 +199,9 @@ registerImageUrlResolver({
   },
   request(src) {
     return Promise.resolve({
-      src: `${src.replace(this.regex, "https://i.imgur.com")}.jpg`
+      src: `${src.replace(this.regex, "https://i.imgur.com")}.jpg`,
     });
-  }
+  },
 });
 
 export default ImagePreviewer;

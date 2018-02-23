@@ -14,7 +14,7 @@ import {
   ControlLabel,
   FormControl,
   OverlayTrigger,
-  Popover
+  Popover,
 } from "react-bootstrap";
 import { i18n } from "../../js/i18n";
 import "./PrefModal.css";
@@ -43,7 +43,7 @@ const DEFAULT_PREFS = {
   // displays
   fontFitWindowWidth: false,
   fontFace: "MingLiu,SymMingLiU,monospace",
-  bbsMargin: 0
+  bbsMargin: 0,
 };
 
 const PREF_STORAGE_KEY = "pttchrome.pref.v1";
@@ -52,11 +52,11 @@ export const readValuesWithDefault = () => {
   try {
     return {
       ...DEFAULT_PREFS,
-      ...JSON.parse(window.localStorage.getItem(PREF_STORAGE_KEY)).values
+      ...JSON.parse(window.localStorage.getItem(PREF_STORAGE_KEY)).values,
     };
   } catch (e) {
     return {
-      ...DEFAULT_PREFS
+      ...DEFAULT_PREFS,
     };
   }
 };
@@ -66,7 +66,7 @@ const writeValues = values => {
     window.localStorage.setItem(
       PREF_STORAGE_KEY,
       JSON.stringify({
-        values
+        values,
       })
     );
   } catch (e) {}
@@ -121,8 +121,8 @@ const enhance = compose(
         link_GPL20: link(
           "General Public License v2.0",
           "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html"
-        )
-      }
+        ),
+      },
     }),
     {
       onCloseClick: ({ values }, { onSave }) => () =>
@@ -131,34 +131,34 @@ const enhance = compose(
       onResetClick: (state, { onReset }) => () =>
         onReset(
           writeValues({
-            ...DEFAULT_PREFS
+            ...DEFAULT_PREFS,
           })
         ),
 
       onNavSelect: () => activeKey => ({
-        navActiveKey: activeKey
+        navActiveKey: activeKey,
       }),
 
       onCheckboxChange: ({ values }) => ({ target: { name, checked } }) => ({
         values: {
           ...values,
-          [name]: checked
-        }
+          [name]: checked,
+        },
       }),
 
       onNumberInputChange: ({ values }) => ({ target: { name, value } }) => ({
         values: {
           ...values,
-          [name]: parseInt(value, 10)
-        }
+          [name]: parseInt(value, 10),
+        },
       }),
 
       onNumberTextChange: ({ values }) => ({ target: { name, value } }) => ({
         values: {
           ...values,
-          [name]: value
-        }
-      })
+          [name]: value,
+        },
+      }),
     }
   )
 );
@@ -174,7 +174,7 @@ export const PrefModal = ({
   onCheckboxChange,
   onNumberInputChange,
   onNumberTextChange,
-  replacements
+  replacements,
 }) => (
   <Modal show={show} onHide={onCloseClick} className="PrefModal">
     <Modal.Body>
@@ -344,9 +344,7 @@ export const PrefModal = ({
                             key={i}
                             value={i}
                             className={cx(
-                              `b${
-                                i
-                              }` /* FIXME: Existing bug: Not working for Chrome */
+                              `b${i}` /* FIXME: Existing bug: Not working for Chrome */
                             )}
                           />
                         ))}
@@ -365,7 +363,7 @@ export const PrefModal = ({
                       {[
                         "options_none",
                         "options_enterKey",
-                        "options_rightKey"
+                        "options_rightKey",
                       ].map((key, index) => (
                         <option key={key} value={index}>
                           {i18n(key)}
@@ -387,7 +385,7 @@ export const PrefModal = ({
                         "options_none",
                         "options_enterKey",
                         "options_leftKey",
-                        "options_doPaste"
+                        "options_doPaste",
                       ].map((key, index) => (
                         <option key={key} value={index}>
                           {i18n(key)}
@@ -409,7 +407,7 @@ export const PrefModal = ({
                         "options_none",
                         "options_upDown",
                         "options_pageUpDown",
-                        "options_threadLastNext"
+                        "options_threadLastNext",
                       ].map((key, index) => (
                         <option key={key} value={index}>
                           {i18n(key)}
@@ -431,7 +429,7 @@ export const PrefModal = ({
                         "options_none",
                         "options_upDown",
                         "options_pageUpDown",
-                        "options_threadLastNext"
+                        "options_threadLastNext",
                       ].map((key, index) => (
                         <option key={key} value={index}>
                           {i18n(key)}
@@ -453,7 +451,7 @@ export const PrefModal = ({
                         "options_none",
                         "options_upDown",
                         "options_pageUpDown",
-                        "options_threadLastNext"
+                        "options_threadLastNext",
                       ].map((key, index) => (
                         <option key={key} value={index}>
                           {i18n(key)}
