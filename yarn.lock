@@ -1173,6 +1173,105 @@ cache-base@^1.0.1:
     union-value "^1.0.0"
     unset-value "^1.0.0"
 
+callbag-basics@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/callbag-basics/-/callbag-basics-2.0.1.tgz#3e6f50699a107933211c846b8152741c36d26ec6"
+  dependencies:
+    callbag "1.0.x"
+    callbag-combine "1.0.x"
+    callbag-concat "1.0.x"
+    callbag-filter "1.0.x"
+    callbag-flatten "1.0.x"
+    callbag-for-each "1.0.x"
+    callbag-from-event "1.0.x"
+    callbag-from-iter "1.0.x"
+    callbag-from-obs "1.0.x"
+    callbag-from-promise "1.0.x"
+    callbag-interval "1.0.x"
+    callbag-map "1.0.x"
+    callbag-merge "1.0.x"
+    callbag-pipe "1.1.x"
+    callbag-scan "1.0.x"
+    callbag-share "1.0.x"
+    callbag-skip "1.0.x"
+    callbag-take "1.0.x"
+
+callbag-combine@1.0.x:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/callbag-combine/-/callbag-combine-1.0.1.tgz#390a3eef1f4c6f05ba3064c7e796f846251b1c70"
+
+callbag-concat@1.0.x:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/callbag-concat/-/callbag-concat-1.0.1.tgz#9023732ab2a3c5b98e06628e6eb603da2e696280"
+
+callbag-filter@1.0.x:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/callbag-filter/-/callbag-filter-1.0.1.tgz#82d3b80231cf890fd6e0d61c3a33cd09dcb52570"
+
+callbag-flatten@1.0.x:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/callbag-flatten/-/callbag-flatten-1.0.0.tgz#d9f85adab0fb7f79084f5d6e42cd9e5f5bd0979a"
+
+callbag-for-each@1.0.x:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/callbag-for-each/-/callbag-for-each-1.0.1.tgz#8c0ad8c7e8f713c9e6a21d44655b6b77033c3520"
+
+callbag-from-event@1.0.x:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/callbag-from-event/-/callbag-from-event-1.0.0.tgz#e3a8931cd46775256eff3a960a743ad1c7ccfea9"
+
+callbag-from-iter@1.0.x:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/callbag-from-iter/-/callbag-from-iter-1.0.0.tgz#2a4a1c079128caa0e29c81539846fdfa94a7cee8"
+
+callbag-from-obs@1.0.x:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/callbag-from-obs/-/callbag-from-obs-1.0.1.tgz#3dd279415d21e2b4cdce370a0390a621264aec05"
+
+callbag-from-promise@1.0.x:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/callbag-from-promise/-/callbag-from-promise-1.0.0.tgz#805ae6d75c4e8be62235e310e4106e5f250ee416"
+
+callbag-interval@1.0.x:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/callbag-interval/-/callbag-interval-1.0.0.tgz#a88063300b835b594afc2793c08b4df2e0d4e058"
+
+callbag-map@1.0.x:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/callbag-map/-/callbag-map-1.0.1.tgz#a5bcd41cde60c226cdd22f5868beb7b2ecd6c167"
+
+callbag-merge@1.0.x:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/callbag-merge/-/callbag-merge-1.0.0.tgz#719844fe4e54181520ada6992ab9e8efdaf73b53"
+
+callbag-pipe@1.1.x:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/callbag-pipe/-/callbag-pipe-1.1.1.tgz#f9d9f651f0bb64bc78d91f7132d738f066e3a4cf"
+
+callbag-scan@1.0.x:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/callbag-scan/-/callbag-scan-1.0.1.tgz#4634df4823705deb8a5e5fe3a5b3dc48a107ea81"
+
+callbag-share@1.0.x:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/callbag-share/-/callbag-share-1.0.0.tgz#54f518b9793e86eeb923810de9df21a5e6c4a21b"
+
+callbag-skip@1.0.x:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/callbag-skip/-/callbag-skip-1.0.0.tgz#91f60c434d1a7aba02b8b7ef1aad82da0a805ceb"
+
+callbag-subject@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/callbag-subject/-/callbag-subject-1.0.1.tgz#367124b1040b4e95360265c0c4d386333eb13853"
+
+callbag-take@1.0.x:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/callbag-take/-/callbag-take-1.0.0.tgz#d3d3acf3f73ef9a7cda42958dfb4de37b9c0a2b8"
+
+callbag@1.0.x:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/callbag/-/callbag-1.0.2.tgz#3c5c14df59f9d40de86cf2acb1136afae568f3b5"
+
 callsites@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/callsites/-/callsites-2.0.0.tgz#06eb84f00eea413da86affefacbffb36093b3c50"

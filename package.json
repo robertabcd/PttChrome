@@ -3,6 +3,8 @@
   "version": "1.2.0",
   "dependencies": {
     "base58": "^1.0.1",
+    "callbag-basics": "^2.0.1",
+    "callbag-subject": "^1.0.1",
     "classnames": "^2.2.5",
     "react": "^16.2.0",
     "react-bootstrap": "^0.32.1",
@@ -37,7 +39,10 @@
   },
   "lint-staged": {
     "*.json": ["prettier --write", "git add"],
-    "src/components/**/*.{js,json,css}": ["prettier --write", "git add"]
+    "src/{callbags,components}/**/*.{js,json,css}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "babel": {
     "env": {
