@@ -4,7 +4,7 @@ import {
   parseReqNotMetText,
   parseStatusRow
 } from './string_util';
-import { readValuesWithDefault } from '../components/ContextMenu/PrefModal';
+import { readValuesWithDefault } from '../application/reducer';
 
 export function EasyReading(core, view, termBuf) {
   this._core = core;
@@ -16,6 +16,7 @@ export function EasyReading(core, view, termBuf) {
   this.easyReadingReachedPageEnd = false;
   this.sendCommandAfterUpdate = '';
   this.ignoreOneUpdate = false;
+  this._enabled = false;
 
   function bindProperty(target, name, obj, prop) {
     if (!prop) prop = name;
@@ -24,7 +25,6 @@ export function EasyReading(core, view, termBuf) {
       set: function(val) { target[name] = val; }
     });
   }
-  bindProperty(this._view, 'useEasyReadingMode', this, '_enabled');
   bindProperty(this._termBuf, 'startedEasyReading', this);
   bindProperty(this._termBuf, 'easyReadingShowReplyText', this);
   bindProperty(this._termBuf, 'easyReadingShowPushInitText', this);
@@ -40,8 +40,7 @@ EasyReading.prototype._onChanged = function(e) {
   if (this._termBuf.prevPageState == 2 &&
       this._termBuf.pageState == 3 &&
       !this._enabled && 
-      values.enableEasyReading &&
-      this._core.connectedUrl.easyReadingSupported)
+      values.enableEasyReading)
   {
     this._enabled = true;
   } else if (!values.enableEasyReading) {
@@ -179,9 +178,9 @@ EasyReading.prototype._scrollBy = function(lines) {
     return false;
   if (lines > 0 && cont.scrollTop >=
     this._view.mainContainer.clientHeight -
-      this._view.chh * this._termBuf.rows)
+      this._core.reactCallbag.state.chh * this._termBuf.rows)
     return false;
-  cont.scrollTop += this._view.chh * lines;
+  cont.scrollTop += this._core.reactCallbag.state.chh * lines;
   return true;
 };
 

@@ -62,45 +62,6 @@
   font-size: 13px;
 }
 
-#BBSWindow {
-  position:fixed;
-  width:100%;
-  height:100%;
-  top:0px;
-  left:0px;
-  overflow:hidden;
-  z-index:1;
-
-  -webkit-user-select: none;
-}
-
-#cursor {
-  display: none;
-}
-
-.blink--active #cursor {
-  display: block;
-}
-
-.main, #easyReadingLastRow, #easyReadingReplyRow {
-  font-family: MingLiu, monospace;
-  font-size: 26px;
-  line-height: 100%;
-  height: 24.125em;
-  margin-top:0px;
-  margin-left:0px;
-  margin-right:0px;
-  margin-bottom:0px;
-  -webkit-user-select: text;
-  background-color: black;
-  /* box-shadow: 0 0 60px 50px black; */
-}
-
-.main *,
-#easyReadingLastRow *,
-#easyReadingReplyRow * {
-  font-family: inherit!important;
-}
 
 .linkurl {
   text-decoration:underline;
@@ -112,32 +73,6 @@ a:link,a:visited,a:active,a:hover {
   text-decoration:none;
 }
 
-.main > span, 
-#mainContainer > span, 
-#easyReadingLastRow > span,
-#easyReadingReplyRow > span {
-  display:block;
-  color:#C0C0C0;
-  white-space: pre;
-}
-
-#easyReadingLastRow, #easyReadingReplyRow {
-  position: relative;
-  display: none;
-  overflow: hidden;
-  -webkit-user-select: none;
-  z-index: 1;
-  height: 1em;
-  background-color: transparent;
-}
-
-#easyReadingLastRow {
-  margin-top: -1em;
-}
-
-#easyReadingReplyRow {
-  margin-top: -2em;
-}
 
 #fbSharing {
   position: absolute;
@@ -161,28 +96,11 @@ a:link,a:visited,a:active,a:hover {
   display: block;
 }
 
-.terminal_display {
-  font-family : MingLiu, monospace;
-  font-size    : 26px;
-  line-height:26px;
-  white-space: pre;
-  cursor: text;
-  position: absolute;
-  color: #FFFFFF;
-  text-decoration: blink;
-  -webkit-user-select: none;
-  height: 0px;
-  z-index: 2;
-}
 
 img {
   background:white; 
   color:black; 
   padding:5px 5px;
-}
-
-.main img {
-  padding: 0px;
 }
 
 body {
@@ -342,24 +260,6 @@ span {
   margin-left:2px;
   margin-right:2px;
   margin-bottom:2px;
-}
-
-.main::-webkit-scrollbar {
-  width: 10px;
-}
-
-.main::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-}
-.main::-webkit-scrollbar-track:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.main::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-}
-.main::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
 }
 
 .glyphicon-refresh-animate {

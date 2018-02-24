@@ -6,6 +6,7 @@ export const Row = ({
   enableLinkInlinePreview,
   forceWidth,
   highlighted,
+  highlightedClassName,
   onHyperLinkMouseOver,
   onHyperLinkMouseOut,
 }) => (
@@ -18,6 +19,7 @@ export const Row = ({
           enableLinkInlinePreview,
           forceWidth,
           highlighted,
+          highlightedClassName,
           onHyperLinkMouseOver,
           onHyperLinkMouseOut
         )

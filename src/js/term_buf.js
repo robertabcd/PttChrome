@@ -221,8 +221,6 @@ export function TermBuf(cols, rows) {
   this.tempMouseCol = 0;
   this.tempMouseRow = 0;
   this.mouseCursor = 0;
-  this.highlightCursor = true;
-  this.useMouseBrowsing = true;
   //this.scrollingTop=0;
   //this.scrollingBottom=23;
   this.attr = new TermChar(' ');
@@ -258,7 +256,11 @@ export function TermBuf(cols, rows) {
     this.lines[rows] = line;
     //this.keyWordLine[rows]=false;
   }
-  this.BBSWin = document.getElementById('BBSWindow');
+  Object.defineProperty(this, 'BBSWin', {
+    get() { return document.getElementById('BBSWindow'); },
+  });
+
+  this.blinkOn = false;
 }
 
 TermBuf.prototype = {
@@ -774,7 +776,7 @@ TermBuf.prototype = {
       this.updateCharAttr();
 
       this.setPageState();
-      if (this.useMouseBrowsing) {
+      if (this.view.bbscore.reactCallbag.state.settings.useMouseBrowsing) {
         // clear highlight and reset cursor on page change
         // without the redraw being called here
         this.clearHighlight();
@@ -791,14 +793,12 @@ TermBuf.prototype = {
     }
 
     if (this.posChanged) { // cursor pos changed
-      if (this.view) {
-        this.view.updateCursorPos();
-      }
+      this.view.bbscore.reactCallbag.onUpdateCursor();
       this.posChanged=false;
     }
 
-    if (this.view.blinkOn) {
-      this.view.blinkOn = false;
+    if (this.blinkOn) {
+      this.blinkOn = false;
 
       document.body.classList.toggle('blink--active')
     }
@@ -1025,6 +1025,7 @@ TermBuf.prototype = {
   },
 
   onMouse_move: function(tcol, trow, doRefresh){
+    // console.log(`onMouse_move(${tcol}, ${trow}, ${doRefresh})`)
     this.tempMouseCol = tcol;
     this.tempMouseRow = trow;
 
@@ -1167,14 +1168,14 @@ TermBuf.prototype = {
   },
 
   resetMousePos: function() {
-    if (this.useMouseBrowsing) {
+    if (this.view.bbscore.reactCallbag.state.settings.useMouseBrowsing) {
       this.onMouse_move(this.tempMouseCol, this.tempMouseRow, true);
     }
   },
 
   setHighlight: function(row) {
     this._nowHighlight = row;
-    this.view.setHighlightedRow(row);
+    this.view.bbscore.reactCallbag.onCurrentHighlighted(row);
   },
 
   clearHighlight: function(){

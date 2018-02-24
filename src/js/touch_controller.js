@@ -27,19 +27,20 @@ TouchController.prototype.setupHandlers = function() {
   };
 
   document.body.ontouchend = function(e) {
-    if (app.buf.pageState == 2 && app.buf.highlightCursor &&
+    if (app.buf.pageState == 2 && app.reactCallbag.state.settings.mouseBrowsingHighlight &&
         app.buf.nowHighlight != -1) {
       app.onMouse_click(self.touchedCenter.x, self.touchedCenter.y);
       app.buf.nowHighlight = -1;
-      app.buf.highlightCursor = self.highlightCopy;
-      app.BBSWin.style.cursor = 'auto';
+      app.reactCallbag.state.settings.mouseBrowsingHighlight = self.highlightCopy;
+      self.BBSWin.style.cursor = 'auto';
       self.touchStarted = false;
       app.inputArea.focus();
     }
     console.log('touchend');
   };
 
-  this.ham = new Hammer(app.BBSWin);
+  this.BBSWin = document.getElementById('BBSWindow');
+  this.ham = new Hammer(this.BBSWin);
   this.ham.on('pan', function(ev) {
     if (ev.pointerType == 'touch') {
       //console.log(ev);
@@ -47,8 +48,8 @@ TouchController.prototype.setupHandlers = function() {
         ev.preventDefault();
         ev.srcEvent.preventDefault();
 
-        self.highlightCopy = app.buf.highlightCursor;
-        app.buf.highlightCursor = true;
+        self.highlightCopy = app.reactCallbag.state.settings.mouseBrowsingHighlight;
+        app.reactCallbag.state.settings.mouseBrowsingHighlight = true;
         app.onMouse_move(ev.center.x, ev.center.y);
         self.touchedCenter.x = ev.center.x;
         self.touchedCenter.y = ev.center.y;
@@ -62,13 +63,13 @@ TouchController.prototype.setupHandlers = function() {
     ev.srcEvent.stopPropagation();
     ev.srcEvent.preventDefault();
     if (ev.pointerType != 'touch')  return; 
-    self.highlightCopy = app.buf.highlightCursor;
-    app.buf.highlightCursor = false;
+    self.highlightCopy = app.reactCallbag.state.settings.mouseBrowsingHighlight;
+    app.reactCallbag.state.settings.mouseBrowsingHighlight = false;
     app.onMouse_move(ev.center.x, ev.center.y);
     app.onMouse_click(ev.center.x, ev.center.y);
     app.buf.nowHighlight = -1;
-    app.buf.highlightCursor = self.highlightCopy;
-    app.BBSWin.style.cursor = 'auto';
+    app.reactCallbag.state.settings.mouseBrowsingHighlight = self.highlightCopy;
+    self.BBSWin.style.cursor = 'auto';
     self.touchStarted = false;
     app.inputArea.focus();
     console.log('touchtap');

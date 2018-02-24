@@ -1,17 +1,14 @@
+import { createSelector, createStructuredSelector } from "reselect";
 import Row from "./Row";
 import ImagePreviewer, {
   of,
   resolveSrcToImageUrl,
   resolveWithImageDOM,
 } from "./ImagePreviewer";
+import { CallbagConsumer } from "./Callbag";
 
 export class Screen extends React.Component {
-  setCurrentHighlighted = currentHighlighted => {
-    this.setState({ currentHighlighted });
-  };
-
   state = {
-    currentHighlighted: undefined,
     currentImagePreview: undefined,
     left: undefined,
     top: undefined,
@@ -48,7 +45,11 @@ export class Screen extends React.Component {
 
   render() {
     return (
-      <div id="mainContainer" onMouseMove={this.handleMouseMove}>
+      <div
+        ref={this.props.containerRef}
+        className="View__Container"
+        onMouseMove={this.handleMouseMove}
+      >
         {this.props.lines.map((chars, row) => (
           <Row
             key={row}
@@ -56,7 +57,8 @@ export class Screen extends React.Component {
             row={row}
             forceWidth={this.props.forceWidth}
             enableLinkInlinePreview={this.props.enableLinkInlinePreview}
-            highlighted={this.state.currentHighlighted === row}
+            highlighted={this.props.highlightedIndex === row}
+            highlightedClassName={this.props.highlightedClassName}
             onHyperLinkMouseOver={this.handleHyperLinkMouseOver}
             onHyperLinkMouseOut={this.handleHyperLinkMouseOut}
           />
@@ -74,4 +76,17 @@ export class Screen extends React.Component {
   }
 }
 
-export default Screen;
+const children = createSelector(
+  createStructuredSelector({
+    containerRef: ({ state }) => state.containerRef,
+    highlightedIndex: ({ state }) => state.screen.highlightedIndex,
+    highlightedClassName: ({ state }) =>
+      `b${state.settings.mouseBrowsingHighlightColor}`,
+    lines: ({ state }) => state.screen.lines,
+    forceWidth: ({ state }) => state.screen.chh,
+    enableLinkHoverPreview: ({ state }) => state.settings.enablePicPreview,
+  }),
+  props => <Screen {...props} enableLinkInlinePreview={false} />
+);
+
+export const constElement = <CallbagConsumer>{children}</CallbagConsumer>;

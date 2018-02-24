@@ -1,3 +1,4 @@
+import { createSelector, createStructuredSelector } from "reselect";
 import cx from "classnames";
 import React from "react";
 import { compose, withStateHandlers, withHandlers } from "recompose";
@@ -14,8 +15,15 @@ import {
   Checkbox,
   SplitButton,
 } from "react-bootstrap";
-import ColorSpan from "../Row/WordSegmentBuilder/ColorSpan";
 import { i18n } from "../../js/i18n";
+import ColorSpan from "../Row/WordSegmentBuilder/ColorSpan";
+import { CallbagConsumer } from "../Callbag";
+import {
+  HIDE_INPUT_HELPER,
+  INPUT_HELPER_SEND,
+  INPUT_HELPER_SYMBOL,
+  INPUT_HELPER_RESET,
+} from "../../application/callbagDuplex";
 import "./InputHelperModal.css";
 
 const SYMBOLS = {
@@ -576,7 +584,7 @@ const EMOTICONS = {
   ],
 };
 
-function sendColorCommand({ fg, bg, isBlink }, onCmdSend, type) {
+function buildColorCommand(fg, bg, isBlink, type) {
   let lightColor = "0;";
   if (fg > 7) {
     fg %= 8;
@@ -584,19 +592,16 @@ function sendColorCommand({ fg, bg, isBlink }, onCmdSend, type) {
   }
   fg += 30;
   bg += 40;
-  let blink = "";
-  if (isBlink) {
-    blink = "5;";
+  const blink = isBlink ? "5;" : "";
+  const cmd = "\x15[";
+  switch (type) {
+    case "foreground":
+      return cmd + lightColor + blink + fg + "m";
+    case "background":
+      return cmd + bg + "m";
+    default:
+      return cmd + lightColor + blink + fg + ";" + bg + "m";
   }
-  let cmd = "\x15[";
-  if (type == "foreground") {
-    cmd += lightColor + blink + fg + "m";
-  } else if (type == "background") {
-    cmd += bg + "m";
-  } else {
-    cmd += lightColor + blink + fg + ";" + bg + "m";
-  }
-  onCmdSend(cmd);
 }
 
 const enhance = compose(
@@ -621,12 +626,6 @@ const enhance = compose(
       onBlinkChange: () => ({ target: { checked } }) => ({
         isBlink: checked,
       }),
-      onSendClick: (state, { onCmdSend }) => () =>
-        sendColorCommand(state, onCmdSend),
-      onSendSelect: (state, { onCmdSend }) => eventKey =>
-        sendColorCommand(state, onCmdSend, eventKey),
-      onSymEmoClick: (state, { onConvSend }) => ({ target: { textContent } }) =>
-        onConvSend(textContent),
     }
   ),
   withHandlers({
@@ -653,13 +652,32 @@ const enhance = compose(
     onMouseUp: () => ({ currentTarget: { dataset } }) => {
       dataset.dragActive = false;
     },
+    onSendClick: ({ dispatch, fg, bg, isBlink }) => () => {
+      dispatch({
+        type: INPUT_HELPER_SEND,
+        data: buildColorCommand(fg, bg, isBlink),
+      });
+    },
+
+    onSendSelect: ({ dispatch, fg, bg, isBlink }) => eventKey => {
+      dispatch({
+        type: INPUT_HELPER_SEND,
+        data: buildColorCommand(fg, bg, isBlink, eventKey),
+      });
+    },
+
+    onSymEmoClick: ({ dispatch }) => ({ target: { textContent } }) => {
+      dispatch({
+        type: INPUT_HELPER_SYMBOL,
+        data: textContent,
+      });
+    },
   })
 );
 
 export const InputHelperModal = ({
-  show,
-  onReset,
-  onHide,
+  showsInputHelper,
+  dispatch,
   // from recompose
   onMouseDown,
   onMouseMove,
@@ -675,13 +693,18 @@ export const InputHelperModal = ({
   onSymEmoClick,
 }) => (
   <Modal
-    show={show}
+    show={showsInputHelper}
     className="InputHelperModal__Dialog"
     onMouseDown={onMouseDown}
     onMouseMove={onMouseMove}
     onMouseUp={onMouseUp}
   >
-    <Modal.Header closeButton onHide={onHide}>
+    <Modal.Header
+      closeButton
+      onHide={() => {
+        dispatch(HIDE_INPUT_HELPER);
+      }}
+    >
       <Modal.Title>{i18n("inputHelperTitle")}</Modal.Title>
     </Modal.Header>
     <Modal.Body>
@@ -853,7 +876,12 @@ export const InputHelperModal = ({
                         {i18n("colorHelperSendMenuBack")}
                       </MenuItem>
                       <MenuItem divider />
-                      <MenuItem eventKey="reset" onSelect={onReset}>
+                      <MenuItem
+                        eventKey="reset"
+                        onSelect={() => {
+                          dispatch(INPUT_HELPER_RESET);
+                        }}
+                      >
                         {i18n("colorHelperSendMenuReset")}
                       </MenuItem>
                     </SplitButton>
@@ -890,4 +918,13 @@ export const InputHelperModal = ({
   </Modal>
 );
 
-export default enhance(InputHelperModal);
+const children = createSelector(
+  createStructuredSelector({
+    showsInputHelper: ({ state }) => state.dropdownMenu.showsInputHelper,
+    dispatch: ({ dispatch }) => dispatch,
+  }),
+  createSelector(() => enhance, enhance => enhance(InputHelperModal)),
+  (props, EnhancedInputHelperModal) => <EnhancedInputHelperModal {...props} />
+);
+
+export const constElement = <CallbagConsumer>{children}</CallbagConsumer>;

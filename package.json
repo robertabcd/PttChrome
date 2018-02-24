@@ -6,11 +6,12 @@
     "callbag-basics": "^2.0.1",
     "callbag-subject": "^1.0.1",
     "classnames": "^2.2.5",
-    "react": "^16.2.0",
+    "react": "^16.3.0-alpha.1",
     "react-bootstrap": "^0.32.1",
-    "react-dom": "^16.2.0",
+    "react-dom": "^16.3.0-alpha.1",
     "react-overlays": "^0.8.3",
-    "recompose": "^0.26.0"
+    "recompose": "^0.26.0",
+    "reselect": "^3.0.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -39,7 +40,7 @@
   },
   "lint-staged": {
     "*.json": ["prettier --write", "git add"],
-    "src/{callbags,components}/**/*.{js,json,css}": [
+    "src/{application,callbags,components}/**/*.{js,json,css}": [
       "prettier --write",
       "git add"
     ]
