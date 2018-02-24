@@ -11,6 +11,7 @@ import {
   INPUT,
 } from "../application/callbagDuplex";
 import "./View.css";
+import { Row } from "./Row";
 
 const noop = () => {};
 
@@ -35,6 +36,9 @@ export const View = ({
   screenChh,
   screenMainWidth,
   screenMainMarginTop,
+
+  erEnabled,
+  erActionLine,
 
   mainTransform,
 
@@ -70,18 +74,11 @@ img.hyperLinkPreview {
   margin-top: ${screenMainMarginTop}px;
   transform: ${mainTransform};
 }
-.View__EasyReadingRow--last {
+.View__EasyReadingRow {
   width: ${screenMainWidth}px;
   transform: ${mainTransform};
   transform-origin: center ${
     mainTransform !== "none" ? /* MAGIC NUMBER */ "-1100%" : ""
-  };
-}
-.View__EasyReadingRow--reply {
-  width: ${screenMainWidth}px;
-  transform: ${mainTransform};
-  transform-origin: center ${
-    mainTransform !== "none" ? /* MAGIC NUMBER */ "-1010%" : ""
   };
 }
           `}
@@ -124,21 +121,31 @@ img.hyperLinkPreview {
       >
         {screenConstantElement}
       </div>
-      <div className="View__EasyReadingRow--last">
-        <span align="left">
-          <span className="q0 b7">
-            {"                                                       "}
-          </span>
-          <span className="q1 b7">(y)</span>
-          <span className="q0 b7">回應</span>
-          <span className="q1 b7">(X%)</span>
-          <span className="q0 b7">推文</span>
-          <span className="q1 b7">(←)</span>
-          <span className="q0 b7">離開 </span>
-        </span>
-      </div>
-      <div className="View__EasyReadingRow--reply">
-        <span align="left" />
+      <div
+        className={cx("View__EasyReadingRow", {
+          "View__EasyReadingRow--erEnabled": erEnabled,
+        })}
+      >
+        {erActionLine ? (
+          <Row
+            chars={erActionLine}
+            row={0}
+            forceWidth={screenChh}
+            enableLinkInlinePreview={false}
+          />
+        ) : (
+          <div className="View__Main__Row">
+            <span className="q0 b7">
+              {"                                                         "}
+            </span>
+            <span className="q1 b7">(y)</span>
+            <span className="q0 b7">回應</span>
+            <span className="q1 b7">(X%)</span>
+            <span className="q0 b7">推文</span>
+            <span className="q1 b7">(←)</span>
+            <span className="q0 b7">離開 </span>
+          </div>
+        )}
       </div>
     </div>
   </React.Fragment>
@@ -165,6 +172,9 @@ const children = createSelector(
     screenChh: ({ state }) => state.screen.chh,
     screenMainWidth: ({ state }) => state.screen.mainWidth,
     screenMainMarginTop: ({ state }) => state.screen.mainMarginTop,
+
+    erEnabled: ({ state }) => state.screen.erLines.length > 0,
+    erActionLine: ({ state }) => state.screen.erActionLine,
 
     mainTransform: ({ state }) =>
       state.screen.scaleX != 1 || state.screen.scaleY != 1

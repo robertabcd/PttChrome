@@ -101,6 +101,11 @@ export const RESET_DEFAULT_SETTINGS = Symbol.for("RESET_DEFAULT_SETTINGS");
 export const CHANGE_LINES = Symbol.for("CHANGE_LINES");
 export const HIGHLIGHT_ROW = Symbol.for("HIGHLIGHT_ROW");
 
+// ER = Easy Reading
+export const INIT_ER_LINES = Symbol.for("INIT_ER_LINES");
+export const APPEND_ER_LINES = Symbol.for("APPEND_ER_LINES");
+export const UPDATE_ER_ACTION_LINE = Symbol.for("UPDATE_ER_ACTION_LINE");
+
 export const UPDATE_CURSOR = Symbol.for("UPDATE_CURSOR");
 export const MANUAL_FOCUS_INPUT = Symbol.for("MANUAL_FOCUS_INPUT");
 export const MANUAL_TELNET_SEND = Symbol.for("MANUAL_TELNET_SEND");

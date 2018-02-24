@@ -80,9 +80,4 @@ export class ColorSegmentBuilder {
   }
 }
 
-ColorSegmentBuilder.accumulator = (builder, ch) => {
-  builder.readChar(ch);
-  return builder;
-};
-
 export default ColorSegmentBuilder;

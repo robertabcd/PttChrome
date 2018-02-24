@@ -75,9 +75,12 @@
   background: rgba(255, 255, 255, 0.5);
 }
 
+.View__Main__Row {
+  white-space: pre;
+}
+
 .View__Main,
-.View__EasyReadingRow--last,
-.View__EasyReadingRow--reply {
+.View__EasyReadingRow {
   margin-top: 0px;
   margin-left: 0px;
   margin-right: 0px;
@@ -87,30 +90,20 @@
   /* box-shadow: 0 0 60px 50px black; */
 }
 
-.View__Main > span,
-.View__Container > span,
-.View__EasyReadingRow--last > span,
-.View__EasyReadingRow--reply > span {
-  display: block;
-  color: #c0c0c0;
-  white-space: pre;
+.View__Container--erEnabled {
+  padding-bottom: 1em;
 }
 
-.View__EasyReadingRow--last,
-.View__EasyReadingRow--reply {
+.View__EasyReadingRow {
   position: relative;
   display: none;
   overflow: hidden;
   user-select: none;
   z-index: 1;
   height: 1em;
-  background-color: transparent;
-}
-
-.View__EasyReadingRow--last {
   margin-top: -1em;
 }
 
-.View__EasyReadingRow--reply {
-  margin-top: -2em;
+.View__EasyReadingRow--erEnabled {
+  display: block;
 }

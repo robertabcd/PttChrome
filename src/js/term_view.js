@@ -1,11 +1,11 @@
 // Terminal View
 
 import { termInvColors } from './term_buf';
-import { renderRowHtml } from './term_ui';
 
 import { i18n } from './i18n';
 import { setTimer } from './util';
 import { wrapText, u2b, parseStatusRow } from './string_util';
+import { INIT_ER_LINES, APPEND_ER_LINES, CHANGE_LINES, UPDATE_ER_ACTION_LINE } from '../application/callbagDuplex';
 
 
 export function TermView(bbscore) {
@@ -32,17 +32,8 @@ export function TermView(bbscore) {
 
 
 
-  Object.defineProperty(this, 'mainContainer', {
-    get() { return $('.View__Container')[0] },
-  });
   Object.defineProperty(this, 'mainDisplay', {
     get() { return $('.View__Main')[0] },
-  });
-  Object.defineProperty(this, 'lastRowDiv', {
-    get() { return $('.View__EasyReadingRow--last')[0] },
-  });
-  Object.defineProperty(this, 'replyRowDiv', {
-    get() { return $('.View__EasyReadingRow--reply')[0] },
   });
 
 
@@ -63,57 +54,32 @@ TermView.prototype = {
   },
 
   redraw: function(force) {
+    console.log(`redraw(${force})`/*, this.buf.changedDueTo */);
 
-    //var start = new Date().getTime();
     var cols = this.buf.cols;
     var rows = this.buf.rows;
-    var lineChangeds = this.buf.lineChangeds;
-    var changedLineHtmlStr = '';
-    var changedLineHtmlStrs = [];
-    var changedRows = [];
-
-    var lines = this.buf.lines;
-    for (var row = 0; row < rows; ++row) {
-      var {chh, chw} = this.bbscore.reactCallbag.state.screen;
-      // resets color
-      var line = lines[row];
-      var lineChanged = lineChangeds[row];
-      if (lineChanged === false && !force)
-        continue;
-      var lineUpdated = false;
-
-      for (var curCol = 0; curCol < cols; ++curCol) {
-        // always check all because it's hard to know about openSpan when jump update
-        // TODO: maybe set ch.needUpdate false?
-        lineUpdated = true;
-      }
-
-      if (lineUpdated) {
-        lineUpdated = false;
-        changedLineHtmlStrs.push(line);
-        changedRows.push(row);
-        lineChangeds[row] = false;
-      }
-    }
-    if (changedLineHtmlStrs.length > 0) {
-      if (this.bbscore.easyReading._enabled) {
-        if (this.buf.startedEasyReading && this.buf.easyReadingShowReplyText) {
-          this.updateEasyReadingReplyRow(changedLineHtmlStrs[changedLineHtmlStrs.length-1]);
-        } else if (this.buf.startedEasyReading && this.buf.easyReadingShowPushInitText) {
-          this.updateEasyReadingPushInitRow(changedLineHtmlStrs[changedLineHtmlStrs.length-1]);
-        } else {
-          this.populateEasyReadingPage();
-        }
+    
+  
+    if (this.bbscore.easyReading._enabled) {
+      if (this.buf.startedEasyReading && this.buf.easyReadingShowReplyText) {
+        this.bbscore.dispatch({
+          type: UPDATE_ER_ACTION_LINE,
+          data: this.buf.lines[this.buf.lines.length-2],
+        });
+      } else if (this.buf.startedEasyReading && this.buf.easyReadingShowPushInitText) {
+        this.bbscore.dispatch({
+          type: UPDATE_ER_ACTION_LINE,
+          data: this.buf.lines[this.buf.lines.length-1],
+        });
       } else {
-        this.bbscore.reactCallbag.onLines(
-          /* For Screen#componentWillReceiveProps */lines.slice()
-        );
+        this.populateEasyReadingPage();
       }
-      this.buf.prevPageState = this.buf.pageState;
+    } else {
+      this.bbscore.reactCallbag.onLines(
+        /* For Screen#componentWillReceiveProps */this.buf.lines.slice()
+      );
     }
-    //var time = new Date().getTime() - start;
-    //console.log(time);
-
+    this.buf.prevPageState = this.buf.pageState;
   },
 
   getRowLineElement: function(node) {
@@ -167,12 +133,6 @@ TermView.prototype = {
 
   populateEasyReadingPage: function() {
     if (this.buf.pageState == 3 && this.buf.prevPageState == 3) {
-      console.groupCollapsed('populateEasyReadingPage')
-      console.log('this.buf.lines', this.buf.lines)
-      console.log('this.buf.pageLines', this.buf.pageLines)
-      console.log('this.buf.pageWrappedLines', this.buf.pageWrappedLines)
-      console.groupEnd('populateEasyReadingPage')
-      this.mainContainer.style.paddingBottom = '1em';
       var lastRowText = this.buf.getRowText(23, 0, this.buf.cols);
       var result = parseStatusRow(lastRowText);
       if (result) {
@@ -183,7 +143,7 @@ TermView.prototype = {
           result.rowIndexStart -= 1;
         }
         */
-        var rowOffset = this.buf.pageLines.length-1;
+        var rowOffset = this.bbscore.reactCallbag.state.screen.erLines.length-1;
         var beginIndex = 1;
         var atLastPage = false;
         if ((result.pageIndex == result.pageTotal && result.pagePercent == 100) || 
@@ -209,13 +169,13 @@ TermView.prototype = {
             this.buf.pageWrappedLines[++this.actualRowIndex] = 1;
           }
         }
-        this.appendRows(this.buf.lines.slice(beginIndex, -1), true);
-        // deep clone lines for selection (getRowText and get ansi color)
-        this.buf.pageLines = this.buf.pageLines.concat(JSON.parse(JSON.stringify(this.buf.lines.slice(beginIndex, -1))));
+        this.bbscore.dispatch({
+          type: APPEND_ER_LINES,
+          data: this.buf.lines.slice(beginIndex, -1)
+        });
       }
       this.buf.prevPageState = 3;
     } else {
-      this.mainContainer.style.paddingBottom = '';
       this.actualRowIndex = 0;
       this.buf.pageWrappedLines = [];
       if (this.buf.pageState == 3) {
@@ -227,71 +187,23 @@ TermView.prototype = {
             this.buf.pageWrappedLines[++this.actualRowIndex] = 1;
           }
         }
-        this.clearRows();
-        this.appendRows(this.buf.lines.slice(0, -1), true);
-        this.lastRowDiv.style.display = 'block';
-        // deep clone lines for selection (getRowText and get ansi color)
-        this.buf.pageLines = this.buf.pageLines.concat(JSON.parse(JSON.stringify(this.buf.lines.slice(0, -1))));
+        this.bbscore.dispatch({
+          type: INIT_ER_LINES,
+          data: this.buf.lines.slice(0, -1)
+        });
       } else {
-        this.hideEasyReading();
+        this.bbscore.dispatch({
+          type: CHANGE_LINES,
+          data: this.buf.lines.slice(),
+        });
       }
       this.buf.prevPageState = this.buf.pageState;
     }
+    const shouldCollapse = this.buf.pageWrappedLines[0] === undefined && this.buf.pageWrappedLines.slice(1).every(it => it === 1);
+    console[shouldCollapse ? 'groupCollapsed' : 'group']('populateEasyReadingPage')
+    console.log('shouldCollapse', shouldCollapse)
+    console.log('this.buf.lines', this.buf.lines)
+    console.log('this.buf.pageWrappedLines', this.buf.pageWrappedLines.slice())
+    console.groupEnd('populateEasyReadingPage')
   },
-
-  clearRows: function() {
-    this.mainContainer.innerHTML = '';
-  },
-
-  appendRows: function(lines, showsLinkPreview) {
-    for (var i in lines) {
-      var line = lines[i];
-      var el = document.createElement('span');
-      el.setAttribute('type', 'bbsrow');
-      el.setAttribute('srow', this.mainContainer.childNodes.length);
-      this.mainContainer.appendChild(el);
-      renderRowHtml(
-        line, this.mainContainer.childNodes.length, this.bbscore.reactCallbag.state.screen.chh,
-        showsLinkPreview, el);
-    }
-  },
-
-  renderSingleRow: function(target, row) {
-    var el = document.createElement('span');
-    el.setAttribute('type', 'bbsrow');
-    el.setAttribute('srow', '0');
-    target.appendChild(el);
-    return renderRowHtml(row, 0, this.bbscore.reactCallbag.state.screen.chh, false, el);
-  },
-
-  hideEasyReading: function() {
-    this.lastRowDiv.style.display = '';
-    this.replyRowDiv.style.display = '';
-    // clear the deep cloned copy of lines
-    this.buf.pageLines = [];
-    this.clearRows();
-    this.appendRows(this.buf.lines, false);
-  },
-
-  updateEasyReadingReplyRow: function(row) {
-    var el = document.createElement('span');
-    el.style = "background-color:black;";
-    this.renderSingleRow(el, row);
-    this.setSingleChild(this.replyRowDiv.childNodes[0], el);
-    this.replyRowDiv.style.display = 'block';
-  },
-
-  updateEasyReadingPushInitRow: function(row) {
-    var el = document.createElement('span');
-    el.style = "background-color:black;";
-    this.renderSingleRow(el, row);
-    this.setSingleChild(this.lastRowDiv.childNodes[0], el);
-  },
-
-  setSingleChild: function(par, child) {
-    while (par.childNodes.length > 0)
-      par.removeChild(par.lastChild);
-    par.appendChild(child);
-  }
-
 };

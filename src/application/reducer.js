@@ -79,6 +79,9 @@ import {
   RESET_DEFAULT_SETTINGS,
   CHANGE_LINES,
   HIGHLIGHT_ROW,
+  INIT_ER_LINES,
+  APPEND_ER_LINES,
+  UPDATE_ER_ACTION_LINE,
   UPDATE_CURSOR,
   MANUAL_FOCUS_INPUT,
   MANUAL_TELNET_SEND,
@@ -263,6 +266,8 @@ export const initialState = {
       width: 0,
       height: 0,
     },
+    erLines: [],
+    erActionLine: undefined,
   },
   cursor: {
     left: 0,
@@ -631,6 +636,14 @@ export function reducer(state, action) {
           ];
         } else {
           return state;
+        }
+      }
+      if (state.showsDevModeAlert) {
+        if (keyCode === 13) {
+          return {
+            ...state,
+            showsDevModeAlert: false,
+          };
         }
       }
       if (skipIfMatchesKey(event)) {
@@ -1534,6 +1547,8 @@ export function reducer(state, action) {
         screen: {
           ...state.screen,
           lines: action.data,
+          erLines: [],
+          erActionLine: undefined,
         },
       };
     }
@@ -1548,6 +1563,34 @@ export function reducer(state, action) {
         };
       }
       return state;
+    }
+    case INIT_ER_LINES: {
+      return {
+        ...state,
+        screen: {
+          ...state.screen,
+          erLines: cloneERLines(action.data),
+          erActionLine: undefined,
+        },
+      };
+    }
+    case APPEND_ER_LINES: {
+      return {
+        ...state,
+        screen: {
+          ...state.screen,
+          erLines: [...state.screen.erLines, ...cloneERLines(action.data)],
+        },
+      };
+    }
+    case UPDATE_ER_ACTION_LINE: {
+      return {
+        ...state,
+        screen: {
+          ...state.screen,
+          erActionLine: cloneERRow(action.data),
+        },
+      };
     }
     case UPDATE_CURSOR: {
       const nextCursor = getNextCursor(state, state.screen);
@@ -1890,6 +1933,14 @@ function getMouseWheelAction(
       return MOUSE_WHEEL_DOWN_ACTIONS[settings.mouseWheelFunction1];
     }
   }
+}
+
+function cloneERRow(row) {
+  return row.map(char => char.clone());
+}
+
+function cloneERLines(lines) {
+  return lines.map(cloneERRow);
 }
 
 function onDisableLiveHelper(state) {

@@ -193,13 +193,16 @@ registerImageUrlResolver({
   /*
    * imgur.com
    */
-  regex: /^https?:\/\/(i\.)?imgur\.com/,
+  regex: /^(https?:\/\/(i\.)?imgur\.com)\/([a-zA-Z0-9]+)(\.[a-zA-Z]+)?$/,
   test(src) {
     return this.regex.test(src);
   },
   request(src) {
     return Promise.resolve({
-      src: `${src.replace(this.regex, "https://i.imgur.com")}.jpg`,
+      src: src.replace(
+        this.regex,
+        (a, b, c, id) => `https://i.imgur.com/${id}.jpg`
+      ),
     });
   },
 });

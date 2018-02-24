@@ -10,7 +10,7 @@ export const Row = ({
   onHyperLinkMouseOver,
   onHyperLinkMouseOut,
 }) => (
-  <span type="bbsrow" srow={row}>
+  <div className="View__Main__Row">
     {chars
       .reduce(
         LinkSegmentBuilder.accumulator,
@@ -25,7 +25,7 @@ export const Row = ({
         )
       )
       .build()}
-  </span>
+  </div>
 );
 
 export default Row;

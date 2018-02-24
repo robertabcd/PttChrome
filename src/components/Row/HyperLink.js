@@ -9,8 +9,6 @@ export const HyperLink = ({
   <a
     onMouseOver={onMouseOver}
     onMouseOut={onMouseOut}
-    scol={col} // FIXME: data-?
-    srow={row} // FIXME: data-?
     className="y"
     href={href}
     rel="noreferrer"

@@ -34,7 +34,7 @@ export function EasyReading(core, view, termBuf) {
 };
 
 EasyReading.prototype._onChanged = function(e) {
-  console.log("page state: " + this._termBuf.prevPageState + "->" + this._termBuf.pageState);
+  // console.log("page state: " + this._termBuf.prevPageState + "->" + this._termBuf.pageState);
   const values = readValuesWithDefault()
   // make sure to come back to easy reading mode
   if (this._termBuf.prevPageState == 2 &&
@@ -62,7 +62,7 @@ EasyReading.prototype._onChanged = function(e) {
     this.startedEasyReading = false;
   }
   if (this.startedEasyReading) {
-    console.log('easy reading cursor pos: ' + this._termBuf.cur_y + ':' + this._termBuf.cur_x);
+    // console.log('easy reading cursor pos: ' + this._termBuf.cur_y + ':' + this._termBuf.cur_x);
     if (this._termBuf.cur_y == 23 && this._termBuf.cur_x == 79) {
       if (this.ignoreOneUpdate) {
         this.ignoreOneUpdate = false;
@@ -112,9 +112,9 @@ EasyReading.prototype._onChanged = function(e) {
 };
 
 EasyReading.prototype._onViewUpdated = function(e) {
-  console.log('view update');
+  // console.log('view update');
   if (this.sendCommandAfterUpdate) {
-    console.log("send:" + this.sendCommandAfterUpdate);
+    // console.log("send:" + this.sendCommandAfterUpdate);
     if (this.sendCommandAfterUpdate != 'skipOne') {
       this._send(this.sendCommandAfterUpdate);
     }
@@ -177,7 +177,7 @@ EasyReading.prototype._scrollBy = function(lines) {
   if (lines < 0 && cont.scrollTop == 0)
     return false;
   if (lines > 0 && cont.scrollTop >=
-    this._view.mainContainer.clientHeight -
+    this._core.reactCallbag.state.containerRef.value.clientHeight -
       this._core.reactCallbag.state.chh * this._termBuf.rows)
     return false;
   cont.scrollTop += this._core.reactCallbag.state.chh * lines;
@@ -185,7 +185,7 @@ EasyReading.prototype._scrollBy = function(lines) {
 };
 
 EasyReading.prototype._scrollEnd = function() {
-  this._view.mainDisplay.scrollTop = this._view.mainContainer.clientHeight;
+  this._view.mainDisplay.scrollTop = this._core.reactCallbag.state.containerRef.value.clientHeight;
   return true;
 };
 

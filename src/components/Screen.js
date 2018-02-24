@@ -1,3 +1,4 @@
+import cx from "classnames";
 import { createSelector, createStructuredSelector } from "reselect";
 import Row from "./Row";
 import ImagePreviewer, {
@@ -44,19 +45,24 @@ export class Screen extends React.Component {
   };
 
   render() {
+    const erEnabled = this.props.erLines.length > 0;
+    const lines = erEnabled ? this.props.erLines : this.props.lines;
+
     return (
       <div
         ref={this.props.containerRef}
-        className="View__Container"
+        className={cx("View__Container", {
+          "View__Container--erEnabled": erEnabled,
+        })}
         onMouseMove={this.handleMouseMove}
       >
-        {this.props.lines.map((chars, row) => (
+        {lines.map((chars, row) => (
           <Row
             key={row}
             chars={chars}
             row={row}
             forceWidth={this.props.forceWidth}
-            enableLinkInlinePreview={this.props.enableLinkInlinePreview}
+            enableLinkInlinePreview={erEnabled}
             highlighted={this.props.highlightedIndex === row}
             highlightedClassName={this.props.highlightedClassName}
             onHyperLinkMouseOver={this.handleHyperLinkMouseOver}
@@ -83,10 +89,11 @@ const children = createSelector(
     highlightedClassName: ({ state }) =>
       `b${state.settings.mouseBrowsingHighlightColor}`,
     lines: ({ state }) => state.screen.lines,
+    erLines: ({ state }) => state.screen.erLines,
     forceWidth: ({ state }) => state.screen.chh,
     enableLinkHoverPreview: ({ state }) => state.settings.enablePicPreview,
   }),
-  props => <Screen {...props} enableLinkInlinePreview={false} />
+  props => <Screen {...props} />
 );
 
 export const constElement = <CallbagConsumer>{children}</CallbagConsumer>;

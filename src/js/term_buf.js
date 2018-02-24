@@ -1,8 +1,22 @@
 // Terminal Screen Buffer, displayed by TermView
 
 import { Event } from './event';
-import { ColorState } from './term_ui';
 import { u2b, b2u, parseStatusRow, parseListRow } from './string_util';
+
+class ColorState {
+  constructor(fg, bg, blink) {
+    this.fg = fg;
+    this.bg = bg;
+    this.blink = blink;
+  }
+
+  equals(oth) {
+    if (oth instanceof ColorState) {
+      return this.fg == oth.fg && this.bg == oth.bg && this.blink == oth.blink;
+    }
+    return false;
+  }
+}
 
 const termColors = [
   // dark
@@ -82,6 +96,20 @@ TermChar.defaultFg = 7;
 TermChar.defaultBg = 0;
 
 TermChar.prototype = {
+
+  clone: function() {
+    const cloned = new TermChar(this.ch);
+    cloned.copyAttr(this);
+    cloned.needUpdate = this.needUpdate;
+    cloned.isLeadByte = this.isLeadByte;
+    cloned.startOfURL = this.startOfURL;
+    cloned.endOfURL = this.endOfURL;
+    cloned.partOfURL = this.partOfURL;
+    cloned.partOfKeyWord = this.partOfKeyWord;
+    cloned.keyWordColor = this.keyWordColor;
+    cloned.fullurl = this.fullurl;
+    return cloned;
+  },
 
   assignParams: function(params) {
     params.forEach(v => {    
@@ -227,6 +255,7 @@ export function TermBuf(cols, rows) {
   this.disableLinefeed = false;
   this.altScreen = '';
   this.changed = false;
+  this.changedDueTo = '';
   this.posChanged = false;
   this.pageState = 0;
   this.forceFullWidth = false;
@@ -240,10 +269,7 @@ export function TermBuf(cols, rows) {
   this.linesX = new Array(0);
   this.linesY = new Array(0);
 
-  this.pageLines = [];
   this.pageWrappedLines = [];
-
-  this.lineChangeds = new Array(rows);
 
   this.viewBufferTimer = 30;
 
@@ -339,6 +365,7 @@ TermBuf.prototype = {
           // assume server will handle mouse moving on full-width char
         }
         this.changed = true;
+        this.changedDueTo += `puts(${str}),`;
         this.posChanged = true;
       }
     }
@@ -376,8 +403,7 @@ TermBuf.prototype = {
         ch.isLeadByte = false;
       }
 
-      if (needUpdate) { // this line has been changed
-        this.lineChangeds[row] = true;
+      if (needUpdate) {
         // perform URI detection again
         // remove all previously cached uri positions
         if (line.uris) {
@@ -522,6 +548,7 @@ TermBuf.prototype = {
       break;
     }
     this.changed = true;
+    this.changedDueTo += `clear(),`;
     this.gotoPos(0, 0);
     this.queueUpdate();
   },
@@ -575,6 +602,7 @@ TermBuf.prototype = {
         line[col].needUpdate = true;
     }
     this.changed = true;
+    this.changedDueTo += `insert(${param}),`;
     this.queueUpdate();
   },
 
@@ -599,6 +627,7 @@ TermBuf.prototype = {
         line[col].needUpdate = true;
     }
     this.changed = true;
+    this.changedDueTo += `del(${param}),`;
     this.queueUpdate();
   },
 
@@ -614,6 +643,7 @@ TermBuf.prototype = {
       line[col].needUpdate = true;
     }
     this.changed = true;
+    this.changedDueTo += `eraseChar(${param}),`;
     this.queueUpdate();
   },
 
@@ -644,6 +674,7 @@ TermBuf.prototype = {
       return;
     }
     this.changed = true;
+    this.changedDueTo += `eraseLine(${param}),`;
     this.queueUpdate();
   },
 
@@ -653,6 +684,7 @@ TermBuf.prototype = {
     this.scroll(false, param);
     this.scrollStart = scrollStart;
     this.changed = true;
+    this.changedDueTo += `deleteLine(${param}),`;
     this.queueUpdate();
   },
 
@@ -664,6 +696,7 @@ TermBuf.prototype = {
     }
     this.scrollStart = scrollStart;
     this.changed = true;
+    this.changedDueTo += `insertLine(${param}),`;
     this.queueUpdate();
   },
 
@@ -723,6 +756,7 @@ TermBuf.prototype = {
       }
     }
     this.changed = true;
+    this.changedDueTo += `scroll(${up}, ${n}),`;
     this.queueUpdate();
   },
 
@@ -788,6 +822,7 @@ TermBuf.prototype = {
         this.view.update();
       }
       this.changed = false;
+      this.changedDueTo = '';
 
       this.dispatchEvent(new CustomEvent('viewUpdate'));
     }

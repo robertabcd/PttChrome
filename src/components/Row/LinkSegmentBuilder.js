@@ -36,8 +36,6 @@ export class LinkSegmentBuilder {
           key={this.col}
           href={this.href}
           inner={element}
-          data-scol={this.col}
-          data-srow={this.row}
           onMouseOver={this.onHyperLinkMouseOver}
           onMouseOut={this.onHyperLinkMouseOut}
         />
@@ -53,7 +51,7 @@ export class LinkSegmentBuilder {
         );
       }
     } else {
-      this.segs.push(<span key={this.col}>{element}</span>);
+      this.segs.push(<React.Fragment key={this.col}>{element}</React.Fragment>);
     }
     this.colorSegBuilder = null;
   }
@@ -79,7 +77,7 @@ export class LinkSegmentBuilder {
     }
     // TODO: Detect userid and apply class "blu_$userid".
     return (
-      <div>
+      <React.Fragment>
         <span
           className={cx({ [this.highlightedClassName]: this.highlighted })}
           data-type="bbsline"
@@ -88,7 +86,7 @@ export class LinkSegmentBuilder {
           {this.segs}
         </span>
         <div>{this.inlineLinkPreviews}</div>
-      </div>
+      </React.Fragment>
     );
   }
 }

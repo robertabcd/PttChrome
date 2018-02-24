@@ -171,16 +171,9 @@ App.prototype.switchToEasyReadingMode = function() {
   this.easyReading.leaveCurrentPost();
   if (this.easyReading._enabled) {
     this.reactCallbag.onDisableLiveHelper();
-    // clear the deep cloned copy of lines
-    this.buf.pageLines = [];
     if (this.buf.pageState == 3) this.conn.send('\x1b[D\x1b[C'); //this.conn.send('qr');
   } else {
-    this.view.mainContainer.style.paddingBottom = '';
     this.view.lastRowIndex = 22;
-    this.view.lastRowDiv.style.display = '';
-    this.view.replyRowDiv.style.display = '';
-    // clear the deep cloned copy of lines
-    this.buf.pageLines = [];
   }
   // request the full screen
   this.conn.send(unescapeStr('^L'));
@@ -201,10 +194,11 @@ App.prototype.doCopyAnsi = function() {
     return;
 
   var selection = this.lastSelection;
-  var pageLines = null;
-  if (this.easyReading._enabled && this.buf.pageState == 3) {
-    pageLines = this.buf.pageLines;
-  }
+  const pageLines = (
+    this.easyReading._enabled && this.buf.pageState == 3 ?
+    this.reactCallbag.state.screen.erLines :
+    null
+  );
 
   var ansiText = '';
   if (selection.start.row == selection.end.row) {
@@ -392,7 +386,7 @@ App.prototype.mouse_click = function(e) {
       } else if (this.reactCallbag.state.settings.mouseLeftFunction) {
         if (this.reactCallbag.state.settings.mouseLeftFunction == 1) {
           if (this.easyReading._enabled && this.buf.startedEasyReading) {
-            if (this.view.mainDisplay.scrollTop >= this.view.mainContainer.clientHeight - this.view.chh * this.buf.rows) {
+            if (this.view.mainDisplay.scrollTop >= this.reactCallbag.state.containerRef.value.clientHeight - this.view.chh * this.buf.rows) {
               this.easyReading.leaveCurrentPost();
               this.conn.send('\r');
             } else {
@@ -405,7 +399,7 @@ App.prototype.mouse_click = function(e) {
           this.reactCallbag.onManualFocusInput();
         } else if (this.reactCallbag.state.settings.mouseLeftFunction == 2) {
           if (this.easyReading._enabled && this.buf.startedEasyReading) {
-            if (this.view.mainDisplay.scrollTop >= this.view.mainContainer.clientHeight - this.view.chh * this.buf.rows) {
+            if (this.view.mainDisplay.scrollTop >= this.reactCallbag.state.containerRef.value.clientHeight - this.view.chh * this.buf.rows) {
               this.easyReading.leaveCurrentPost();
               this.conn.send('\x1b[C');
             } else {
