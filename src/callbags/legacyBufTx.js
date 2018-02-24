@@ -1,5 +1,4 @@
 import { map } from "callbag-basics";
-
 import {
   ACTION_PUTS,
   ACTION_ASSIGN_PARAMS_TO_ATTRS,
@@ -18,7 +17,7 @@ import {
   ACTION_ERASE_CHAR,
   ACTION_BACK_TAB,
   ACTION_LINE_FEED_AND_CARRAGE_RETURN,
-} from "./ansiDuplex";
+} from "./ansiTx";
 
 export const makeMapSource = ({ buf }) => {
   return map(result => {
