@@ -202,26 +202,18 @@ TermView.prototype = {
     this.buf=buf;
   },
 
-  setConn: function(conn) {
-    this.conn=conn;
-  },
-
   _send: function(data) {
-    if (this.conn)
-      this.conn.send(data);
+    if (this.bbscore.conn)
+      this.bbscore.conn.send(data);
   },
 
   _convSend: function(data) {
-    if (this.conn)
-      this.conn.convSend(data);
+    if (this.bbscore.conn)
+      this.bbscore.conn.convSend(data);
   },
 
   setCore: function(core) {
     this.bbscore=core;
-  },
-
-  _isConnected: function() {
-    return this.bbscore.isConnected() && !!this.conn;
   },
 
   setFontFace: function(fontFace) {

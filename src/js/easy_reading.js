@@ -137,7 +137,7 @@ EasyReading.prototype.stopEasyReading = function() {
 };
 
 EasyReading.prototype._send = function(data) {
-  this._view.conn.send(data);
+  this._core.conn.send(data);
 };
 
 EasyReading.prototype._onKeyDown = function(e) {

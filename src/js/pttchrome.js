@@ -1,11 +1,10 @@
 ﻿// Main Program
+import { pipe } from "callbag-basics";
+import makeSubject from "callbag-subject";
 import BaseModal from 'react-overlays/lib/Modal';
 import { Fade, Modal } from "react-bootstrap";
-import { AnsiParser } from './ansi_parser';
 import { TermView } from './term_view';
 import { TermBuf } from './term_buf';
-import { TelnetConnection } from './telnet';
-import { Websocket } from './websocket';
 import { EasyReading } from './easy_reading';
 import { TouchController } from './touch_controller';
 import { i18n } from './i18n';
@@ -14,6 +13,20 @@ import { getQueryVariable, setTimer } from './util';
 import PasteShortcutAlert from '../components/PasteShortcutAlert';
 import ConnectionAlert from '../components/ConnectionAlert';
 import ContextMenu from '../components/ContextMenu';
+import makeWebSocketDuplex from "../callbags/webSocketDuplex";
+import { mapSource, mapSink } from "../callbags/binaryDuplex";
+import {
+  makeMapSource as makeTelnetMapSource,
+  mapSink as mapTelnetSink,
+  ACTION_SEND,
+  ACTION_CONV_SEND
+} from "../callbags/telnetDuplex";
+import {
+  makeMapSource as makeAnsiMapSource
+} from "../callbags/ansiTx";
+import {
+  makeMapSource as makeLegacyBufMapSource
+} from "../callbags/legacyBufTx";
 
 function noop() {}
 
@@ -34,7 +47,6 @@ export const App = function(options) {
   //this.buf.PTTZSTR2=this.getLM('PTTZArea2');
   this.view.setBuf(this.buf);
   this.view.setCore(this);
-  this.parser = new AnsiParser(this.buf);
   this.easyReading = new EasyReading(this, this.view, this.buf);
 
   //new pref - start
@@ -176,7 +188,7 @@ App.prototype.connect = function(url) {
   } else if (parsed.protocol == 'wstelnet') {
     this._setupWebsocketConn('ws://' + parsed.hostname + parsed.path);
   } else {
-    console.log('unsupport connect url protocol: ' + parser.protocol);
+    console.log('unsupport connect url protocol: ' + parsed.protocol);
     return;
   }
 
@@ -212,23 +224,56 @@ App.prototype._parseURLSimple = function(url) {
 };
 
 App.prototype._setupWebsocketConn = function(url) {
-  var wsConn = new Websocket(url);
-  this._attachConn(new TelnetConnection(wsConn));
-};
-
-App.prototype._attachConn = function(conn) {
-  var self = this;
-  this.conn = conn;
-  this.conn.addEventListener('open', this.onConnect.bind(this));
-  this.conn.addEventListener('close', this.onClose.bind(this));
-  this.conn.addEventListener('data', function(e) {
-    self.onData(e.detail.data);
+  const telnetSubject = makeSubject();
+  const { source, forEachSink } = makeWebSocketDuplex({ url });
+  pipe(
+    telnetSubject,
+    mapTelnetSink,
+    mapSink,
+    forEachSink
+  );
+  const bufSource = pipe(
+    source,
+    mapSource,
+    makeTelnetMapSource({ telnetSubject }),
+    makeAnsiMapSource(),
+    makeLegacyBufMapSource({ buf: this.buf })
+  );
+  bufSource(0, (t, data) => {
+    switch(t) {
+      case 0: {
+        this.onConnect();
+        break;
+      }
+      case 1: {
+        this.onData(data);
+        break;
+      }
+      case 2: {
+        this.onClose();
+        break;
+      }
+    }
   });
+  this.conn = {
+    isConnected: false,
+    send(data) {
+      telnetSubject(1, {
+        type: ACTION_SEND,
+        data,
+      })
+    },
+    convSend(data) {
+      telnetSubject(1, {
+        type: ACTION_CONV_SEND,
+        data,
+      })
+    }
+  }
 };
 
 App.prototype.onConnect = function() {
   this.conn.isConnected = true;
-  this.view.setConn(this.conn);
   console.info("pttchrome onConnect");
   this.connectState = 1;
   this.updateTabIcon('connect');
@@ -242,7 +287,6 @@ App.prototype.onConnect = function() {
 };
 
 App.prototype.onData = function(data) {
-  this.parser.feed(data);
 
   if (!this.appFocused && this.view.enableNotifications) {
     // parse received data for waterball
@@ -337,7 +381,7 @@ App.prototype.switchToEasyReadingMode = function(doSwitch) {
     this.onDisableLiveHelperModalState();
     // clear the deep cloned copy of lines
     this.buf.pageLines = [];
-    if (this.buf.pageState == 3) this.view.conn.send('\x1b[D\x1b[C'); //this.view.conn.send('qr');
+    if (this.buf.pageState == 3) this.conn.send('\x1b[D\x1b[C'); //this.conn.send('qr');
   } else {
     this.view.mainContainer.style.paddingBottom = '';
     this.view.lastRowIndex = 22;
@@ -347,7 +391,7 @@ App.prototype.switchToEasyReadingMode = function(doSwitch) {
     this.buf.pageLines = [];
   }
   // request the full screen
-  this.view.conn.send(unescapeStr('^L'));
+  this.conn.send(unescapeStr('^L'));
 };
 
 App.prototype.doCopy = function(str) {
@@ -471,8 +515,8 @@ App.prototype.incrementCountToUpdatePushthread = function(interval) {
   if (++this.pushthreadAutoUpdateCount >= this.maxPushthreadAutoUpdateCount) {
     this.pushthreadAutoUpdateCount = 0;
     if (this.buf.pageState == 3 || this.buf.pageState == 2) {
-      //this.view.conn.send('qrG');
-      this.view.conn.send('\x1b[D\x1b[C\x1b[4~');
+      //this.conn.send('qrG');
+      this.conn.send('\x1b[D\x1b[C\x1b[4~');
     }
   }
 };
