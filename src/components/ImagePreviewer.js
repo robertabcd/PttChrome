@@ -193,13 +193,14 @@ registerImageUrlResolver({
   /*
    * imgur.com
    */
-  regex: /^https?:\/\/(i\.)?imgur\.com/,
+  regex: /^https?:\/\/(?:i\.)?imgur\.com\/([^.]+)(?:\.(.*))?/,
   test(src) {
     return this.regex.test(src);
   },
   request(src) {
+    const [_, photoId, extension = "jpg"] = this.regex.exec(src);
     return Promise.resolve({
-      src: `${src.replace(this.regex, "https://i.imgur.com")}.jpg`
+      src: `https://i.imgur.com/${photoId}.${extension}`
     });
   }
 });
