@@ -109,25 +109,22 @@ export function TermView(rowCount) {
     this.checkCurDB.bind(this),
     this._send.bind(this));
 
-  var self = this;
-  this.input.addEventListener('compositionstart', function(e) {
-    self.onCompositionStart(e);
-    self.bbscore.setInputAreaFocus();
+  this.input.addEventListener('compositionstart', (e) => {
+    this.onCompositionStart(e);
+    this.bbscore.setInputAreaFocus();
   }, false);
 
-  this.input.addEventListener('compositionend', function(e) {
-    self.onCompositionEnd(e);
-    self.bbscore.setInputAreaFocus();
+  this.input.addEventListener('compositionend', (e) => {
+    this.onCompositionEnd(e);
+    this.bbscore.setInputAreaFocus();
     // Some browsers fire another input event after composition; some not.
     // The strategy here is to ignore the inputs during composition.
     // Instead, we pull all input text at composition end, and clear input text.
     // So if input event do fire after composition end, we'll get a empty string.
-    self.onInput(e);
+    this.onInput(e);
   }, false);
 
-  this.input.addEventListener('compositionupdate', function(e) {
-  }, false);
-
+  let shouldAcceptInput = () => !this.bbscore.modalShown && !this.bbscore.contextMenuShown;
   let keyEventFilter = (e) => {
     // On both Mac and Windows, control/alt+key will be sent as original key
     // code even under IME.
@@ -144,48 +141,44 @@ export function TermView(rowCount) {
       return false;
 
     // iOS sends backspace when composing. Disallow any non-control keys during it.
-    if (self.isComposition && !e.ctrlKey && !e.altKey)
+    if (this.isComposition && !e.ctrlKey && !e.altKey)
       return false;
 
     return true;
   };
 
   addEventListener('keypress', (e) => {
-    if (!keyEventFilter(e))
+    if (!shouldAcceptInput() || !keyEventFilter(e))
       return;
     this._keyboard.onKeyPress(e);
   });
 
-  addEventListener('keydown', function(e) {
-    if (!keyEventFilter(e))
+  addEventListener('keydown', (e) => {
+    if (!shouldAcceptInput() || !keyEventFilter(e))
       return;
 
     // disable auto update pushthread if any command is issued;
-    if (!e.altKey) self.bbscore.onDisableLiveHelperModalState();
+    if (!e.altKey) this.bbscore.onDisableLiveHelperModalState();
 
     if(e.keyCode > 15 && e.keyCode < 19)
       return; // Shift Ctrl Alt (19)
-    if (self.bbscore.modalShown || self.bbscore.contextMenuShown)
-      return;
-    self.onKeyDown(e);
+    this.onKeyDown(e);
   }, false);
 
-  addEventListener('keyup', function(e) {
+  addEventListener('keyup', (e) => {
     // We don't need to handle code 229 here, as it should be already composing.
 
+    if (!shouldAcceptInput())
+      return;
     if(e.keyCode > 15 && e.keyCode < 19)
       return; // Shift Ctrl Alt (19)
-    if (self.bbscore.modalShown || self.bbscore.contextMenuShown)
-      return;
     // set input area focus whenever key down even if there is selection
-    self.bbscore.setInputAreaFocus();
+    this.bbscore.setInputAreaFocus();
   }, false);
 
-  this.input.addEventListener('input', function(e) {
-    self.onInput(e);
+  this.input.addEventListener('input', (e) => {
+    this.onInput(e);
   }, false);
-
-
 }
 
 
