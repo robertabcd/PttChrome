@@ -402,7 +402,16 @@ App.prototype.onDOMCopy = function(e) {
 };
 
 App.prototype.doPaste = function() {
-  console.log("doPaste not implemented");
+  if ('readText' in navigator.clipboard) {
+    navigator.clipboard.readText().then(
+      (text) => this.onPasteDone(text),
+      () => this.showPasteUnimplemented());
+  } else {
+    this.showPasteUnimplemented();
+  }
+};
+
+App.prototype.showPasteUnimplemented = function() {
   const container = document.getElementById('reactAlert')
   const onDismiss = () => {
     ReactDOM.unmountComponentAtNode(container)
