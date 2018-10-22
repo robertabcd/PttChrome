@@ -402,7 +402,7 @@ App.prototype.onDOMCopy = function(e) {
 };
 
 App.prototype.doPaste = function() {
-  if ('readText' in navigator.clipboard) {
+  if (navigator.clipboard && navigator.clipboard.readText) {
     navigator.clipboard.readText().then(
       (text) => this.onPasteDone(text),
       () => this.showPasteUnimplemented());
