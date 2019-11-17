@@ -144,6 +144,10 @@ export function TermView(rowCount) {
     if (this.isComposition && !e.ctrlKey && !e.altKey)
       return false;
 
+    // Don't process meta keys, like Mac's command key.
+    if (e.metaKey)
+      return false;
+
     return true;
   };
 
