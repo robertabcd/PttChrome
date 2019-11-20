@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
@@ -71,7 +71,7 @@ module.exports = (env, argv) => {
     devtool: 'source-map',
     optimization: {
       minimizer: [
-        new UglifyJSPlugin({
+        new TerserPlugin({
           sourceMap: true,
           parallel: true
         }),
