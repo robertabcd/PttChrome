@@ -11,13 +11,13 @@
     "recompose": "^0.30.0"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.2",
-    "babel-plugin-syntax-dynamic-import": "^6.18.0",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
+    "@babel/core": "^7.7.4",
+    "@babel/plugin-proposal-class-properties": "^7.7.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.7.4",
+    "@babel/plugin-syntax-dynamic-import": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
+    "@babel/preset-react": "^7.7.4",
+    "babel-loader": "^8.0.0",
     "css-loader": "^0.28.7",
     "file-loader": "^4.3.0",
     "html-webpack-harddisk-plugin": "^1.0.1",
@@ -44,33 +44,33 @@
       "development": {
         "presets": [
           [
-            "env",
+            "@babel/preset-env",
             {
               "modules": false
             }
           ],
-          ["react"]
+          ["@babel/preset-react"]
         ],
         "plugins": [
-          "syntax-dynamic-import",
-          "transform-class-properties",
-          "transform-object-rest-spread"
+          "@babel/plugin-syntax-dynamic-import",
+          "@babel/plugin-proposal-class-properties",
+          "@babel/plugin-proposal-object-rest-spread"
         ]
       },
       "production": {
         "presets": [
           [
-            "env",
+            "@babel/preset-env",
             {
               "modules": false
             }
           ],
-          ["react"]
+          ["@babel/preset-react"]
         ],
         "plugins": [
-          "syntax-dynamic-import",
-          "transform-class-properties",
-          "transform-object-rest-spread"
+          "@babel/plugin-syntax-dynamic-import",
+          "@babel/plugin-proposal-class-properties",
+          "@babel/plugin-proposal-object-rest-spread"
         ]
       }
     }
