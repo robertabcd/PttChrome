@@ -18,7 +18,6 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
-    "cross-env": "^6.0.3",
     "css-loader": "^0.28.7",
     "file-loader": "^4.3.0",
     "html-webpack-harddisk-plugin": "^1.0.1",
@@ -80,8 +79,8 @@
     "precommit": "lint-staged",
     "clean": "rimraf dist/assets dist/index.html",
     "prebuild": "npm run clean",
-    "build": "cross-env NODE_ENV=production webpack",
+    "build": "webpack --mode=production",
     "prestart": "npm run clean",
-    "start": "cross-env NODE_ENV=development webpack-dev-server"
+    "start": "webpack-dev-server --mode=development"
   }
 }
