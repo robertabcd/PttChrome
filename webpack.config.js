@@ -1,7 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
 const WebpackCdnPlugin = require('webpack-cdn-plugin');
@@ -10,6 +10,7 @@ const DEVELOPER_MODE = process.env.NODE_ENV === 'development'
 const PRODUCTION_MODE = process.env.NODE_ENV === 'production'
 
 module.exports = {
+  mode: process.env.NODE_ENV,
   entry: {
     'pttchrome': './src/entry.js',
   },
@@ -31,17 +32,21 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          publicPath: './',      
-          fallback: "style-loader",
-          use: {
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: './'
+            }
+          },
+          {
             loader: "css-loader",
             options: {
               minimize: PRODUCTION_MODE,
               sourceMap: true
             }
           }
-        })
+        ]
       },
       {
         test: /\.(bin|bmp|png|woff)$/,
@@ -72,7 +77,7 @@ module.exports = {
       'process.env.ALLOW_SITE_IN_QUERY': JSON.stringify(process.env.ALLOW_SITE_IN_QUERY === 'yes'),
       'process.env.DEVELOPER_MODE': JSON.stringify(DEVELOPER_MODE),
     }),
-    new ExtractTextPlugin({
+    new MiniCssExtractPlugin({
       disable: DEVELOPER_MODE,
       filename: '[name].[chunkhash].css'
     }),
