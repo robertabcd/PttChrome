@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin');
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
@@ -41,7 +42,6 @@ module.exports = (env, argv) => {
             {
               loader: "css-loader",
               options: {
-                minimize: PRODUCTION_MODE,
                 sourceMap: true
               }
             }
@@ -75,6 +75,7 @@ module.exports = (env, argv) => {
           sourceMap: true,
           parallel: true
         }),
+        new OptimizeCssAssetsPlugin()
       ]
     },
     plugins: [
