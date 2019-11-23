@@ -650,7 +650,7 @@ TermView.prototype = {
   },
 
   getRowLineElement: function(node) {
-    for (let r = node; r != r.parentNode; r = r.parentNode) {
+    for (let r = node; r && r != r.parentNode; r = r.parentNode) {
       if (r instanceof Element &&
         r.getAttribute('data-type') == 'bbsline') {
         return r;
