@@ -142,7 +142,7 @@ export function parseStatusRow(str) {
 };
 
 export function parseListRow(str) {
-  var regex = new RegExp(/\[\d{1,2}\/\d{1,2} +星期. +\d{1,2}:\d{1,2}\] \[ .{3} \] +線上\d+人, 我是\w+ +\[呼叫器\](?:關閉|打開) /g);
+  var regex = new RegExp(/\[\d{1,2}\/\d{1,2} +星期. +\d{1,2}:\d{1,2}\] .+ 線上\d+人, 我是\w+ +\[呼叫器\](?:關閉|打開) /g);
   return regex.test(str);
 };
 

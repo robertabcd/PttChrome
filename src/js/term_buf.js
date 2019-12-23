@@ -975,8 +975,10 @@ TermBuf.prototype = {
   },
 
   setPageState: function() {
+    let lastRowNum = this.rows - 1;
+    let cols = this.cols;
     //this.pageState = 0; //NORMAL
-    var lastRowText = this.getRowText(23, 0, this.cols);
+    var lastRowText = this.getRowText(lastRowNum, 0, cols);
     if (lastRowText.indexOf('請按任意鍵繼續') > 0 || lastRowText.indexOf('請按 空白鍵 繼續') > 0) {
       //console.log('pageState = 5 (PASS)');
       this.pageState = 5; // some ansi drawing screen to pass
@@ -991,9 +993,9 @@ TermBuf.prototype = {
       return;
     }
 
-    var firstRowText = this.getRowText(0, 0, this.cols);
+    var firstRowText = this.getRowText(0, 0, cols);
 
-    if ( this.isUnicolor(0, 0, 29) && this.isUnicolor(0, 60, 70) ) {
+    if ( this.isUnicolor(0, 0, 29) && this.isUnicolor(0, cols-20, cols-10) ) {
       var main = firstRowText.indexOf('【主功能表】');
       var classList = firstRowText.indexOf('【分類看板】');
       var archiveList = firstRowText.indexOf('【精華文章】');
@@ -1001,15 +1003,15 @@ TermBuf.prototype = {
         parseListRow(lastRowText)) {
         //console.log('pageState = 1 (MENU)');
         this.pageState = 1; // MENU
-      } else if (this.isUnicolor(2, 0, 70) && !this.isLineEmpty(1) && (this.cur_x < 19 || this.cur_y == 23)) {
+      } else if (this.isUnicolor(2, 0, cols-10) && !this.isLineEmpty(1) && (this.cur_x < 19 || this.cur_y == lastRowNum)) {
         //console.log('pageState = 2 (LIST)');
         this.pageState = 2; // LIST
       }
-    } else if ( this.isUnicolor(23, 28, 53) && this.cur_y == 23 && this.cur_x == 79) {
+    } else if ( this.isUnicolor(lastRowNum, 28, 53) && this.cur_y == lastRowNum && this.cur_x == cols-1) {
       //console.log('pageState = 5 (PASS)');
       this.pageState = 5; // some ansi drawing screen to pass
     }
-    if (this.pageState != 1 && this.isLineEmpty(23)) {
+    if (this.pageState != 1 && this.isLineEmpty(lastRowNum)) {
       //console.log('pageState = 0 (NORMAL)');
       this.pageState = 0;
     }
@@ -1048,6 +1050,9 @@ TermBuf.prototype = {
       this.clearHighlight();
     }
 
+    let lastRowNum = this.rows - 1;
+    let cols = this.cols;
+
     switch( this.pageState ) {
     case 0: //NORMAL
       //SetCursor(m_ArrowCursor);
@@ -1056,12 +1061,12 @@ TermBuf.prototype = {
       break;
 
     case 4: //LIST
-      if (trow>1 && trow < 22) {              //m_pTermData->m_RowsPerPage-1
+      if (trow>1 && trow < lastRowNum-1) {              //m_pTermData->m_RowsPerPage-1
         if ( tcol <= 6 ) {
           this.mouseCursor = 1;
           this.clearHighlight();
           //SetCursor(m_ExitCursor);m_CursorState=1;
-        } else if ( tcol >= 64 ) {            //m_pTermData->m_ColsPerPage-16
+        } else if ( tcol >= cols-16 ) {            //m_pTermData->m_ColsPerPage-16
           if ( trow > 12 )
             this.mouseCursor = 3;
           else
@@ -1085,12 +1090,12 @@ TermBuf.prototype = {
       break;
 
     case 2: //LIST
-      if (trow > 2 && trow < 23) {              //m_pTermData->m_RowsPerPage-1
+      if (trow > 2 && trow < lastRowNum) {              //m_pTermData->m_RowsPerPage-1
         if ( tcol <= 6 ) {
           this.mouseCursor = 1;
           this.clearHighlight();
           //SetCursor(m_ExitCursor);m_CursorState=1;
-        } else if ( tcol >= 64 ) {            //m_pTermData->m_ColsPerPage-16
+        } else if ( tcol >= cols-16 ) {            //m_pTermData->m_ColsPerPage-16
           if ( trow > 12 )
             this.mouseCursor = 3;
           else
@@ -1107,21 +1112,21 @@ TermBuf.prototype = {
       } else if ( trow == 1 || trow == 2 ) {
         if ( tcol < 2 )//[
           this.mouseCursor = 8;
-        else if ( tcol >75 )//]
+        else if ( tcol > cols-5 )//]
           this.mouseCursor = 9;
         else
           this.mouseCursor = 2;
       } else if ( trow === 0 ) {
         if ( tcol < 2 )//=
           this.mouseCursor = 10;
-        else if ( tcol >75 )//]
+        else if ( tcol > cols-5 )//]
           this.mouseCursor = 9;
         else
           this.mouseCursor = 4;
       } else { // if ( trow == 23)
         if ( tcol < 2 )
           this.mouseCursor = 12;
-        else if ( tcol >75 )
+        else if ( tcol > cols-5 )
           this.mouseCursor = 13;
         else
           this.mouseCursor = 5;
@@ -1129,17 +1134,17 @@ TermBuf.prototype = {
       break;
 
     case 3: //READING
-      if ( trow == 23) {
+      if ( trow == lastRowNum) {
         if ( tcol < 2 )//]
           this.mouseCursor = 12;
-        else if ( tcol > 75 )
+        else if ( tcol > cols-5 )
           this.mouseCursor = 14;
         else
           this.mouseCursor = 5;
       } else if ( trow === 0) {
         if (tcol < 2)//=
           this.mouseCursor = 10;
-        else if ( tcol >75 )//]
+        else if ( tcol > cols-5 )//]
           this.mouseCursor = 9;
         else if ( tcol < 7 )
           this.mouseCursor = 1;
@@ -1148,7 +1153,7 @@ TermBuf.prototype = {
       } else if ( trow == 1 || trow == 2) {
         if (tcol < 2)//[
           this.mouseCursor = 8;
-        else if ( tcol >75 )//]
+        else if ( tcol > cols-5 )//]
           this.mouseCursor = 9;
         else if ( tcol < 7 )
           this.mouseCursor = 1;
@@ -1163,7 +1168,7 @@ TermBuf.prototype = {
       break;
 
     case 1: //MENU
-      if ( trow>0 && trow < 23 ) {
+      if ( trow>0 && trow < lastRowNum ) {
         if (tcol > 7)
           this.mouseCursor = 7;
         else

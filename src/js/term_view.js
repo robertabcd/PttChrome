@@ -286,7 +286,7 @@ TermView.prototype = {
           this.enablePicPreview,
           this.mainDisplay
         )
-        this.setHighlightedRow(this.buf.currentHighlighted)
+        this.setHighlightedRow(this.buf.nowHighlight)
       }
       this.buf.prevPageState = this.buf.pageState;
     }
