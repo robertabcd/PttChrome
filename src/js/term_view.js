@@ -89,7 +89,8 @@ export function TermView() {
 
   var lastRowDiv = document.createElement('div');
   lastRowDiv.setAttribute('id', 'easyReadingLastRow');
-  this.lastRowDivContent = '<span align="left"><span class="q0 b7">                                                       </span><span class="q1 b7">(y)</span><span class="q0 b7">回應</span><span class="q1 b7">(X%)</span><span class="q0 b7">推文</span><span class="q1 b7">(←)</span><span class="q0 b7">離開 </span> </span>';
+  let spaces = ' '.repeat(80-25);  // TODO: Find a way to update this.
+  this.lastRowDivContent = '<span align="left"><span class="q0 b7">' + spaces + '</span><span class="q1 b7">(y)</span><span class="q0 b7">回應</span><span class="q1 b7">(X%)</span><span class="q0 b7">推文</span><span class="q1 b7">(←)</span><span class="q0 b7">離開 </span> </span>';
   lastRowDiv.innerHTML = this.lastRowDivContent;
   this.lastRowDiv = lastRowDiv;
   this.BBSWin.appendChild(lastRowDiv);
@@ -716,7 +717,7 @@ TermView.prototype = {
   populateEasyReadingPage: function() {
     if (this.buf.pageState == 3 && this.buf.prevPageState == 3) {
       this.mainContainer.style.paddingBottom = '1em';
-      var lastRowText = this.buf.getRowText(23, 0, this.buf.cols);
+      var lastRowText = this.buf.getRowText(this.buf.rows-1, 0, this.buf.cols);
       var result = parseStatusRow(lastRowText);
       if (result) {
         // row index start with 4 or below will cause duplicated first row of next page
@@ -762,7 +763,7 @@ TermView.prototype = {
       this.actualRowIndex = 0;
       this.buf.pageWrappedLines = [];
       if (this.buf.pageState == 3) {
-        var lastRowText = this.buf.getRowText(23, 0, this.buf.cols);
+        var lastRowText = this.buf.getRowText(this.buf.rows-1, 0, this.buf.cols);
         for (var i = 0; i < this.buf.rows-1; ++i) {
           if (i == 4 || i > 0 && this.buf.isTextWrappedRow(i-1)) { // row with i == 4 and the i == 3 is the wrapped line
             this.buf.pageWrappedLines[this.actualRowIndex] += 1;

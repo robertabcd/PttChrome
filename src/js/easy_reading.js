@@ -51,7 +51,9 @@ EasyReading.prototype._onChanged = function(e) {
   if (!this._enabled)
     return;
 
-  var lastRowText = this._termBuf.getRowText(23, 0, this._termBuf.cols);
+  let lastColNum = this._termBuf.cols - 1;
+  let lastRowNum = this._termBuf.rows - 1;
+  var lastRowText = this._termBuf.getRowText(lastRowNum, 0, this._termBuf.cols);
   // dealing with page state jump to 0 because last row wasn't updated fully 
   if (this._termBuf.pageState == 3) {
     this.startedEasyReading = true;
@@ -64,14 +66,14 @@ EasyReading.prototype._onChanged = function(e) {
   }
   if (this.startedEasyReading) {
     console.log('easy reading cursor pos: ' + this._termBuf.cur_y + ':' + this._termBuf.cur_x);
-    if (this._termBuf.cur_y == 23 && this._termBuf.cur_x == 79) {
+    if (this._termBuf.cur_y == lastRowNum && this._termBuf.cur_x == lastColNum) {
       if (this.ignoreOneUpdate) {
         this.ignoreOneUpdate = false;
         return;
       }
       var result = parseStatusRow(lastRowText);
       if (result) {
-        var lastRowFirstCh = this._termBuf.lines[23][0];
+        var lastRowFirstCh = this._termBuf.lines[lastRowNum][0];
         if (lastRowFirstCh.getBg() == 4 && lastRowFirstCh.getFg() == 7) {
           this.easyReadingReachedPageEnd = true;
         } else {
@@ -85,9 +87,9 @@ EasyReading.prototype._onChanged = function(e) {
         this._termBuf.pageState = 5;
         this.startedEasyReading = false;
       }
-    } else if (this._termBuf.cur_y == 23) {
+    } else if (this._termBuf.cur_y == lastRowNum) {
       if (!this.easyReadingShowPushInitText) {
-        var lastRowText = this._termBuf.getRowText(23, 0, this._termBuf.cols);
+        var lastRowText = this._termBuf.getRowText(lastRowNum, 0, this._termBuf.cols);
         var result = parsePushInitText(lastRowText);
         if (result) {
           this.easyReadingShowPushInitText = true;
