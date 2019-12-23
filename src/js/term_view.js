@@ -11,7 +11,7 @@ const ENTER_CHAR = '\r';
 const ESC_CHAR = '\x15'; // Ctrl-U
 const DEFINE_INPUT_BUFFER_SIZE = 12;
 
-export function TermView(rowCount) {
+export function TermView() {
   //new pref - start
   this.bbsWidth = 0;
   this.bbsHeight = 0;
@@ -398,7 +398,7 @@ TermView.prototype = {
     this.chw = cw;
     this.chh = ch;
     var fontSize = this.chh + 'px';
-    var mainWidth = this.chw*this.buf.cols+10 + 'px';
+    var mainWidth = (this.chw * this.buf.cols + 10) + 'px';
     this.mainDisplay.style.fontSize = fontSize;
     this.mainDisplay.style.lineHeight = fontSize;
     this.bbsCursor.style.fontSize = fontSize;
@@ -407,6 +407,7 @@ TermView.prototype = {
     this.mainDisplay.style.overflowY = 'auto';
     this.mainDisplay.style.textAlign = 'left';
     this.mainDisplay.style.width = mainWidth;
+    this.mainDisplay.style.height = (this.chh * this.buf.rows + 10) + 'px';
 
     this.lastRowDiv.style.fontSize = fontSize;
     this.lastRowDiv.style.width = mainWidth;
@@ -618,8 +619,8 @@ TermView.prototype = {
         ++i;
         nowchh = i*2;
         nowchw = i;
-        o_h = (nowchh) * 24;
-        o_w = nowchw * 80;
+        o_h = (nowchh) * rows;
+        o_w = nowchw * cols;
       } while (o_h <= height && o_w <= width);
       --i;
       nowchh = i*2;

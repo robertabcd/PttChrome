@@ -26,7 +26,7 @@ export const App = function(options) {
   this.CmdHandler.setAttribute('doDOMMouseScroll','0');
   this.CmdHandler.setAttribute('SkipMouseClick','0');
 
-  this.view = new TermView(24);
+  this.view = new TermView();
   this.buf = new TermBuf(80, 24);
   this.buf.setView(this.view);
   //this.buf.severNotifyStr=this.getLM('messageNotify');
@@ -223,6 +223,10 @@ App.prototype._attachConn = function(conn) {
   this.conn.addEventListener('close', this.onClose.bind(this));
   this.conn.addEventListener('data', function(e) {
     self.onData(e.detail.data);
+  });
+  this.conn.addEventListener('doNaws', function(e) {
+    conn.sendWillNaws();
+    conn.sendNaws(self.buf.cols, self.buf.rows);
   });
 };
 
@@ -492,6 +496,15 @@ App.prototype.setAutoPushthreadUpdate = function(seconds) {
 App.prototype.onWindowResize = function() {
   this.view.innerBounds = this.getWindowInnerBounds();
   this.view.fontResize();
+};
+
+App.prototype.setTermSize = function(cols, rows) {
+  this.buf.resize(cols, rows);
+  this.view.fontResize();
+  this.view.redraw(true);
+  if (this.conn) {
+    this.conn.sendNaws(cols, rows);
+  }
 };
 
 App.prototype.switchMouseBrowsing = function() {
@@ -801,6 +814,9 @@ App.prototype.onPrefChange = function(name, value) {
       var margin = value;
       this.view.bbsViewMargin = margin;
       this.onWindowResize();
+      break;
+    case 'termSize':
+      this.setTermSize(value.cols, value.rows);
       break;
     default:
       break;

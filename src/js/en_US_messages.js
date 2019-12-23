@@ -111,6 +111,9 @@ export const en_US = {
   "options_bbsMargin": {
     "message": "Margins around BBS view (px)"
   },
+  "options_termSize": {
+    "message": "BBS terminal size"
+  },
   "options_fontFitWindowWidth": {
     "message": "Stretch font to fill the view"
   },

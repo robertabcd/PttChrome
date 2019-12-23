@@ -43,7 +43,8 @@ const DEFAULT_PREFS = {
   // displays
   fontFitWindowWidth: false,
   fontFace: "MingLiu,SymMingLiU,monospace",
-  bbsMargin: 0
+  bbsMargin: 0,
+  termSize: { cols: 80, rows: 24 }
 };
 
 const PREF_STORAGE_KEY = "pttchrome.pref.v1";
@@ -96,6 +97,22 @@ const link = (text, url) => (
   </a>
 );
 
+const changeNestedValue = (obj, key, newValue) => {
+  let i = key.indexOf(".");
+  if (i > 0) {
+    let parentKey = key.substring(0, i);
+    let subKey = key.substring(i + 1);
+    return {
+      ...obj,
+      [parentKey]: changeNestedValue(obj[parentKey], subKey, newValue)
+    };
+  }
+  return {
+    ...obj,
+    [key]: newValue
+  };
+};
+
 const enhance = compose(
   withStateHandlers(
     () => ({
@@ -140,24 +157,15 @@ const enhance = compose(
       }),
 
       onCheckboxChange: ({ values }) => ({ target: { name, checked } }) => ({
-        values: {
-          ...values,
-          [name]: checked
-        }
+        values: changeNestedValue(values, name, !!checked)
       }),
 
       onNumberInputChange: ({ values }) => ({ target: { name, value } }) => ({
-        values: {
-          ...values,
-          [name]: parseInt(value, 10)
-        }
+        values: changeNestedValue(values, name, parseInt(value, 10))
       }),
 
-      onNumberTextChange: ({ values }) => ({ target: { name, value } }) => ({
-        values: {
-          ...values,
-          [name]: value
-        }
+      onTextInputChange: ({ values }) => ({ target: { name, value } }) => ({
+        values: changeNestedValue(values, name, value)
       })
     }
   )
@@ -173,7 +181,7 @@ export const PrefModal = ({
   values,
   onCheckboxChange,
   onNumberInputChange,
-  onNumberTextChange,
+  onTextInputChange,
   replacements
 }) => (
   <Modal show={show} onHide={onCloseClick} className="PrefModal">
@@ -295,7 +303,7 @@ export const PrefModal = ({
                         name="fontFace"
                         type="text"
                         value={values.fontFace}
-                        onChange={onNumberTextChange}
+                        onChange={onTextInputChange}
                       />
                     </OverlayTrigger>
                   </FormGroup>
@@ -305,6 +313,22 @@ export const PrefModal = ({
                       name="bbsMargin"
                       type="number"
                       value={values.bbsMargin}
+                      onChange={onNumberInputChange}
+                    />
+                  </FormGroup>
+                  <FormGroup controlId="termSize">
+                    <ControlLabel>{i18n("options_termSize")}</ControlLabel>
+                    <FormControl
+                      name="termSize.cols"
+                      type="number"
+                      value={values.termSize.cols}
+                      onChange={onNumberInputChange}
+                    />
+                    {"x"}
+                    <FormControl
+                      name="termSize.rows"
+                      type="number"
+                      value={values.termSize.rows}
                       onChange={onNumberInputChange}
                     />
                   </FormGroup>

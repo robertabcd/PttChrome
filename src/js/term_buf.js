@@ -239,8 +239,6 @@ export function TermBuf(cols, rows) {
   this.prevPageState = 0;
 
   this.lines = new Array(rows);
-  this.linesX = new Array(0);
-  this.linesY = new Array(0);
 
   this.pageLines = [];
   this.pageWrappedLines = [];
@@ -262,6 +260,25 @@ export function TermBuf(cols, rows) {
 }
 
 TermBuf.prototype = {
+
+  resize: function(cols, rows) {
+    this.cols = cols;
+    this.rows = rows;
+    this.lineChangeds.length = rows;
+    this.scrollEnd = rows - 1;
+    this.lines.length = rows;
+    for (let r = 0; r < rows; r++) {
+      if (!this.lines[r]) {
+        this.lines[r] = new Array(cols);
+      }
+      this.lines[r].length = cols;
+      for (let c = 0; c < cols; c++){
+        if (!this.lines[r][c]) {
+          this.lines[r][c] = new TermChar(' ');
+        }
+      }
+    }
+  },
 
   timerUpdate: null,
 
@@ -959,7 +976,6 @@ TermBuf.prototype = {
 
   setPageState: function() {
     //this.pageState = 0; //NORMAL
-    var m_ColsPerPage = 80;
     var lastRowText = this.getRowText(23, 0, this.cols);
     if (lastRowText.indexOf('請按任意鍵繼續') > 0 || lastRowText.indexOf('請按 空白鍵 繼續') > 0) {
       //console.log('pageState = 5 (PASS)');

@@ -122,9 +122,7 @@ TelnetConnection.prototype._onDataAvailable = function(e) {
           this._sendRaw( IAC + WILL + ch );
           break;
         case NAWS:
-          // Don't respond.
-          //this._sendRaw( IAC + WILL + ch );
-          //this.sendNaws();
+          this.dispatchEvent(new CustomEvent('doNaws'));
           break;
         default:
           this._sendRaw( IAC + WONT + ch );
@@ -189,6 +187,10 @@ TelnetConnection.prototype.convSend = function(unicode_str) {
     s = ansiHalfColorConv(s);
     this._sendRaw(s);
   }
+};
+
+TelnetConnection.prototype.sendWillNaws = function(cols, rows) {
+  this._sendRaw(IAC + WILL + NAWS);
 };
 
 TelnetConnection.prototype.sendNaws = function(cols, rows) {

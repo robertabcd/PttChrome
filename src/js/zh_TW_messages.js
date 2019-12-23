@@ -111,6 +111,9 @@
   "options_bbsMargin": {
     "message": "BBS 周圍邊距 (像素)"
   },
+  "options_termSize": {
+    "message": "BBS 終端機大小"
+  },
   "options_fontFitWindowWidth": {
     "message": "把字體拉大來補滿畫面"
   },
