@@ -495,13 +495,28 @@ App.prototype.setAutoPushthreadUpdate = function(seconds) {
 
 App.prototype.onWindowResize = function() {
   this.view.innerBounds = this.getWindowInnerBounds();
-  this.view.fontResize();
+
+  if (this.resizeTimeout) {
+    clearTimeout(this.resizeTimeout);
+  }
+  if (this.resizer) {
+    this.resizeTimeout = setTimeout(() => {
+      this.resizeTimeout = null;
+      if (this.resizer) {
+        this.resizer();
+      }
+    }, 500);
+  } else {
+    this.view.fontResize();
+  }
 };
 
 App.prototype.setTermSize = function(cols, rows) {
+  if (this.buf.cols == cols && this.buf.rows == rows) {
+    return;
+  }
+
   this.buf.resize(cols, rows);
-  this.view.fontResize();
-  this.view.redraw(true);
   if (this.conn) {
     this.conn.sendNaws(cols, rows);
   }
@@ -716,6 +731,42 @@ App.prototype.onValuesPrefChange = function(values) {
   for (var name in values) {
     this.onPrefChange(name, values[name]);
   }
+
+  // These prefs have to be processed as a whole.
+  try {
+    this.resizer = null;
+
+    switch (values.termSizeMode) {
+      case 'fixed-term-size':
+        this.view.fontFitWindowWidth = values.fontFitWindowWidth;
+
+        let size = values.termSize;
+        this.setTermSize(size.cols, size.rows);
+        this.view.fontResize();
+        this.view.redraw(true);
+        break;
+
+      case 'fixed-font-size':
+        this.view.fontFitWindowWidth = false;
+
+        let fontSize = values.fontSize;
+        this.resizer = () => {
+          let size = this.view.calcTermSizeFromFont(fontSize);
+          this.setTermSize(size.cols, size.rows);
+          this.view.fixedResize(fontSize);
+          this.view.redraw(true);
+        };
+        // Immediately recalc once.
+        this.resizer();
+        break;
+    }
+
+    if (this.view.fontFitWindowWidth) {
+      $('.main').addClass('trans-fix');
+    } else {
+      $('.main').removeClass('trans-fix');
+    }
+  } catch (e) {}
 };
 
 App.prototype.onPrefChange = function(name, value) {
@@ -795,15 +846,6 @@ App.prototype.onPrefChange = function(name, value) {
     case 'lineWrap':
       this.conn.lineWrap = value;
       break;
-    case 'fontFitWindowWidth':
-      this.view.fontFitWindowWidth = value;
-      if (this.view.fontFitWindowWidth) {
-        $('.main').addClass('trans-fix');
-      } else {
-        $('.main').removeClass('trans-fix');
-      }
-      this.onWindowResize();
-      break;
     case 'fontFace':
       var fontFace = value;
       if (!fontFace) 
@@ -814,9 +856,6 @@ App.prototype.onPrefChange = function(name, value) {
       var margin = value;
       this.view.bbsViewMargin = margin;
       this.onWindowResize();
-      break;
-    case 'termSize':
-      this.setTermSize(value.cols, value.rows);
       break;
     default:
       break;

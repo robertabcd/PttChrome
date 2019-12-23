@@ -111,8 +111,26 @@ export const en_US = {
   "options_bbsMargin": {
     "message": "Margins around BBS view (px)"
   },
+  "options_fontSize": {
+    "message": "BBS font size"
+  },
   "options_termSize": {
     "message": "BBS terminal size"
+  },
+  "options_cols": {
+    "message": "Columns"
+  },
+  "options_rows": {
+    "message": "Rows"
+  },
+  "options_fontSize": {
+    "message": "Font size (px)"
+  },
+  "options_fixedTermSize": {
+    "message": "Fixed term size"
+  },
+  "options_fixedFontSize": {
+    "message": "Fixed font size"
   },
   "options_fontFitWindowWidth": {
     "message": "Stretch font to fill the view"

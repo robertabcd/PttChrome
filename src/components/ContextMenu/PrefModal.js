@@ -43,8 +43,10 @@ const DEFAULT_PREFS = {
   // displays
   fontFitWindowWidth: false,
   fontFace: "MingLiu,SymMingLiU,monospace",
-  bbsMargin: 0,
-  termSize: { cols: 80, rows: 24 }
+  fontSize: 20,
+  termSize: { cols: 80, rows: 24 },
+  termSizeMode: "fixed-term-size",
+  bbsMargin: 0
 };
 
 const PREF_STORAGE_KEY = "pttchrome.pref.v1";
@@ -281,13 +283,6 @@ export const PrefModal = ({
                 </fieldset>
                 <fieldset className="PrefModal__Grid__Col--right__Fieldset">
                   <legend>{i18n("options_appearance")}</legend>
-                  <Checkbox
-                    name="fontFitWindowWidth"
-                    checked={values.fontFitWindowWidth}
-                    onChange={onCheckboxChange}
-                  >
-                    {i18n("options_fontFitWindowWidth")}
-                  </Checkbox>
                   <FormGroup controlId="fontFace">
                     <ControlLabel>{i18n("options_fontFace")}</ControlLabel>
                     <OverlayTrigger
@@ -316,22 +311,82 @@ export const PrefModal = ({
                       onChange={onNumberInputChange}
                     />
                   </FormGroup>
-                  <FormGroup controlId="termSize">
+                  <FormGroup controlId="termSizeMode">
                     <ControlLabel>{i18n("options_termSize")}</ControlLabel>
                     <FormControl
-                      name="termSize.cols"
-                      type="number"
-                      value={values.termSize.cols}
-                      onChange={onNumberInputChange}
-                    />
-                    {"x"}
-                    <FormControl
-                      name="termSize.rows"
-                      type="number"
-                      value={values.termSize.rows}
-                      onChange={onNumberInputChange}
-                    />
+                      componentClass="select"
+                      name="termSizeMode"
+                      value={values.termSizeMode}
+                      onChange={onTextInputChange}
+                    >
+                      <option
+                        key={"options_fixedTermSize"}
+                        value={"fixed-term-size"}
+                      >
+                        {i18n("options_fixedTermSize")}
+                      </option>
+                      <option
+                        key={"options_fixedFontSize"}
+                        value={"fixed-font-size"}
+                      >
+                        {i18n("options_fixedFontSize")}
+                      </option>
+                    </FormControl>
                   </FormGroup>
+                  {(() => {
+                    switch (values.termSizeMode) {
+                      case "fixed-term-size":
+                        return (
+                          <div>
+                            <FormGroup controlId="termSize_cols">
+                              <ControlLabel>
+                                {i18n("options_cols")}
+                              </ControlLabel>
+                              <FormControl
+                                name="termSize.cols"
+                                type="number"
+                                value={values.termSize.cols}
+                                onChange={onNumberInputChange}
+                              />
+                            </FormGroup>
+                            <FormGroup controlId="termSize_rows">
+                              <ControlLabel>
+                                {i18n("options_rows")}
+                              </ControlLabel>
+                              <FormControl
+                                name="termSize.rows"
+                                type="number"
+                                value={values.termSize.rows}
+                                onChange={onNumberInputChange}
+                              />
+                            </FormGroup>
+                            <Checkbox
+                              name="fontFitWindowWidth"
+                              checked={values.fontFitWindowWidth}
+                              onChange={onCheckboxChange}
+                            >
+                              {i18n("options_fontFitWindowWidth")}
+                            </Checkbox>
+                          </div>
+                        );
+                      case "fixed-font-size":
+                        return (
+                          <FormGroup controlId="fontSize">
+                            <ControlLabel>
+                              {i18n("options_fontSize")}
+                            </ControlLabel>
+                            <FormControl
+                              name="fontSize"
+                              type="number"
+                              value={values.fontSize}
+                              onChange={onNumberInputChange}
+                            />
+                          </FormGroup>
+                        );
+                      default:
+                        return null;
+                    }
+                  })()}
                 </fieldset>
                 <fieldset className="PrefModal__Grid__Col--right__Fieldset">
                   <legend>{i18n("options_mouseBrowsing")}</legend>

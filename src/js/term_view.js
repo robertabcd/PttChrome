@@ -15,7 +15,6 @@ export function TermView() {
   //new pref - start
   this.bbsWidth = 0;
   this.bbsHeight = 0;
-  this.bbsFontSize = 14;
   this.dbcsDetect = true;
   this.highlightBG = 2;
   this.charset = 'big5';
@@ -604,12 +603,9 @@ TermView.prototype = {
     var cols = this.buf ? this.buf.cols : 80;
     var rows = this.buf ? this.buf.rows : 24;
 
-    var innerBounds = this.innerBounds;
-    var fontWidth = this.bbsFontSize * 2;
-
     {
-      var width = this.bbsWidth ? this.bbsWidth : innerBounds.width;
-      var height = this.bbsHeight ? this.bbsHeight : innerBounds.height;
+      var width = this.bbsWidth ? this.bbsWidth : this.innerBounds.width;
+      var height = this.bbsHeight ? this.bbsHeight : this.innerBounds.height;
       if (width === 0 || height === 0) return; // errors for openning in a new window
       width -= 10; // for scroll bar
 
@@ -626,14 +622,31 @@ TermView.prototype = {
       --i;
       nowchh = i*2;
       nowchw = i;
-      this.setTermFontSize(nowchw, nowchh);
-      fontWidth = nowchh;
+      this.fixedResize(nowchh);
     }
+  },
+
+  fixedResize: function(fontSizePx) {
+    let chw = fontSizePx / 2;
+    let chh = fontSizePx;
+
+    this.setTermFontSize(chw, chh);
+
     var forceWidthElems = document.querySelectorAll('.wpadding');
     for (var i = 0; i < forceWidthElems.length; ++i) {
       var forceWidthElem = forceWidthElems[i];
-      forceWidthElem.style.width = fontWidth + 'px';
+      forceWidthElem.style.width = chh + 'px';
     }
+  },
+
+  calcTermSizeFromFont: function(fontSizePx) {
+    fontSizePx = Math.floor((fontSizePx + 1) / 2) * 2;
+    let width = this.bbsWidth ? this.bbsWidth : this.innerBounds.width;
+    let height = this.bbsHeight ? this.bbsHeight : this.innerBounds.height;
+    return {
+      cols: Math.max(80, Math.min(200, Math.floor(2 * (width - 10) / fontSizePx))),
+      rows: Math.max(24, Math.min(100, Math.floor(height / fontSizePx)))
+    };
   },
 
   getRowLineElement: function(node) {
