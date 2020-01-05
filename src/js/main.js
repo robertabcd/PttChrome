@@ -4,12 +4,9 @@ import { getQueryVariable } from './util';
 import { readValuesWithDefault } from '../components/ContextMenu/PrefModal';
 
 function startApp() {
-  var site = getQueryVariable('site');
-  var from = getQueryVariable('from');
-  var keepAlive = getQueryVariable('keepAlive');
   setupI18n();
 
-  const app = new App({ from: from, keepAlive: keepAlive });
+  const app = new App();
 
   (process.env.DEVELOPER_MODE ? import('../components/DeveloperModeAlert')
     .then(({DeveloperModeAlert}) => new Promise((resolve, reject) => {
@@ -25,7 +22,9 @@ function startApp() {
     })) : Promise.resolve()
   ).then(() => {
     // connect.
-    app.connect(getQueryVariable('site') || process.env.DEFAULT_SITE);
+    app.connect(
+      process.env.ALLOW_SITE_IN_QUERY && getQueryVariable('site')
+      || process.env.DEFAULT_SITE);
     // TODO: Call onSymFont for font data when it's implemented.
     console.log("load pref from storage");
     app.onValuesPrefChange(readValuesWithDefault());

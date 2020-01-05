@@ -10,7 +10,7 @@ import { EasyReading } from './easy_reading';
 import { TouchController } from './touch_controller';
 import { i18n } from './i18n';
 import { unescapeStr, b2u, parseWaterball } from './string_util';
-import { getQueryVariable, setTimer } from './util';
+import { setTimer } from './util';
 import PasteShortcutAlert from '../components/PasteShortcutAlert';
 import ConnectionAlert from '../components/ConnectionAlert';
 import ContextMenu from '../components/ContextMenu';
@@ -19,7 +19,7 @@ function noop() {}
 
 const ANTI_IDLE_STR = '\x1b\x1b';
 
-export const App = function(options) {
+export const App = function() {
 
   this.CmdHandler = document.getElementById('cmdHandler');
   this.CmdHandler.setAttribute('useMouseBrowsing', '1');
@@ -144,8 +144,6 @@ export const App = function(options) {
       return e.returnValue;
     }
   });
-
-  this.isFromApp = (options.from === 'app');
 
   this.dblclickTimer=null;
   this.mbTimer=null;
