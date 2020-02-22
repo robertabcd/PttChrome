@@ -36,19 +36,10 @@ function startApp() {
 }
 
 function loadTable(url) {
-  return new Promise(function(resolve, reject) {
-    $.ajax({
-      url: url,
-      processData: false,
-      xhrFields: {
-        responseType: 'arraybuffer'
-      }
-    }).done(function(data) {
-      resolve(data);
-    }).fail(function(jqXHR, textStatus, errorThrown) {
-      console.log('loadTable failed: ' + textStatus + ': ' + url);
-      reject();
-    });
+  return fetch(url).then(response => {
+    if (!response.ok)
+      throw new Error('loadTable failed: ' + response.statusText + ': ' + url);
+    return response.arrayBuffer();
   });
 }
 
@@ -61,8 +52,8 @@ function loadResources() {
     window.lib.b2uArray = new Uint8Array(binData[0]);
     window.lib.u2bArray = new Uint8Array(binData[1]);
     $(document).ready(startApp);
-  }, function() {
-    console.log('loadResources failed');
+  }, function(e) {
+    console.log('loadResources failed: ' + e);
   });
 }
 
