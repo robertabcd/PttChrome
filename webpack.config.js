@@ -19,9 +19,6 @@ module.exports = {
     pathinfo: DEVELOPER_MODE,
     filename: `[name]${ PRODUCTION_MODE ? '.[chunkhash]' : '' }.js`
   },
-  externals: {
-    jquery: 'jQuery',
-  },
   module: {
     rules: [
       {
@@ -88,6 +85,23 @@ module.exports = {
     }),
     new WebpackCdnPlugin({
       modules: [
+        {
+          // jQuery must be loaded before bootstrap.
+          name: 'jquery',
+          var: 'jQuery',
+          path: 'dist/jquery.min.js',
+        },
+        {
+          name: 'bootstrap',
+          var: 'bootstrap',
+          path: 'dist/js/bootstrap.min.js',
+          style: 'dist/css/bootstrap.min.css',
+        },
+        {
+          name: 'hammerjs',
+          var: 'Hammer',
+          path: 'hammer.min.js',
+        },
         {
           name: 'react',
           var: 'React',
