@@ -1,7 +1,8 @@
 const path = require('path');
 const webpack = require('webpack');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
 const WebpackCdnPlugin = require('webpack-cdn-plugin');
@@ -24,21 +25,11 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: "babel-loader"
+        loader: "babel-loader",
       },
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          publicPath: './',      
-          fallback: "style-loader",
-          use: {
-            loader: "css-loader",
-            options: {
-              minimize: PRODUCTION_MODE,
-              sourceMap: true
-            }
-          }
-        })
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
         test: /\.(bin|bmp|png|woff)$/,
@@ -62,6 +53,9 @@ module.exports = {
     ]
   },
   devtool: 'source-map',
+  optimization: {
+    minimizer: [new OptimizeCSSAssetsPlugin({})],
+  },
   plugins: [
     new webpack.DefinePlugin({
       'process.env.PTTCHROME_PAGE_TITLE': JSON.stringify(process.env.PTTCHROME_PAGE_TITLE || 'PttChrome'),
@@ -69,9 +63,9 @@ module.exports = {
       'process.env.ALLOW_SITE_IN_QUERY': JSON.stringify(process.env.ALLOW_SITE_IN_QUERY === 'yes'),
       'process.env.DEVELOPER_MODE': JSON.stringify(DEVELOPER_MODE),
     }),
-    new ExtractTextPlugin({
-      disable: DEVELOPER_MODE,
-      filename: '[name].[chunkhash].css'
+    new MiniCssExtractPlugin({
+      filename: '[name].[chunkhash].css',
+      chunkFilename: '[id].css',
     }),
     new HtmlWebpackPlugin({
       alwaysWriteToDisk: DEVELOPER_MODE,
@@ -84,6 +78,7 @@ module.exports = {
       filename: '../index.html'
     }),
     new WebpackCdnPlugin({
+      crossOrigin: 'anonymous',
       modules: [
         {
           // jQuery must be loaded before bootstrap.
