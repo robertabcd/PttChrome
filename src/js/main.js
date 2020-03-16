@@ -2,8 +2,6 @@
 import { setupI18n } from './i18n';
 import { getQueryVariable } from './util';
 import { readValuesWithDefault } from '../components/ContextMenu/PrefModal';
-import b2u_table from '../conv/b2u_table.bin';
-import u2b_table from '../conv/u2b_table.bin';
 
 function startApp() {
   setupI18n();
@@ -47,8 +45,8 @@ function loadTable(url) {
 
 function loadResources() {
   Promise.all([
-    loadTable(b2u_table),
-    loadTable(u2b_table)
+    loadTable(require('../conv/b2u_table.bin')),
+    loadTable(require('../conv/u2b_table.bin'))
   ]).then(function(binData) {
     window.lib = window.lib || {};
     window.lib.b2uArray = new Uint8Array(binData[0]);
