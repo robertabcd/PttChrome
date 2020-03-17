@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssUrlRelativePlugin = require('css-url-relative-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
 const WebpackCdnPlugin = require('webpack-cdn-plugin');
@@ -68,6 +69,7 @@ module.exports = {
       filename: '[name].[chunkhash].css',
       chunkFilename: '[id].css',
     }),
+    new CssUrlRelativePlugin(),
     new HtmlWebpackPlugin({
       alwaysWriteToDisk: DEVELOPER_MODE,
       minify: {
