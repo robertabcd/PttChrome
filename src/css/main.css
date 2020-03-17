@@ -1,10 +1,6 @@
 @font-face {
   font-family: SymMingLiu;
-  src: url('../fonts/symmingliu.woff');
-}
-@font-face {
-  font-family: DFHeiLightB5;
-  src: url('../fonts/DFHeiLightB5.woff');
+  src: url('../fonts/symmingliu.woff') format("woff");
 }
 
 #picPreview {

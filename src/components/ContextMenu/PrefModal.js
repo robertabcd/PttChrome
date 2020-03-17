@@ -42,7 +42,7 @@ const DEFAULT_PREFS = {
 
   // displays
   fontFitWindowWidth: false,
-  fontFace: "MingLiu,SymMingLiU,monospace",
+  fontFace: "MingLiu,SymMingLiu,monospace",
   fontSize: 20,
   termSize: { cols: 80, rows: 24 },
   termSizeMode: "fixed-term-size",
@@ -423,9 +423,7 @@ export const PrefModal = ({
                             key={i}
                             value={i}
                             className={cx(
-                              `b${
-                                i
-                              }` /* FIXME: Existing bug: Not working for Chrome */
+                              `b${i}` /* FIXME: Existing bug: Not working for Chrome */
                             )}
                           />
                         ))}
