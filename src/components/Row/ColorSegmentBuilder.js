@@ -1,5 +1,5 @@
 import WordSegmentBuilder from "./WordSegmentBuilder";
-import { b2u } from "../../js/string_util";
+import { b2u, isDBCSLead } from "../../js/string_util";
 import { symbolTable } from "../../js/symbol_table";
 
 function isBadDBCS(u) {
@@ -31,11 +31,12 @@ export class ColorSegmentBuilder {
   }
 
   readChar(ch) {
-    if (ch.isLeadByte) {
-      this.lead = ch;
-      return;
-    }
     if (!this.lead) {
+      if (isDBCSLead(ch.ch)) {
+        this.lead = ch;
+        return;
+      }
+
       this.appendNormalChar(ch.ch, ch.getColor());
       return;
     }

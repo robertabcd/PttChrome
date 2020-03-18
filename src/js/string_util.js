@@ -107,6 +107,11 @@ export function b2u(it) {
   return str;
 };
 
+export function isDBCSLead(ch) {
+  let code = ch.charCodeAt(0);
+  return code >= 0x81 && code <= 0xfe;
+};
+
 export function parseReplyText(it) {
   return (it.indexOf('▲ 回應至 (F)看板 (M)作者信箱 (B)二者皆是 (Q)取消？[F] ') === 0 ||
       it.indexOf('▲ 無法回應至看板。 改回應至 (M)作者信箱 (Q)取消？[Q]') === 0 ||
