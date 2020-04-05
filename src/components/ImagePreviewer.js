@@ -82,8 +82,10 @@ const getTop = (top, height) => {
 
   // opening image would pass the bottom of the page
   if (top + height / 2 > pageHeight - 20) {
-    if (height / 2 < top) {
-      return pageHeight - 20 - height;
+    if (pageHeight - height >= 0) {
+      return pageHeight - height;
+    } else {
+      // TODO: Resize the image as it's larger than window.
     }
   } else if (top - 20 > height / 2) {
     return top - height / 2;
