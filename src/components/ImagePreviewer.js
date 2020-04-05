@@ -95,14 +95,17 @@ ImagePreviewer.OnHover = ({ left, top, value, error }) => {
   if (error) {
     return false;
   } else if (value) {
+    const height = (this.dom && this.dom.height) || value.height;
+
     return (
       <img
+        ref={ref => (this.dom = ref)}
         src={value.src}
         style={{
           display: "block",
           position: "absolute",
           left: left + 20,
-          top: getTop(top, value.height),
+          top: getTop(top, height),
           maxHeight: "80%",
           maxWidth: "90%",
           zIndex: 2
