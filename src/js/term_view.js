@@ -649,6 +649,16 @@ TermView.prototype = {
     };
   },
 
+  calcFontSizeFromTerm: function(termCols, termRows) {
+    termCols = Math.max(80, Math.min(200, termCols));
+    termRows = Math.max(24, Math.min(100, termRows));
+    let width = this.bbsWidth ? this.bbsWidth : this.innerBounds.width;
+    let height = this.bbsHeight ? this.bbsHeight : this.innerBounds.height;
+    let sizeX = Math.floor(2 * (width - 10) / termCols);
+    let sizeY = Math.floor(height / termRows);
+    return Math.min(sizeX, sizeY);
+  },
+
   getRowLineElement: function(node) {
     for (let r = node; r && r != r.parentNode; r = r.parentNode) {
       if (r instanceof Element &&

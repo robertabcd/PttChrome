@@ -126,11 +126,17 @@ export const en_US = {
   "options_fontSize": {
     "message": "Font size (px)"
   },
+  "options_fontSizeMax": {
+    "message": "Maximum font size (px)"
+  },
   "options_fixedTermSize": {
     "message": "Fixed term size"
   },
   "options_fixedFontSize": {
     "message": "Fixed font size"
+  },
+  "options_maxFontSize": {
+    "message": "Maximum-limited font size"
   },
   "options_fontFitWindowWidth": {
     "message": "Stretch font to fill the view"
