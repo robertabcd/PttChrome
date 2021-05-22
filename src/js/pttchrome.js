@@ -14,6 +14,7 @@ import { setTimer } from './util';
 import PasteShortcutAlert from '../components/PasteShortcutAlert';
 import ConnectionAlert from '../components/ConnectionAlert';
 import ContextMenu from '../components/ContextMenu';
+import { readValuesWithDefault, writeValues } from "../components/ContextMenu/PrefModal";
 
 function noop() {}
 
@@ -350,6 +351,20 @@ App.prototype.switchToEasyReadingMode = function(doSwitch) {
   }
   // request the full screen
   this.view.conn.send(unescapeStr('^L'));
+};
+
+App.prototype.doAddToBlacklist = function(str) {
+  const values = readValuesWithDefault()
+  values.blacklist = [...new Set([...values.blacklist, str.trim()])];
+  writeValues(values);
+  console.log('add to blacklist', str);
+};
+
+App.prototype.doRemoveFromBlacklist = function(str) {
+  const values = readValuesWithDefault()
+  values.blacklist = values.blacklist.filter((user) => user !== str.trim());
+  writeValues(values);
+  console.log('remove from blacklist', str);
 };
 
 App.prototype.doCopy = function(str) {
