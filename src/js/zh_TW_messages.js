@@ -38,6 +38,12 @@
   "cmenu_paste": {
     "message": "貼上"
   },
+  "cmenu_addToBlacklist": {
+    "message": "ID 加到黑名單"
+  },
+  "cmenu_removeFromBlacklist": {
+    "message": "從黑名單移除 ID"
+  },
   "cmenu_selectAll": {
     "message": "全選"
   },

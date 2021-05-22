@@ -23,6 +23,10 @@ const menuHandlerByEventKey = {
   copy: (pttchrome, { selectedText }) => pttchrome.doCopy(selectedText),
   copyAnsi: pttchrome => pttchrome.doCopyAnsi(),
   paste: pttchrome => pttchrome.doPaste(),
+  addToBlacklist: (pttchrome, { selectedText }) =>
+    pttchrome.doAddToBlacklist(selectedText),
+  removeFromBlacklist: (pttchrome, { selectedText }) =>
+    pttchrome.doRemoveFromBlacklist(selectedText),
   searchGoogle: (pttchrome, { selectedText }) =>
     pttchrome.doSearchGoogle(selectedText),
   openUrlNewTab: (pttchrome, { aElement }) =>

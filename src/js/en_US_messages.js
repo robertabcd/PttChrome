@@ -41,6 +41,12 @@ export const en_US = {
   "cmenu_selectAll": {
     "message": "Select all"
   },
+  "cmenu_addToBlacklist": {
+    "message": "Add ID to blacklist"
+  },
+  "cmenu_removeFromBlacklist": {
+    "message": "Remove ID from blacklist"
+  },
   "cmenu_searchGoogle": {
     "message": "Search Google for"
   },

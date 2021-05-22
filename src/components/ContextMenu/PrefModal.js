@@ -46,7 +46,10 @@ const DEFAULT_PREFS = {
   fontSize: 20,
   termSize: { cols: 80, rows: 24 },
   termSizeMode: "fixed-term-size",
-  bbsMargin: 0
+  bbsMargin: 0,
+
+  // blacklist
+  blacklist: []
 };
 
 const PREF_STORAGE_KEY = "pttchrome.pref.v1";
@@ -64,7 +67,7 @@ export const readValuesWithDefault = () => {
   }
 };
 
-const writeValues = values => {
+export const writeValues = values => {
   try {
     window.localStorage.setItem(
       PREF_STORAGE_KEY,
