@@ -88,7 +88,7 @@ export const en_US = {
     "message": "Enable easy reading article view. (experimental)"
   },
   "options_endTurnsOnLiveUpdate": {
-    "message": "Press END turns on pushthread live update."
+    "message": "Press END turns on thread live update."
   },
   "options_copyOnSelect": {
     "message": "Copy text when selected."
@@ -350,7 +350,7 @@ export const en_US = {
     "message": "Enable"
   },
   "liveHelperSpan": {
-    "message": "pushthread refreshes every"
+    "message": "thread refreshes every"
   },
   "liveHelperSpanSec": {
     "message": "sec"

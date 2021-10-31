@@ -29,7 +29,7 @@ export const LiveHelperModal = ({
   onEnabledClick,
   onSecChange
 }) => (
-  <Modal show={show}>
+  <Modal show={show} backdrop={false}>
     <Modal.Body className="LiveHelperModal__Body">
       <OverlayTrigger placement="top" overlay={<Tooltip>Alt + r</Tooltip>}>
         <Button active={enabled} onClick={onEnabledClick}>

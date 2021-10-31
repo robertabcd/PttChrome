@@ -214,18 +214,19 @@ const enhance = compose(
       pttchrome.conn.convSend(value);
     },
 
-    onLiveHelperHide: () => () => {
+    onLiveHelperHide: (state, { pttchrome }) => nextState => {
+      pttchrome.setAutoPushthreadUpdate(-1);
       return {
         showsLiveArticleHelper: false,
         liveHelperEnabled: false
       };
     },
     onLiveHelperChange: (state, { pttchrome }) => nextState => {
-      if (state.liveHelperEnabled) {
+      if (nextState.enabled) {
         // cancel easy reading mode first
         pttchrome.view.useEasyReadingMode = false;
         pttchrome.switchToEasyReadingMode();
-        pttchrome.setAutoPushthreadUpdate(state.sec);
+        pttchrome.setAutoPushthreadUpdate(nextState.sec);
       } else {
         pttchrome.setAutoPushthreadUpdate(-1);
       }

@@ -330,7 +330,9 @@ App.prototype.setInputAreaFocus = function() {
   this.inputArea.focus();
 };
 
+// FIXME: Injected when enabled. See: src/components/ContextMenu/index.js
 App.prototype.onToggleLiveHelperModalState = noop;
+// FIXME: Injected when enabled. See: src/components/ContextMenu/index.js
 App.prototype.onDisableLiveHelperModalState = noop;
 
 App.prototype.switchToEasyReadingMode = function(doSwitch) {
