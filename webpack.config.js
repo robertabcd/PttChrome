@@ -9,7 +9,7 @@ const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
 const WebpackCdnPlugin = require('webpack-cdn-plugin');
 
 const DEVELOPER_MODE = process.env.NODE_ENV === 'development'
-const PRODUCTION_MODE = process.env.NODE_ENV === 'production'
+const PRODUCTION_MODE = process.env.NODE_ENV !== 'development'
 
 module.exports = {
   entry: {

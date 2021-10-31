@@ -98,7 +98,7 @@
   "scripts": {
     "clean": "rimraf dist/assets dist/index.html",
     "prebuild": "npm run clean",
-    "build": "cross-env NODE_ENV=production webpack --mode=production",
+    "build": "cross-env webpack",
     "prestart": "npm run clean",
     "start": "cross-env NODE_ENV=development webpack-dev-server"
   }
