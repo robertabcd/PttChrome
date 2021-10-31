@@ -607,11 +607,17 @@ const enhance = compose(
       isBlink: false
     }),
     {
-      onColorClick: () => ({ target: { dataset: { fg } } }) => ({
+      onColorClick: () => ({
+        target: {
+          dataset: { fg }
+        }
+      }) => ({
         fg: parseInt(fg, 10)
       }),
       onColorContextMenu: ({ bg }) => event => {
-        const { target: { dataset } } = event;
+        const {
+          target: { dataset }
+        } = event;
         event.preventDefault();
         event.stopPropagation();
         return {
@@ -676,6 +682,7 @@ export const InputHelperModal = ({
 }) => (
   <Modal
     show={show}
+    backdrop={false}
     className="InputHelperModal__Dialog"
     onMouseDown={onMouseDown}
     onMouseMove={onMouseMove}
