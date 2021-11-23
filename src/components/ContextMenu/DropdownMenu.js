@@ -134,6 +134,12 @@ export const DropdownMenu = ({
     <MenuItem divider />
     {selEnabled && (
       <React.Fragment>
+        <MenuItem eventKey="addToBlacklist" onSelect={onMenuSelect}>
+          {i18n("cmenu_addToBlacklist")}
+        </MenuItem>
+        <MenuItem eventKey="removeFromBlacklist" onSelect={onMenuSelect}>
+          {i18n("cmenu_removeFromBlacklist")}
+        </MenuItem>
         <MenuItem className="DropdownMenu__Item--quickSearch">
           {i18n("cmenu_quickSearch")}{" "}
           <span style={{ float: "right" }}>&#9658;</span>

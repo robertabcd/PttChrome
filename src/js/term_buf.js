@@ -3,6 +3,7 @@
 import { Event } from './event';
 import { ColorState } from './term_ui';
 import { u2b, b2u, parseStatusRow, parseListRow } from './string_util';
+import { readValuesWithDefault } from '../components/ContextMenu/PrefModal';
 
 const termColors = [
   // dark
@@ -358,6 +359,41 @@ TermBuf.prototype = {
       }
     }
     this.queueUpdate();
+  },
+
+
+  filterBlacklist: function() {
+    const { blacklist } = readValuesWithDefault();
+
+    var cols = this.cols;
+    var rows = this.rows;
+    var lines = this.lines;
+    for (var row = 0; row < rows; ++row) {
+      var line = lines[row];
+      // search comment blacklist
+      if (line[2].ch === ' ') {
+        const idText = line
+          .filter((ch) => ch.bg === 0 && ch.fg === 3 && ch.bright)
+          .map((ch) => ch.ch).join('').trim();
+
+        if (!idText) continue;
+        if (blacklist.includes(idText)) {
+          for (var col = 0; col < cols; ++col) {
+            const ch = line[col];
+            // set id to red
+            if (ch.bg === 0 && ch.fg === 3 && ch.bright) {
+              ch.fg = 1;
+              ch.needUpdate = true;
+            }
+            // set text to ' '
+            if (ch.bg === 0 && ch.fg === 3 && !ch.bright) {
+              ch.ch = ' ';
+              ch.needUpdate = true;
+            }
+          }
+        }
+      }
+    }
   },
 
   updateCharAttr: function() {
@@ -786,6 +822,8 @@ TermBuf.prototype = {
   notify: function(timer) {
     clearTimeout(this.timerUpdate);
     this.timerUpdate = null;
+
+    this.filterBlacklist();
 
     if (this.changed) { // content changed
       this.updateCharAttr();
