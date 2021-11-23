@@ -126,11 +126,17 @@
   "options_fontSize": {
     "message": "字體大小 (px)"
   },
+  "options_fontSizeMax": {
+    "message": "最大字體大小 (px)"
+  },
   "options_fixedTermSize": {
     "message": "固定終端機大小"
   },
   "options_fixedFontSize": {
     "message": "固定字體大小"
+  },
+  "options_maxFontSize": {
+    "message": "限制最大字體大小"
   },
   "options_fontFitWindowWidth": {
     "message": "把字體拉大來補滿畫面"

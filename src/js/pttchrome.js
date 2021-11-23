@@ -759,6 +759,23 @@ App.prototype.onValuesPrefChange = function(values) {
         // Immediately recalc once.
         this.resizer();
         break;
+
+      case 'max-font-size':
+        this.view.fontFitWindowWidth = false;
+
+        let maxFontSize = values.fontSize;
+        let minSize = {cols: 80, rows: 24};
+        this.resizer = () => {
+          let scaledFontSize = this.view.calcFontSizeFromTerm(minSize.cols, minSize.rows);
+          let fontSize = Math.min(scaledFontSize, maxFontSize);
+          let size = this.view.calcTermSizeFromFont(fontSize);
+          this.setTermSize(size.cols, size.rows);
+          this.view.fixedResize(fontSize);
+          this.view.redraw(true);
+        };
+        // Immediately recalc once.
+        this.resizer();
+        break;
     }
 
     if (this.view.fontFitWindowWidth) {
