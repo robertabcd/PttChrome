@@ -6,10 +6,8 @@ import { forceWidthStyle } from "./ForceWidthWord";
  */
 export const TwoColorWord = ({ colorLead, colorTail, forceWidth, text }) => (
   <span
-    className={cx({
-      [`q${colorLead.fg}`]: colorLead.fg === colorTail.fg,
+    className={cx(`q${colorTail.fg}`, {
       [`w${colorLead.fg}`]: colorLead.fg !== colorTail.fg,
-      [`q${colorTail.fg}`]: colorLead.fg !== colorTail.fg,
       o: colorLead.fg !== colorTail.fg,
       [`b${colorLead.bg}`]: colorLead.bg === colorTail.bg,
       [`b${colorLead.bg}b${colorTail.bg}`]: colorLead.bg !== colorTail.bg,
