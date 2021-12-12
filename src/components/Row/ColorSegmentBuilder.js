@@ -1,4 +1,4 @@
-import WordSegmentBuilder from "./WordSegmentBuilder";
+import { WordSegmentBuilder, TwoColorWordBuilder } from "./WordSegmentBuilder";
 import { b2u, isDBCSLead } from "../../js/string_util";
 import { symbolTable } from "../../js/symbol_table";
 
@@ -56,13 +56,14 @@ export class ColorSegmentBuilder {
       return;
     }
     if (!leadColor.equals(ch.getColor())) {
-      this.beginSegment(leadColor);
-      this.wordBuilder.appendTwoColorWord(
-        text,
+      this.segs.push(this.wordBuilder.build());
+      this.wordBuilder = new TwoColorWordBuilder(
+        this.segs.length,
         leadColor,
         ch.getColor(),
         this.forceWidth
       );
+      this.wordBuilder.appendNormalText(text);
       return;
     }
     const forceWidth = shouldForceWidth(text) ? this.forceWidth : 0;
