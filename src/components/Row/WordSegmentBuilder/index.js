@@ -32,24 +32,36 @@ export class WordSegmentBuilder {
     );
   }
 
-  appendTwoColorWord(text, colorLead, colorTail, forceWidth) {
-    this.inner.push(
-      <TwoColorWord
-        key={this.inner.length}
-        text={text}
-        colorLead={colorLead}
-        colorTail={colorTail}
-        forceWidth={forceWidth}
-      />
-    );
-  }
-
   build() {
     return (
       <ColorSpan
         key={this.key}
         colorState={this.colorState}
         inner={this.inner}
+      />
+    );
+  }
+}
+
+export class TwoColorWordBuilder extends WordSegmentBuilder {
+  constructor(key, colorState, colorTail, forceWidth) {
+    super(key, colorState);
+    this.colorTail = colorTail;
+    this.forceWidth = forceWidth;
+  }
+
+  isLastSegmentSameColor(color) {
+    return false; // forbid appending
+  }
+
+  build() {
+    return (
+      <TwoColorWord
+        key={this.key}
+        colorLead={this.colorState}
+        colorTail={this.colorTail}
+        forceWidth={this.forceWidth}
+        text={this.inner}
       />
     );
   }
