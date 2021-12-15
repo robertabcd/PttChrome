@@ -47,21 +47,21 @@ export const termInvColors = [
 ];
 
 const mouseCursorMap = [
-  'auto',                                               // 0
-  `url(${require('../cursor/back.png')} 0 6,auto`,      // 1
-  `url(${require('../cursor/pageup.png')} 6 0,auto`,    // 2
-  `url(${require('../cursor/pagedown.png')} 6 21,auto`, // 3
-  `url(${require('../cursor/home.png')} 0 0,auto`,      // 4
-  `url(${require('../cursor/end.png')} 0 0,auto`,       // 5
-  'pointer',                                            // 6
-  'default',                                            // 7
-  `url(${require('../cursor/prevous.png')} 6 0,auto`,   // 8
-  `url(${require('../cursor/next.png')} 6 0,auto`,      // 9
-  `url(${require('../cursor/first.png')} 0 0,auto`,     // 10
-  'auto',                                               // 11
-  `url(${require('../cursor/refresh.png')} 0 0,auto`,   // 12
-  `url(${require('../cursor/last.png')} 0 0,auto`,      // 13
-  `url(${require('../cursor/last.png')} 0 0,auto`       // 14
+  'auto',                                                // 0
+  `url(${require('../cursor/back.png')}) 0 6,auto`,      // 1
+  `url(${require('../cursor/pageup.png')}) 6 0,auto`,    // 2
+  `url(${require('../cursor/pagedown.png')}) 6 21,auto`, // 3
+  `url(${require('../cursor/home.png')}) 0 0,auto`,      // 4
+  `url(${require('../cursor/end.png')}) 0 0,auto`,       // 5
+  'pointer',                                             // 6
+  'default',                                             // 7
+  `url(${require('../cursor/prevous.png')}) 6 0,auto`,   // 8
+  `url(${require('../cursor/next.png')}) 6 0,auto`,      // 9
+  `url(${require('../cursor/first.png')}) 0 0,auto`,     // 10
+  'auto',                                                // 11
+  `url(${require('../cursor/refresh.png')}) 0 0,auto`,   // 12
+  `url(${require('../cursor/last.png')}) 0 0,auto`,      // 13
+  `url(${require('../cursor/last.png')}) 0 0,auto`       // 14
 ];
 
 function TermChar(ch) {
