@@ -1063,15 +1063,15 @@ TermBuf.prototype = {
     case 4: //LIST
       if (trow>1 && trow < lastRowNum-1) {              //m_pTermData->m_RowsPerPage-1
         if ( tcol <= 6 ) {
-          this.mouseCursor = 1;
           this.clearHighlight();
+          this.mouseCursor = 1;
           //SetCursor(m_ExitCursor);m_CursorState=1;
         } else if ( tcol >= cols-16 ) {            //m_pTermData->m_ColsPerPage-16
+          this.clearHighlight();
           if ( trow > 12 )
             this.mouseCursor = 3;
           else
             this.mouseCursor = 2;
-          this.clearHighlight();
         } else {
           if (!this.isLineEmpty(trow)) {
             this.mouseCursor = 6;
@@ -1092,15 +1092,15 @@ TermBuf.prototype = {
     case 2: //LIST
       if (trow > 2 && trow < lastRowNum) {              //m_pTermData->m_RowsPerPage-1
         if ( tcol <= 6 ) {
-          this.mouseCursor = 1;
           this.clearHighlight();
+          this.mouseCursor = 1;
           //SetCursor(m_ExitCursor);m_CursorState=1;
         } else if ( tcol >= cols-16 ) {            //m_pTermData->m_ColsPerPage-16
+          this.clearHighlight();
           if ( trow > 12 )
             this.mouseCursor = 3;
           else
             this.mouseCursor = 2;
-          this.clearHighlight();
         } else {
           if (!this.isLineEmpty(trow)) {
             this.mouseCursor = 6;
