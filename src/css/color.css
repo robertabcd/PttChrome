@@ -313,6 +313,7 @@
 .b15b13{background:-webkit-linear-gradient(left,#ffffff 50%,#ff00ff 50%);}
 .b15b14{background:-webkit-linear-gradient(left,#ffffff 50%,#00ffff 50%);}
 .b15b15{background:-webkit-linear-gradient(left,#ffffff 50%,#ffffff 50%);}
+.hl{background-color:var(--highlightBG);}
 .o{position:relative;display:inline-block;}
 .o::after{content:attr(data-text);position:absolute;left:0px;width:50%;overflow:hidden;-webkit-user-select: none;pointer-events:none;}
 .w0::after{color:#000000;text-shadow:#000000 0 0 0px,#000000 0 0 0px,#000000 0 0 0px,#000000 0 0 0px,#000000 0 0 0px;}

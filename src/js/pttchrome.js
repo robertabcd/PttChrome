@@ -796,7 +796,7 @@ App.prototype.onPrefChange = function(name, value) {
       break;
     case 'mouseBrowsingHighlightColor':
       this.view.highlightBG = value;
-      this.view.redraw(true);
+      this.view.updateHighlightColor();
       this.view.updateCursorPos();
       break;
     case 'mouseLeftFunction':
