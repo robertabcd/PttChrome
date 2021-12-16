@@ -4,7 +4,7 @@ import { Event } from './event';
 import { ColorState } from './term_ui';
 import { u2b, b2u, parseStatusRow, parseListRow } from './string_util';
 
-const termColors = [
+export const termColors = [
   // dark
   '#000000', // black
   '#800000', // red

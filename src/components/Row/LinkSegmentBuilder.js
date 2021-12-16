@@ -79,7 +79,7 @@ export class LinkSegmentBuilder {
     return (
       <div>
         <span
-          className={cx({ b2: this.highlighted })}
+          className={cx({ hl: this.highlighted })}
           data-type="bbsline"
           data-row={this.row}
         >

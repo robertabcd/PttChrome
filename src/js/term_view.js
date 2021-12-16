@@ -1,7 +1,7 @@
 // Terminal View
 
 import { TermKeyboard } from './term_keyboard';
-import { termInvColors } from './term_buf';
+import { termColors, termInvColors } from './term_buf';
 import { renderRowHtml, renderScreen } from './term_ui';
 import { i18n } from './i18n';
 import { setTimer } from './util';
@@ -63,6 +63,8 @@ export function TermView() {
   this.enablePicPreview = true;
   this.scaleX = 1;
   this.scaleY = 1;
+
+  this.updateHighlightColor();
 
   var dynamicStyle = document.createElement('style');
   document.head.appendChild(dynamicStyle);
@@ -300,6 +302,11 @@ TermView.prototype = {
     if (this.buf.highlightCursor) {
       this.componentScreen.setCurrentHighlighted(row)
     }
+  },
+
+  updateHighlightColor: function() {
+    this.BBSWin.style.setProperty('--highlightBG', termColors[this.highlightBG]);
+    //this.BBSWin.style.setProperty('--highlightFG', termColors[this.highlightFG]);
   },
 
   onInput: function(e) {
