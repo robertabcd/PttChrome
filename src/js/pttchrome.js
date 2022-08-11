@@ -844,7 +844,7 @@ App.prototype.onPrefChange = function(name, value) {
       this.view.dbcsDetect = value;
       break;
     case 'lineWrap':
-      this.conn.lineWrap = value;
+      this.view.lineWrap = value;
       break;
     case 'fontFace':
       var fontFace = value;
