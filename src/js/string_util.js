@@ -79,10 +79,10 @@ export function u2b(it) {
     }
     var pos = it.charCodeAt(i);
     var hi = lib.u2bArray[2*pos], lo = lib.u2bArray[2*pos+1];
-    if (hi || lo)
+    if ((hi || lo) && hi < 0xff)
       data += String.fromCharCode(hi) + String.fromCharCode(lo);
-    else // Not a big5 char
-      data += '\xFF\xFD';
+    else if (!(pos >= 0xd800 && pos <= 0xdbff)) // Not a big5 char nor a UTF-16 high surrogate
+      data += '\xA1\xBC'; // '□' (Big5)
   }
   return data;
 };
